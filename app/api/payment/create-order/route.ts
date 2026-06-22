@@ -1,0 +1,36 @@
+import { NextRequest, NextResponse } from 'next/server'
+import Razorpay from 'razorpay'
+import { getTemplate } from '@/lib/templates'
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || '',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || '',
+})
+
+export async function POST(req: NextRequest) {
+  try {
+    const { templateId } = await req.json()
+
+    const template = getTemplate(templateId)
+    if (!template) {
+      return NextResponse.json({ error: 'Template not found' }, { status: 404 })
+    }
+
+    const order = await razorpay.orders.create({
+      amount: template.price * 100, // paise
+      currency: 'INR',
+      receipt: `order_${templateId}_${Date.now()}`,
+      notes: { templateId, templateName: template.name },
+    })
+
+    return NextResponse.json({
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      templateName: template.name,
+    })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Payment error'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}
