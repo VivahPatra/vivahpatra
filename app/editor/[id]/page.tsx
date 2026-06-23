@@ -5,6 +5,7 @@ import { Save, Eye, Share2, ChevronDown, ChevronUp, Monitor, Smartphone } from '
 import { getTemplate } from '@/lib/templates'
 import { WeddingFormData, DEFAULT_FORM_DATA, SectionToggle } from '@/lib/editor-types'
 import { getDefaultEvents } from '@/lib/template-defaults'
+import { getEditorConfig } from '@/lib/editor-config'
 import { useUser } from '@/components/auth/AuthProvider'
 import CoupleSection from '@/components/editor/CoupleSection'
 import EventsSection from '@/components/editor/EventsSection'
@@ -102,17 +103,20 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     setData({ ...data, sections: { ...data.sections, [key]: !data.sections[key] } })
   }
 
-  const sections: EditorSection[] = [
-    { key: 'invitation', label: 'Couple Details', component: <CoupleSection data={data} onChange={setData} /> },
+  const editorConfig = getEditorConfig(id)
+
+  const allSections: (EditorSection | null)[] = [
+    { key: 'invitation', label: 'Couple Details', component: <CoupleSection data={data} onChange={setData} config={editorConfig} /> },
     { key: 'events', label: 'Events', component: <EventsSection data={data} onChange={setData} /> },
     { key: 'coupleStory', label: 'Our Story', component: <StorySection data={data} onChange={setData} /> },
     { key: 'gallery', label: 'Photo Gallery', component: <GallerySection data={data} onChange={setData} /> },
-    { key: 'family', label: 'Family Members', component: <FamilySection data={data} onChange={setData} /> },
+    editorConfig.hasFamily ? { key: 'family' as keyof SectionToggle, label: 'Family Members', component: <FamilySection data={data} onChange={setData} /> } : null,
     { key: 'venue', label: 'Venue & RSVP', component: <VenueRSVPSection data={data} onChange={setData} /> },
     { key: 'countdown', label: 'Countdown', component: <div className="p-2"><p className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>Countdown uses the wedding date from Couple Details.</p></div> },
     { key: 'rsvp', label: 'RSVP', component: <div className="p-2"><p className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>RSVP uses phone number from Venue & RSVP section.</p></div> },
     { key: 'footer', label: 'Music & Social', component: <MusicSection data={data} onChange={setData} /> },
   ]
+  const sections = allSections.filter((s): s is EditorSection => s !== null)
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" /></div>
 
