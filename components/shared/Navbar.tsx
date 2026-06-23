@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Menu, X, LogOut, User } from 'lucide-react'
 import Button from './Button'
 import { useUser } from '@/components/auth/AuthProvider'
@@ -9,36 +10,40 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
   const { user, loading, signOut } = useUser()
+  const pathname = usePathname()
+  const isTemplatesPage = pathname === '/templates'
 
   return (
     <>
-      <nav className="sticky top-0 z-50 backdrop-blur-lg border-b" style={{ background: 'rgba(250,249,246,0.9)', borderColor: 'var(--color-border)' }}>
+      <nav className="sticky top-0 z-50 backdrop-blur-lg border-b" style={{ background: 'rgba(12,10,18,0.9)', borderColor: 'rgba(200,146,42,0.15)' }}>
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="font-display text-xl" style={{ color: 'var(--color-accent)' }}>
-            Vivah Patra
+          <a href="/" className="font-display text-2xl tracking-wide" style={{ color: 'var(--color-accent)', letterSpacing: '0.08em' }}>
+            𝒱ivah 𝒫atra
           </a>
 
-          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="/templates" className="font-sans text-sm hover:opacity-70" style={{ color: 'var(--color-muted)' }}>Templates</a>
+            <a href={isTemplatesPage ? '/' : '/templates'} className="font-sans text-sm hover:opacity-70" style={{ color: 'var(--color-muted)' }}>
+              {isTemplatesPage ? 'Home' : 'Templates'}
+            </a>
             <a href="/#how-it-works" className="font-sans text-sm hover:opacity-70" style={{ color: 'var(--color-muted)' }}>How It Works</a>
             <a href="/#faq" className="font-sans text-sm hover:opacity-70" style={{ color: 'var(--color-muted)' }}>FAQ</a>
 
             {!loading && (
               user ? (
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: 'rgba(200,146,42,0.08)' }}>
+                  <a href="/profile" className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity"
+                    style={{ background: 'rgba(200,146,42,0.1)' }}>
                     <User size={14} style={{ color: 'var(--color-accent)' }} />
                     <span className="font-sans text-xs" style={{ color: 'var(--color-text)' }}>
-                      {user.email?.split('@')[0] || user.phone || 'User'}
+                      {user.email?.split('@')[0] || user.phone || 'Profile'}
                     </span>
-                  </div>
+                  </a>
                   <button onClick={signOut} className="hover:opacity-70" title="Sign out">
                     <LogOut size={16} style={{ color: 'var(--color-muted)' }} />
                   </button>
                 </div>
               ) : (
-                <button onClick={() => setAuthOpen(true)} className="font-sans text-sm font-semibold hover:opacity-70" style={{ color: 'var(--color-text)' }}>
+                <button onClick={() => setAuthOpen(true)} className="font-sans text-sm hover:opacity-70" style={{ color: 'var(--color-muted)' }}>
                   Sign In
                 </button>
               )
@@ -47,25 +52,25 @@ export default function Navbar() {
             <Button href="/templates">Choose Template</Button>
           </div>
 
-          {/* Mobile hamburger */}
           <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            {menuOpen ? <X size={24} style={{ color: 'var(--color-text)' }} /> : <Menu size={24} style={{ color: 'var(--color-text)' }} />}
           </button>
         </div>
 
-        {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden border-t px-6 py-4 flex flex-col gap-4" style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
-            <a href="/templates" className="font-sans text-sm">Templates</a>
-            <a href="/#how-it-works" className="font-sans text-sm">How It Works</a>
-            <a href="/#faq" className="font-sans text-sm">FAQ</a>
+          <div className="md:hidden border-t px-6 py-4 flex flex-col gap-4" style={{ background: 'var(--color-bg)', borderColor: 'rgba(200,146,42,0.15)' }}>
+            <a href={isTemplatesPage ? '/' : '/templates'} className="font-sans text-sm" style={{ color: 'var(--color-text)' }}>
+              {isTemplatesPage ? 'Home' : 'Templates'}
+            </a>
+            <a href="/#how-it-works" className="font-sans text-sm" style={{ color: 'var(--color-text)' }}>How It Works</a>
+            <a href="/#faq" className="font-sans text-sm" style={{ color: 'var(--color-text)' }}>FAQ</a>
             {user ? (
               <div className="flex items-center justify-between">
-                <span className="font-sans text-sm">{user.email?.split('@')[0] || user.phone || 'User'}</span>
+                <a href="/profile" className="font-sans text-sm" style={{ color: 'var(--color-accent)' }}>My Profile</a>
                 <button onClick={signOut} className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>Sign Out</button>
               </div>
             ) : (
-              <button onClick={() => { setAuthOpen(true); setMenuOpen(false) }} className="font-sans text-sm font-semibold text-left">Sign In</button>
+              <button onClick={() => { setAuthOpen(true); setMenuOpen(false) }} className="font-sans text-sm text-left" style={{ color: 'var(--color-muted)' }}>Sign In</button>
             )}
             <Button href="/templates" fullWidth>Choose Template</Button>
           </div>

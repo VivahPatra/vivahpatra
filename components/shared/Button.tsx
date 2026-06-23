@@ -10,19 +10,19 @@ interface Props {
 }
 
 export default function Button({ children, variant = 'primary', href, onClick, className = '', fullWidth }: Props) {
-  const base = 'inline-flex items-center justify-center gap-2 rounded-full font-sans text-sm font-semibold tracking-wider transition-all duration-200'
+  const base = 'inline-flex items-center justify-center gap-2 rounded-full font-sans text-sm font-semibold tracking-wider transition-all duration-300'
   const sizes = 'px-8 py-3'
   const width = fullWidth ? 'w-full' : ''
 
   const variants = {
-    primary: 'text-white hover:opacity-90',
+    primary: 'text-white hover:brightness-110 hover:scale-[1.02]',
     secondary: 'hover:opacity-80',
-    outline: 'border hover:bg-gray-50',
+    outline: 'border hover:border-[rgba(200,146,42,0.5)]',
   }
 
   const styles: Record<string, React.CSSProperties> = {
-    primary: { background: 'var(--color-accent)', boxShadow: '0 4px 20px rgba(200,146,42,0.3)' },
-    secondary: { background: 'var(--color-text)', color: '#fff' },
+    primary: { background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent2))', boxShadow: '0 4px 24px rgba(200,146,42,0.25)' },
+    secondary: { background: 'var(--color-text)', color: 'var(--color-bg)' },
     outline: { borderColor: 'var(--color-border)', color: 'var(--color-text)' },
   }
 

@@ -14,33 +14,43 @@ const FAQS = [
   { q: 'What if I need help?', a: 'Our support team is available via WhatsApp and email. We also offer a free customization service if you need help setting up your invite.' },
 ]
 
-function FAQItem({ q, a }: { q: string; a: string }) {
+function FAQItem({ q, a, index }: { q: string; a: string; index: number }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="border-b" style={{ borderColor: 'var(--color-border)' }}>
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-5 text-left">
-        <span className="font-sans text-sm font-medium pr-4">{q}</span>
-        <ChevronDown size={18} style={{ color: 'var(--color-muted)', transform: open ? 'rotate(180deg)' : '', transition: 'transform 0.2s' }} />
+    <motion.div className="border-b" style={{ borderColor: 'var(--color-border)' }}
+      initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }} transition={{ delay: index * 0.05 }}>
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-5 text-left group">
+        <span className="font-sans text-sm font-medium pr-4 transition-colors"
+          style={{ color: open ? 'var(--color-accent)' : 'var(--color-text)' }}>{q}</span>
+        <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center transition-all"
+          style={{ background: open ? 'rgba(200,146,42,0.15)' : 'rgba(200,146,42,0.05)' }}>
+          <ChevronDown size={14} style={{ color: 'var(--color-accent)', transform: open ? 'rotate(180deg)' : '', transition: 'transform 0.3s' }} />
+        </div>
       </button>
       <AnimatePresence>
         {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
+            exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} className="overflow-hidden">
             <p className="font-sans text-sm pb-5 leading-relaxed" style={{ color: 'var(--color-muted)' }}>{a}</p>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   )
 }
 
 export default function FAQ() {
   return (
-    <section id="faq" className="py-20 px-6">
+    <section id="faq" className="py-24 px-6" style={{ background: 'var(--color-surface)' }}>
       <div className="max-w-2xl mx-auto">
-        <h2 className="font-display text-3xl md:text-4xl text-center mb-4">Frequently Asked Questions</h2>
-        <p className="font-sans text-sm text-center mb-12" style={{ color: 'var(--color-muted)' }}>Everything you need to know</p>
-        <div>{FAQS.map(faq => <FAQItem key={faq.q} {...faq} />)}</div>
+        <motion.div className="text-center mb-14"
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <p className="font-sans text-[10px] tracking-[0.5em] uppercase mb-4" style={{ color: 'var(--color-accent)' }}>FAQ</p>
+          <h2 className="font-display text-3xl md:text-4xl mb-3">Frequently Asked Questions</h2>
+          <p className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>Everything you need to know</p>
+        </motion.div>
+        <div>{FAQS.map((faq, i) => <FAQItem key={faq.q} {...faq} index={i} />)}</div>
       </div>
     </section>
   )

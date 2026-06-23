@@ -12,7 +12,7 @@ export default function TemplateGrid() {
   return (
     <div>
       <CategoryFilter active={category} onChange={setCategory} />
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         <AnimatePresence mode="popLayout">
           {filtered.map(t => <TemplateCard key={t.id} template={t} />)}
         </AnimatePresence>

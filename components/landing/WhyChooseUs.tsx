@@ -13,21 +13,32 @@ const FEATURES = [
 
 export default function WhyChooseUs() {
   return (
-    <section className="py-20 px-6">
-      <div className="max-w-5xl mx-auto">
-        <h2 className="font-display text-3xl md:text-4xl text-center mb-4">Why Choose Digital Invites?</h2>
-        <p className="font-sans text-sm text-center mb-12" style={{ color: 'var(--color-muted)' }}>
-          Save money, save trees, share instantly
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <section className="py-24 px-6 relative" style={{ background: 'var(--color-surface)' }}>
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute w-[500px] h-[500px] rounded-full blur-[200px]"
+          style={{ background: 'rgba(200,146,42,0.04)', bottom: '10%', left: '-5%' }} />
+      </div>
+
+      <div className="max-w-5xl mx-auto relative z-10">
+        <motion.div className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <p className="font-sans text-[10px] tracking-[0.5em] uppercase mb-4" style={{ color: 'var(--color-accent)' }}>Benefits</p>
+          <h2 className="font-display text-3xl md:text-4xl mb-3">Why Choose Digital Invites?</h2>
+          <p className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>Save money, save trees, share instantly</p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {FEATURES.map((f, i) => (
-            <motion.div key={f.title} className="p-6 rounded-2xl"
-              style={{ border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}
+            <motion.div key={f.title} className="group p-6 rounded-2xl transition-all duration-300"
+              style={{ border: '1px solid var(--color-border)', background: 'rgba(20,18,32,0.5)' }}
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.08 }}
-              whileHover={{ y: -4, boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}>
-              <f.icon size={28} style={{ color: 'var(--color-accent)' }} className="mb-3" />
-              <h3 className="font-display text-base mb-1">{f.title}</h3>
+              whileHover={{ y: -4, borderColor: 'rgba(200,146,42,0.4)' }}>
+              <div className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center transition-all duration-300"
+                style={{ background: 'rgba(200,146,42,0.08)' }}>
+                <f.icon size={22} style={{ color: 'var(--color-accent)' }} />
+              </div>
+              <h3 className="font-display text-base mb-2">{f.title}</h3>
               <p className="font-sans text-xs leading-relaxed" style={{ color: 'var(--color-muted)' }}>{f.desc}</p>
             </motion.div>
           ))}
