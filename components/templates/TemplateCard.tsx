@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Template } from '@/lib/templates'
@@ -8,27 +8,54 @@ import { usePayment } from '@/lib/usePayment'
 import SignInModal from '@/components/auth/SignInModal'
 
 export default function TemplateCard({ template: t }: { template: Template }) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
   const [iframeLoaded, setIframeLoaded] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
+  const [pendingBuy, setPendingBuy] = useState(false)
   const { user } = useUser()
-  const router = useRouter()
   const { pay, loading: paying } = usePayment()
+  const router = useRouter()
 
-  const handleBuy = async () => {
-    if (!user) {
-      setAuthOpen(true)
-      return
+  // Only load iframe when card is in viewport
+  useEffect(() => {
+    const el = cardRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setVisible(true); obs.disconnect() }
+    }, { rootMargin: '200px' })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  // After sign-in, trigger pending buy
+  useEffect(() => {
+    if (user && pendingBuy) {
+      setPendingBuy(false)
+      handlePayment()
     }
+  }, [user, pendingBuy])
 
+  const handlePayment = async () => {
+    if (!user) return
     const success = await pay(t, user.email || '', user.phone || '')
     if (success) {
       router.push(`/editor/${t.id}`)
     }
   }
 
+  const handleBuy = () => {
+    if (!user) {
+      setPendingBuy(true)
+      setAuthOpen(true)
+      return
+    }
+    handlePayment()
+  }
+
   return (
     <>
-      <motion.div layout
+      <motion.div ref={cardRef} layout
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}
         className="flex flex-col items-center">
@@ -38,16 +65,20 @@ export default function TemplateCard({ template: t }: { template: Template }) {
             style={{ aspectRatio: '9/16', background: t.color }}>
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 rounded-b-xl z-20" style={{ background: '#1a1a1a' }} />
 
-            <iframe
-              src={`${t.url}`}
-              className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
-              style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
-              loading="lazy" title={t.name}
-              onLoad={() => setIframeLoaded(true)}
-            />
+            {/* Only load iframe when card scrolls into view */}
+            {visible && (
+              <iframe
+                src={t.url}
+                className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
+                style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
+                title={t.name}
+                onLoad={() => setIframeLoaded(true)}
+              />
+            )}
 
             {!iframeLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                {visible && <div className="w-6 h-6 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />}
                 <p className="font-display text-white text-lg opacity-50" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
                   {t.name}
                 </p>
@@ -79,7 +110,7 @@ export default function TemplateCard({ template: t }: { template: Template }) {
         </div>
       </motion.div>
 
-      <SignInModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      <SignInModal open={authOpen} onClose={() => { setAuthOpen(false); if (!user) setPendingBuy(false) }} />
     </>
   )
 }

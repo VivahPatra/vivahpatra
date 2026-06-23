@@ -24,7 +24,7 @@ export const TEMPLATES: Template[] = [
   },
   {
     id: 'invitation',
-    name: 'Royal Indian',
+    name: 'Ethnic Pure',
     category: 'Hindu',
     description: 'Classic gold & green design with peacock opener, lantern parallax, ornate kasavu frames.',
     color: '#c49a6c',
