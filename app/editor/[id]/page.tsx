@@ -32,12 +32,17 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const [saved, setSaved] = useState(false)
   const [previewMode, setPreviewMode] = useState(false)
   const [deviceView, setDeviceView] = useState<'phone' | 'desktop'>('phone')
+  const [iframeReady, setIframeReady] = useState(false)
+  const sendTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Load saved data from localStorage
   useEffect(() => {
     const s = localStorage.getItem(`editor-${id}`)
     if (s) {
-      const saved = JSON.parse(s)
-      setData({ ...DEFAULT_FORM_DATA, events: getDefaultEvents(id), ...saved, sections: { ...DEFAULT_FORM_DATA.sections, ...saved.sections } })
+      try {
+        const parsed = JSON.parse(s)
+        setData({ ...DEFAULT_FORM_DATA, events: getDefaultEvents(id), ...parsed, sections: { ...DEFAULT_FORM_DATA.sections, ...parsed.sections } })
+      } catch { /* ignore corrupt data */ }
     }
   }, [id])
 
@@ -51,7 +56,25 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     }
   }, [])
 
-  useEffect(() => { sendToPreview(data) }, [data, sendToPreview])
+  // Debounced send — 150ms after last keystroke
+  useEffect(() => {
+    if (!iframeReady) return
+    if (sendTimerRef.current) clearTimeout(sendTimerRef.current)
+    sendTimerRef.current = setTimeout(() => sendToPreview(data), 150)
+    return () => { if (sendTimerRef.current) clearTimeout(sendTimerRef.current) }
+  }, [data, iframeReady, sendToPreview])
+
+  // Resend when iframe loads
+  const handleIframeLoad = useCallback(() => {
+    setIframeReady(true)
+    // Small delay to let the React app inside iframe mount
+    setTimeout(() => sendToPreview(data), 500)
+  }, [sendToPreview, data])
+
+  // Reset iframe ready state when switching device view
+  useEffect(() => {
+    setIframeReady(false)
+  }, [deviceView])
 
   if (!template) return <div className="min-h-screen flex items-center justify-center"><Button href="/templates">Browse Templates</Button></div>
 
@@ -60,6 +83,14 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
+
+  // Auto-save on data change (debounced)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      localStorage.setItem(`editor-${id}`, JSON.stringify(data))
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [data, id])
 
   const publish = () => {
     save()
@@ -130,7 +161,6 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <div className="p-4">
             {sections.map((section, i) => (
               <div key={section.key} className="mb-1">
-                {/* Section header with inline toggle */}
                 <div className="flex items-center gap-2">
                   <button onClick={() => setActiveSection(activeSection === i ? -1 : i)}
                     className="flex-1 flex items-center justify-between p-3 rounded-lg font-sans text-sm font-semibold transition-colors"
@@ -142,7 +172,6 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                     {section.label}
                     {activeSection === i ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </button>
-                  {/* Toggle switch */}
                   <button onClick={() => toggleSection(section.key)} className="relative flex-shrink-0" title={data.sections[section.key] ? 'Hide section' : 'Show section'}>
                     <div className="w-9 h-5 rounded-full transition-colors" style={{ background: data.sections[section.key] ? 'var(--color-accent)' : '#d1d5db' }}>
                       <div className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"
@@ -151,7 +180,6 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                   </button>
                 </div>
 
-                {/* Section content */}
                 {activeSection === i && data.sections[section.key] && (
                   <div className="px-3 pb-3">
                     {section.component}
@@ -168,7 +196,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           </div>
         </div>
 
-        {/* Right: Live preview */}
+        {/* Right: Live preview — single iframe, styled differently per device */}
         <div className={`${!previewMode ? 'hidden lg:flex' : 'flex'} flex-1 items-start justify-center overflow-auto`}
           style={{ background: '#0a0a0a' }}>
           {deviceView === 'phone' ? (
@@ -176,13 +204,25 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               <div className="rounded-[40px] overflow-hidden border-[6px] border-gray-700 shadow-2xl relative"
                 style={{ width: 375, height: 812 }}>
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 rounded-b-2xl z-20" style={{ background: '#333' }} />
-                <iframe ref={iframeRef} src={`${template.url}`}
-                  className="w-full h-full" style={{ border: 'none' }} title="Preview" />
+                <iframe
+                  ref={iframeRef}
+                  src={template.url}
+                  className="w-full h-full"
+                  style={{ border: 'none' }}
+                  title="Preview"
+                  onLoad={handleIframeLoad}
+                />
               </div>
             </div>
           ) : (
-            <iframe ref={iframeRef} src={`${template.url}`}
-              className="w-full h-full" style={{ border: 'none' }} title="Preview" />
+            <iframe
+              ref={iframeRef}
+              src={template.url}
+              className="w-full h-full"
+              style={{ border: 'none' }}
+              title="Preview"
+              onLoad={handleIframeLoad}
+            />
           )}
         </div>
       </div>
