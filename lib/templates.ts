@@ -6,6 +6,7 @@ export interface Template {
   color: string
   price: number
   port: number
+  url: string
   features: string[]
 }
 
@@ -18,6 +19,7 @@ export const TEMPLATES: Template[] = [
     color: '#c9a84c',
     price: 1499,
     port: 3000,
+    url: 'https://template-southindian.vercel.app',
     features: ['Curtain opener', 'Boat animation', 'Diya glow', 'Kolam patterns'],
   },
   {
@@ -28,6 +30,7 @@ export const TEMPLATES: Template[] = [
     color: '#c49a6c',
     price: 1499,
     port: 3001,
+    url: 'https://template-invitation-liard.vercel.app',
     features: ['Peacock opener', 'Lantern parallax', 'Flower overlay', 'Ornate frames'],
   },
   {
@@ -38,6 +41,7 @@ export const TEMPLATES: Template[] = [
     color: '#c0425c',
     price: 1499,
     port: 3002,
+    url: 'https://template-2-brown.vercel.app',
     features: ['Cloud parallax', 'Swing decor', 'Elephant walk', 'Palace backdrop'],
   },
   {
@@ -48,6 +52,7 @@ export const TEMPLATES: Template[] = [
     color: '#c4683a',
     price: 1499,
     port: 3003,
+    url: 'https://template-3-ruddy.vercel.app',
     features: ['Auto caricature', 'Swan pond', 'Ink vines', 'Watercolor wash'],
   },
   {
@@ -58,6 +63,7 @@ export const TEMPLATES: Template[] = [
     color: '#c8922a',
     price: 1499,
     port: 3004,
+    url: 'https://template-4-chi.vercel.app',
     features: ['Sriji intro', 'Cow animation', 'Lotus pond', 'Pichwai art'],
   },
   {
@@ -68,6 +74,7 @@ export const TEMPLATES: Template[] = [
     color: '#e8a820',
     price: 1499,
     port: 3005,
+    url: 'https://template-punjabi.vercel.app',
     features: ['Floating diyas', 'Water reflection', 'Golden temple', 'Fireworks'],
   },
   {
@@ -78,6 +85,7 @@ export const TEMPLATES: Template[] = [
     color: '#1a8a9a',
     price: 1499,
     port: 3006,
+    url: 'https://template-christian.vercel.app',
     features: ['Ocean waves', 'Swan pond', 'Lantern parallax', 'Beach sunset'],
   },
   {
@@ -88,6 +96,7 @@ export const TEMPLATES: Template[] = [
     color: '#c0a060',
     price: 1499,
     port: 3007,
+    url: 'https://template-modern-psi.vercel.app',
     features: ['Horizontal scroll', 'Glassmorphism', 'City bokeh', 'Minimal design'],
   },
   {
@@ -98,6 +107,7 @@ export const TEMPLATES: Template[] = [
     color: '#8b3a8b',
     price: 1499,
     port: 3008,
+    url: 'https://template-mandala.vercel.app',
     features: ['Rotating mandalas', 'Sacred geometry', 'Jewel tones', 'Spinning dividers'],
   },
 ]

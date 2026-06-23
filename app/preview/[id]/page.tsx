@@ -25,7 +25,7 @@ export default function PreviewPage({ params }: { params: Promise<{ id: string }
   return (
     <div className="min-h-screen relative" style={{ background: '#000' }}>
       <iframe
-        src={`http://localhost:${template.port}`}
+        src={`${template.url}`}
         className="w-full h-screen"
         style={{ border: 'none' }}
         title={template.name}

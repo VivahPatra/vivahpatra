@@ -176,12 +176,12 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               <div className="rounded-[40px] overflow-hidden border-[6px] border-gray-700 shadow-2xl relative"
                 style={{ width: 375, height: 812 }}>
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 rounded-b-2xl z-20" style={{ background: '#333' }} />
-                <iframe ref={iframeRef} src={`http://localhost:${template.port}`}
+                <iframe ref={iframeRef} src={`${template.url}`}
                   className="w-full h-full" style={{ border: 'none' }} title="Preview" />
               </div>
             </div>
           ) : (
-            <iframe ref={iframeRef} src={`http://localhost:${template.port}`}
+            <iframe ref={iframeRef} src={`${template.url}`}
               className="w-full h-full" style={{ border: 'none' }} title="Preview" />
           )}
         </div>

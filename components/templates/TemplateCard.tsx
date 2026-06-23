@@ -39,7 +39,7 @@ export default function TemplateCard({ template: t }: { template: Template }) {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 rounded-b-xl z-20" style={{ background: '#1a1a1a' }} />
 
             <iframe
-              src={`http://localhost:${t.port}`}
+              src={`${t.url}`}
               className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
               style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
               loading="lazy" title={t.name}
