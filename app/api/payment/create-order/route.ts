@@ -2,14 +2,21 @@ import { NextRequest, NextResponse } from 'next/server'
 import Razorpay from 'razorpay'
 import { getTemplate } from '@/lib/templates'
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || '',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || '',
-})
+function getRazorpay() {
+  const key_id = process.env.RAZORPAY_KEY_ID
+  const key_secret = process.env.RAZORPAY_KEY_SECRET
+  if (!key_id || !key_secret) return null
+  return new Razorpay({ key_id, key_secret })
+}
 
 export async function POST(req: NextRequest) {
   try {
     const { templateId } = await req.json()
+
+    const razorpay = getRazorpay()
+    if (!razorpay) {
+      return NextResponse.json({ error: 'Payment not configured' }, { status: 503 })
+    }
 
     const template = getTemplate(templateId)
     if (!template) {
