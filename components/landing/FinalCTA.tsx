@@ -14,7 +14,7 @@ export default function FinalCTA() {
         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
         <p className="font-sans text-[10px] tracking-[0.5em] uppercase mb-6" style={{ color: 'var(--color-accent)' }}>Get Started</p>
         <h2 className="font-display text-3xl md:text-5xl mb-4">
-          Ready to Create <span className="shimmer-text">Your Invite?</span>
+          Ready to Create <span className="shimmer-text pb-1">Your Invite?</span>
         </h2>
         <p className="font-sans text-sm mb-10 leading-relaxed" style={{ color: 'var(--color-muted)' }}>
           Join thousands of couples who chose digital invitations for their special day.

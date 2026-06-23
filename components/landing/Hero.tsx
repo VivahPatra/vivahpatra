@@ -26,11 +26,11 @@ export default function Hero() {
               Digital Wedding Invitations
             </motion.p>
 
-            <h1 className="font-display leading-[1.05]" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
+            <h1 className="font-display leading-[1.15]" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
               <motion.span className="block" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                 Beautiful Animated
               </motion.span>
-              <motion.span className="block shimmer-text" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+              <motion.span className="block shimmer-text pb-1" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
                 Wedding Invites
               </motion.span>
             </h1>
