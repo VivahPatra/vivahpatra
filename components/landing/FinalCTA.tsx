@@ -10,16 +10,19 @@ export default function FinalCTA() {
           style={{ background: 'rgba(200,146,42,0.06)', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
       </div>
 
-      <motion.div className="relative z-10"
+      <motion.div className="relative z-10 max-w-2xl mx-auto"
         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
         <p className="font-sans text-[10px] tracking-[0.5em] uppercase mb-6" style={{ color: 'var(--color-accent)' }}>Get Started</p>
         <h2 className="font-display text-3xl md:text-5xl mb-4">
           Ready to Create <span className="shimmer-text">Your Invite?</span>
         </h2>
-        <p className="font-sans text-sm mb-10 max-w-md mx-auto leading-relaxed" style={{ color: 'var(--color-muted)' }}>
+        <p className="font-sans text-sm mb-10 leading-relaxed" style={{ color: 'var(--color-muted)' }}>
           Join thousands of couples who chose digital invitations for their special day.
         </p>
-        <Button href="/templates">Browse Templates</Button>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Button href="/templates">Browse Templates</Button>
+          <Button href="/#faq" variant="outline">Read FAQ</Button>
+        </div>
       </motion.div>
     </section>
   )

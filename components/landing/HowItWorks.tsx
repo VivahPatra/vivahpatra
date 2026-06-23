@@ -16,7 +16,7 @@ export default function HowItWorks() {
           style={{ background: 'rgba(200,146,42,0.04)', top: '20%', right: '-10%' }} />
       </div>
 
-      <div className="max-w-4xl mx-auto relative z-10">
+      <div className="max-w-5xl mx-auto relative z-10">
         <motion.div className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <p className="font-sans text-[10px] tracking-[0.5em] uppercase mb-4" style={{ color: 'var(--color-accent)' }}>Simple Process</p>
@@ -24,20 +24,21 @@ export default function HowItWorks() {
           <p className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>Three simple steps to your perfect wedding invite</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 relative">
           {/* Connecting line */}
-          <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-px"
-            style={{ background: 'linear-gradient(to right, transparent, var(--color-accent), transparent)', opacity: 0.2 }} />
+          <div className="hidden md:block absolute top-14 left-[18%] right-[18%] h-px"
+            style={{ background: 'linear-gradient(to right, transparent, rgba(200,146,42,0.3), transparent)' }} />
 
           {STEPS.map((item, i) => (
-            <motion.div key={item.step} className="text-center relative"
+            <motion.div key={item.step} className="text-center relative px-6 py-8"
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.2 }}>
-              <div className="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center"
-                style={{ background: 'rgba(200,146,42,0.08)', border: '1px solid rgba(200,146,42,0.2)' }}>
-                <item.Icon size={24} style={{ color: 'var(--color-accent)' }} />
+              <div className="w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center relative"
+                style={{ background: 'rgba(200,146,42,0.08)', border: '1px solid rgba(200,146,42,0.15)' }}>
+                <item.Icon size={22} style={{ color: 'var(--color-accent)' }} />
+                <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center font-sans text-[9px] font-bold"
+                  style={{ background: 'var(--color-accent)', color: 'var(--color-bg)' }}>{item.step}</span>
               </div>
-              <span className="font-sans text-[10px] tracking-[0.3em] uppercase block mb-2" style={{ color: 'var(--color-accent)' }}>Step {item.step}</span>
               <h3 className="font-display text-lg mb-2">{item.title}</h3>
               <p className="font-sans text-sm leading-relaxed" style={{ color: 'var(--color-muted)' }}>{item.desc}</p>
             </motion.div>

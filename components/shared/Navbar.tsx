@@ -12,6 +12,9 @@ export default function Navbar() {
   const { user, loading, signOut } = useUser()
   const pathname = usePathname()
   const isTemplatesPage = pathname === '/templates'
+  const isPreviewPage = pathname.startsWith('/preview')
+
+  if (isPreviewPage) return null
 
   return (
     <>

@@ -1,59 +1,94 @@
 'use client'
 import { motion } from 'framer-motion'
 import Button from '@/components/shared/Button'
+import { TEMPLATES } from '@/lib/templates'
 
 export default function Hero() {
+  const featured = TEMPLATES[0]
+
   return (
-    <section className="py-28 md:py-40 text-center px-6 relative overflow-hidden">
-      {/* Ambient glow */}
+    <section className="relative overflow-hidden">
+      {/* Ambient glows */}
       <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute w-[600px] h-[600px] rounded-full blur-[200px]"
+          style={{ background: 'rgba(200,146,42,0.06)', top: '-15%', left: '10%' }} />
         <div className="absolute w-[500px] h-[500px] rounded-full blur-[180px]"
-          style={{ background: 'rgba(200,146,42,0.08)', top: '-10%', left: '20%' }} />
-        <div className="absolute w-[400px] h-[400px] rounded-full blur-[160px]"
-          style={{ background: 'rgba(200,146,42,0.05)', bottom: '0%', right: '10%' }} />
+          style={{ background: 'rgba(200,146,42,0.04)', bottom: '0%', right: '5%' }} />
       </div>
 
-      <motion.div className="relative z-10 max-w-3xl mx-auto"
-        initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}>
+      <div className="max-w-6xl mx-auto px-6 pt-20 pb-24 md:pt-28 md:pb-32 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left: Text */}
+          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
+            <motion.p className="font-sans text-[10px] tracking-[0.5em] uppercase mb-6 glow-pulse"
+              style={{ color: 'var(--color-accent)' }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+              Digital Wedding Invitations
+            </motion.p>
 
-        <motion.p className="font-sans text-xs tracking-[0.5em] uppercase mb-6 glow-pulse"
-          style={{ color: 'var(--color-accent)' }}
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-          ✦ &nbsp; Digital Wedding Invitations &nbsp; ✦
-        </motion.p>
+            <h1 className="font-display leading-[1.05]" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
+              <motion.span className="block" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+                Beautiful Animated
+              </motion.span>
+              <motion.span className="block shimmer-text" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+                Wedding Invites
+              </motion.span>
+            </h1>
 
-        <h1 className="font-display leading-[0.95]" style={{ fontSize: 'clamp(3rem, 8vw, 5.5rem)' }}>
-          <motion.span className="block" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-            Create Your
-          </motion.span>
-          <motion.span className="block shimmer-text" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
-            Perfect Invite
-          </motion.span>
-        </h1>
+            <motion.p className="font-sans text-sm mt-6 leading-relaxed max-w-md"
+              style={{ color: 'var(--color-muted)' }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+              Stunning templates for every Indian wedding culture. Customize in minutes, share instantly via WhatsApp. Starting at ₹1499.
+            </motion.p>
 
-        <motion.p className="font-sans text-base mt-8 max-w-lg mx-auto leading-relaxed"
-          style={{ color: 'var(--color-muted)' }}
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}>
-          Stunning animated templates for every Indian wedding culture.
-          Customize in minutes. Share instantly via WhatsApp.
-        </motion.p>
+            <motion.div className="flex flex-wrap items-center gap-4 mt-8"
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}>
+              <Button href="/templates">Browse Templates</Button>
+              <Button href="/#how-it-works" variant="outline">How It Works</Button>
+            </motion.div>
 
-        <motion.div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10"
-          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }}>
-          <Button href="/templates">Explore Templates</Button>
-          <Button href="/#how-it-works" variant="outline">How It Works</Button>
-        </motion.div>
+            <motion.div className="flex items-center gap-6 mt-10"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+              {[['9+', 'Templates'], ['500+', 'Couples'], ['5', 'Cultures']].map(([num, label]) => (
+                <div key={label}>
+                  <p className="font-display text-xl" style={{ color: 'var(--color-accent)' }}>{num}</p>
+                  <p className="font-sans text-[10px] tracking-wider uppercase" style={{ color: 'var(--color-muted)' }}>{label}</p>
+                </div>
+              ))}
+            </motion.div>
+          </motion.div>
 
-        {/* Scroll indicator */}
-        <motion.div className="mt-20 flex flex-col items-center gap-2" style={{ opacity: 0.3 }}
-          initial={{ opacity: 0 }} animate={{ opacity: 0.3 }} transition={{ delay: 1.5 }}>
-          <span className="font-sans text-[9px] tracking-[0.4em] uppercase" style={{ color: 'var(--color-accent)' }}>Scroll</span>
-          <motion.div className="w-px h-10"
-            style={{ background: 'linear-gradient(to bottom, var(--color-accent), transparent)' }}
-            animate={{ scaleY: [1, 0.3, 1], opacity: [0.5, 0.1, 0.5] }}
-            transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }} />
-        </motion.div>
-      </motion.div>
+          {/* Right: Phone mockup with live template */}
+          <motion.div className="flex justify-center lg:justify-end"
+            initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.3 }}>
+            <div className="relative">
+              {/* Glow behind phone */}
+              <div className="absolute inset-0 blur-[80px] rounded-full"
+                style={{ background: 'rgba(200,146,42,0.12)', transform: 'scale(1.3)' }} />
+
+              {/* Phone frame */}
+              <div className="relative w-[260px] sm:w-[280px] float-anim">
+                <div className="rounded-[36px] overflow-hidden border-[5px] shadow-2xl"
+                  style={{ borderColor: '#2a2a2a', aspectRatio: '9/16', background: featured.color }}>
+                  {/* Notch */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 rounded-b-xl z-20" style={{ background: '#1a1a1a' }} />
+                  <iframe
+                    src={featured.url}
+                    className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
+                    style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
+                    title={featured.name}
+                  />
+                </div>
+                {/* Template label */}
+                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full font-sans text-[10px] tracking-wider"
+                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-accent)' }}>
+                  {featured.name}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
     </section>
   )
 }

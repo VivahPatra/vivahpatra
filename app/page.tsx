@@ -1,5 +1,6 @@
 import Hero from '@/components/landing/Hero'
 import FeaturedTemplates from '@/components/landing/FeaturedTemplates'
+import FeatureShowcase from '@/components/landing/FeatureShowcase'
 import HowItWorks from '@/components/landing/HowItWorks'
 import WhyChooseUs from '@/components/landing/WhyChooseUs'
 import Testimonials from '@/components/landing/Testimonials'
@@ -12,6 +13,7 @@ export default function Page() {
     <>
       <Hero />
       <FeaturedTemplates />
+      <FeatureShowcase />
       <HowItWorks />
       <WhyChooseUs />
       <Testimonials />
@@ -21,4 +23,3 @@ export default function Page() {
     </>
   )
 }
-

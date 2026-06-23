@@ -5,7 +5,7 @@ import { Smartphone, Share2, Mail, Palette, IndianRupee, Eye } from 'lucide-reac
 const FEATURES = [
   { icon: Smartphone, title: 'Mobile-Friendly', desc: 'Looks stunning on every device — phones, tablets, and desktops.' },
   { icon: Share2, title: 'Instant Sharing', desc: 'Share via WhatsApp, SMS, email, or any social platform in one tap.' },
-  { icon: Mail, title: 'Built-in RSVP', desc: 'Guests can confirm attendance directly from the invite.' },
+  { icon: Mail, title: 'Built-in RSVP', desc: 'Guests confirm attendance directly from the invite via WhatsApp.' },
   { icon: Palette, title: 'Fully Customizable', desc: 'Change names, dates, photos, colors, and events easily.' },
   { icon: IndianRupee, title: 'Affordable', desc: 'Starting at ₹1499 — a fraction of printed invitation costs.' },
   { icon: Eye, title: 'Elder-Friendly', desc: 'Readable fonts and intuitive design for guests of all ages.' },
@@ -14,11 +14,6 @@ const FEATURES = [
 export default function WhyChooseUs() {
   return (
     <section className="py-24 px-6 relative" style={{ background: 'var(--color-surface)' }}>
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute w-[500px] h-[500px] rounded-full blur-[200px]"
-          style={{ background: 'rgba(200,146,42,0.04)', bottom: '10%', left: '-5%' }} />
-      </div>
-
       <div className="max-w-5xl mx-auto relative z-10">
         <motion.div className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
@@ -34,7 +29,7 @@ export default function WhyChooseUs() {
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.08 }}
               whileHover={{ y: -4, borderColor: 'rgba(200,146,42,0.4)' }}>
-              <div className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center transition-all duration-300"
+              <div className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
                 style={{ background: 'rgba(200,146,42,0.08)' }}>
                 <f.icon size={22} style={{ color: 'var(--color-accent)' }} />
               </div>
