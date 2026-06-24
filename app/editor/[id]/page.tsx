@@ -8,6 +8,7 @@ import { getDefaultEvents } from '@/lib/template-defaults'
 import { getEditorConfig } from '@/lib/editor-config'
 import { useUser } from '@/components/auth/AuthProvider'
 import { saveToCloud, loadFromCloud } from '@/lib/cloud-save'
+import { publishInvite } from '@/lib/publish'
 import { EditorInput, EditorTextArea, EditorImageUpload, EditorMultiImageUpload, SectionHeader } from '@/components/editor/EditorInput'
 
 export default function EditorPage({ params }: { params: Promise<{ id: string }> }) {
@@ -74,13 +75,14 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const save = () => { localStorage.setItem(`editor-${id}`, JSON.stringify(data)); setSaved(true); setTimeout(() => setSaved(false), 2000) }
 
   const publish = async () => {
+    if (!user?.id) { alert('Please sign in to publish'); return }
     save(); setPublishing(true)
-    try {
-      const res = await fetch('/api/publish', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ templateId: id, data, userId: user?.id }) })
-      const result = await res.json()
-      if (res.ok && result.slug) setPublishedUrl(`${window.location.origin}/invite/${result.slug}`)
-      else alert(result.error || 'Publishing failed')
-    } catch { alert('Publishing failed. Try again.') }
+    const result = await publishInvite(id, data, user.id)
+    if ('slug' in result) {
+      setPublishedUrl(`${window.location.origin}/invite/${result.slug}`)
+    } else {
+      alert(result.error || 'Publishing failed')
+    }
     setPublishing(false)
   }
 
