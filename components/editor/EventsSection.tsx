@@ -17,7 +17,7 @@ export default function EventsSection({ data, onChange }: Props) {
   const addEvent = () => {
     onChange({
       ...data,
-      events: [...data.events, { id: `event-${Date.now()}`, name: '', emoji: '🎉', date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#c8922a' }],
+      events: [...data.events, { id: `event-${Date.now()}`, name: '', emoji: '🎉', image: '/assets/events/wedding.png', date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#c8922a' }],
     })
   }
 
@@ -38,9 +38,15 @@ export default function EventsSection({ data, onChange }: Props) {
       {data.events.map((ev, i) => (
         <div key={ev.id} className="p-4 rounded-xl mb-3" style={{ border: '1px solid var(--color-border)', background: 'var(--color-bg)' }}>
           <div className="flex items-center justify-between mb-3">
-            <span className="font-sans text-xs font-semibold" style={{ color: 'var(--color-accent)' }}>
-              {ev.emoji} {ev.name || `Event ${i + 1}`}
-            </span>
+            <div className="flex items-center gap-2">
+              {ev.image && (
+                <img src={ev.image} alt={ev.name} className="w-8 h-8 rounded-lg object-cover"
+                  style={{ border: '1px solid var(--color-border)' }} />
+              )}
+              <span className="font-sans text-xs font-semibold" style={{ color: 'var(--color-accent)' }}>
+                {ev.name || `Event ${i + 1}`}
+              </span>
+            </div>
             {data.events.length > 1 && (
               <button onClick={() => removeEvent(i)} className="hover:opacity-70"><Trash2 size={14} style={{ color: '#c00' }} /></button>
             )}
