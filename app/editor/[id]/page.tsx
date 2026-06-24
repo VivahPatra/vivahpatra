@@ -7,6 +7,7 @@ import { WeddingFormData, DEFAULT_FORM_DATA, SectionToggle, WeddingEvent, StoryI
 import { getDefaultEvents } from '@/lib/template-defaults'
 import { getEditorConfig } from '@/lib/editor-config'
 import { useUser } from '@/components/auth/AuthProvider'
+import { saveToCloud, loadFromCloud } from '@/lib/cloud-save'
 import { EditorInput, EditorTextArea, EditorImageUpload, EditorMultiImageUpload, SectionHeader } from '@/components/editor/EditorInput'
 
 export default function EditorPage({ params }: { params: Promise<{ id: string }> }) {
@@ -24,14 +25,26 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const [activeTab, setActiveTab] = useState(0)
 
   useEffect(() => {
-    const s = localStorage.getItem(`editor-${id}`)
-    if (s) {
-      try {
-        const p = JSON.parse(s)
-        setData({ ...DEFAULT_FORM_DATA, events: getDefaultEvents(id), ...p, sections: { ...DEFAULT_FORM_DATA.sections, ...p.sections } })
-      } catch { /* ignore */ }
+    async function loadData() {
+      // Try cloud first
+      if (user?.id) {
+        const cloud = await loadFromCloud(user.id, id)
+        if (cloud) {
+          setData({ ...DEFAULT_FORM_DATA, ...cloud, sections: { ...DEFAULT_FORM_DATA.sections, ...cloud.sections } })
+          return
+        }
+      }
+      // Fallback to localStorage
+      const s = localStorage.getItem(`editor-${id}`)
+      if (s) {
+        try {
+          const p = JSON.parse(s)
+          setData({ ...DEFAULT_FORM_DATA, events: getDefaultEvents(id), ...p, sections: { ...DEFAULT_FORM_DATA.sections, ...p.sections } })
+        } catch { /* ignore */ }
+      }
     }
-  }, [id])
+    loadData()
+  }, [id, user])
 
   useEffect(() => { if (!loading && !user) router.replace('/templates') }, [user, loading, router])
 
@@ -48,7 +61,12 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   }, [sendToPreview])
   const handleIframeLoad = useCallback(() => { setTimeout(sendToPreview, 800); setTimeout(sendToPreview, 2000) }, [sendToPreview])
 
-  useEffect(() => { const t = setTimeout(() => localStorage.setItem(`editor-${id}`, JSON.stringify(data)), 1000); return () => clearTimeout(t) }, [data, id])
+  // Auto-save: localStorage immediately, cloud with longer debounce
+  useEffect(() => {
+    const t1 = setTimeout(() => localStorage.setItem(`editor-${id}`, JSON.stringify(data)), 500)
+    const t2 = setTimeout(() => { if (user?.id) saveToCloud(user.id, id, data) }, 3000)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [data, id, user])
 
   if (!template) return <div className="min-h-screen flex items-center justify-center"><p>Template not found</p></div>
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" /></div>
@@ -146,7 +164,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               <EditorInput label="Venue" value={ev.venue} onChange={v => updateEvent(i, 'venue', v)} placeholder="The Grand Hotel" />
               <EditorInput label="Address" value={ev.venueAddress} onChange={v => updateEvent(i, 'venueAddress', v)} placeholder="MG Road" />
               <EditorInput label="Maps Link" value={ev.venueMapLink} onChange={v => updateEvent(i, 'venueMapLink', v)} placeholder="https://maps.google.com/..." />
-              <EditorImageUpload label="Event Photo" value={ev.image} onChange={v => updateEvent(i, 'image', v)} />
+              <EditorImageUpload label="Event Photo" value={ev.image} onChange={v => updateEvent(i, 'image', v)} userId={user?.id} folder="events" />
             </div>
           ))}
           <button onClick={addEvent} className="w-full flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold" style={{ border: '1px dashed rgba(200,146,42,0.3)', color: '#c8922a' }}>
@@ -168,7 +186,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                 <EditorInput label="When" value={s.date} onChange={v => updateStory(i, 'date', v)} placeholder="March 2020" />
               </div>
               <EditorTextArea label="Description" value={s.description} onChange={v => updateStory(i, 'description', v)} placeholder="Tell your story..." />
-              <EditorImageUpload label="Story Photo" value={s.image} onChange={v => updateStory(i, 'image', v)} />
+              <EditorImageUpload label="Story Photo" value={s.image} onChange={v => updateStory(i, 'image', v)} userId={user?.id} folder="stories" />
             </div>
           ))}
           <button onClick={addStory} className="w-full flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold" style={{ border: '1px dashed rgba(200,146,42,0.3)', color: '#c8922a' }}>
@@ -179,7 +197,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       case 4: return (
         <>
           <SectionHeader label="Photo Gallery" visible={data.sections.gallery} onToggle={() => toggle('gallery')} />
-          <EditorMultiImageUpload label="Gallery Photos" images={data.galleryImages.map(g => ({ src: g.src, alt: g.alt }))} onChange={setGallery} />
+          <EditorMultiImageUpload label="Gallery Photos" images={data.galleryImages.map(g => ({ src: g.src, alt: g.alt }))} onChange={setGallery} userId={user?.id} folder="gallery" />
         </>
       )
       case 5: return (

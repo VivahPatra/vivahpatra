@@ -1,6 +1,7 @@
 'use client'
-import { useRef } from 'react'
-import { Upload, X } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Upload, X, Loader2 } from 'lucide-react'
+import { uploadPhoto } from '@/lib/storage'
 
 const inputCls = "w-full px-3 py-2 rounded-lg text-sm outline-none transition-all focus:ring-1 focus:ring-[#c8922a33]"
 const inputStyle: React.CSSProperties = { border: '1px solid rgba(200,146,42,0.15)', background: 'rgba(20,18,32,0.8)', color: '#f0ece4', colorScheme: 'dark' }
@@ -29,15 +30,25 @@ export function EditorTextArea({ label, value, onChange, placeholder = '' }: {
   )
 }
 
-export function EditorImageUpload({ label, value, onChange }: {
-  label: string; value: string; onChange: (v: string) => void
+export function EditorImageUpload({ label, value, onChange, userId, folder }: {
+  label: string; value: string; onChange: (v: string) => void; userId?: string; folder?: string
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    onChange(URL.createObjectURL(file))
+
+    if (userId && folder) {
+      setUploading(true)
+      const url = await uploadPhoto(file, userId, folder)
+      setUploading(false)
+      if (url) onChange(url)
+      else onChange(URL.createObjectURL(file))
+    } else {
+      onChange(URL.createObjectURL(file))
+    }
   }
 
   return (
@@ -51,25 +62,40 @@ export function EditorImageUpload({ label, value, onChange }: {
           </button>
         </div>
       ) : null}
-      <button onClick={() => inputRef.current?.click()}
-        className="w-full flex items-center justify-center gap-1 py-2 rounded-lg text-[10px] font-semibold"
+      <button onClick={() => inputRef.current?.click()} disabled={uploading}
+        className="w-full flex items-center justify-center gap-1 py-2 rounded-lg text-[10px] font-semibold disabled:opacity-50"
         style={{ border: '1px dashed rgba(200,146,42,0.25)', color: '#7a7068' }}>
-        <Upload size={12} /> {value ? 'Change' : 'Upload'}
+        {uploading ? <><Loader2 size={12} className="animate-spin" /> Uploading...</> : <><Upload size={12} /> {value ? 'Change' : 'Upload'}</>}
       </button>
       <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
     </div>
   )
 }
 
-export function EditorMultiImageUpload({ label, images, onChange }: {
-  label: string; images: { src: string; alt: string }[]; onChange: (imgs: { src: string; alt: string }[]) => void
+export function EditorMultiImageUpload({ label, images, onChange, userId, folder }: {
+  label: string; images: { src: string; alt: string }[]; onChange: (imgs: { src: string; alt: string }[]) => void; userId?: string; folder?: string
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
 
-  const addPhotos = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const addPhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    const newImgs = files.map((f, i) => ({ src: URL.createObjectURL(f), alt: `Photo ${images.length + i + 1}` }))
-    onChange([...images, ...newImgs])
+    if (!files.length) return
+
+    if (userId && folder) {
+      setUploading(true)
+      const uploaded = await Promise.all(
+        files.map(async (f, i) => {
+          const url = await uploadPhoto(f, userId, folder)
+          return { src: url || URL.createObjectURL(f), alt: `Photo ${images.length + i + 1}` }
+        })
+      )
+      setUploading(false)
+      onChange([...images, ...uploaded])
+    } else {
+      const newImgs = files.map((f, i) => ({ src: URL.createObjectURL(f), alt: `Photo ${images.length + i + 1}` }))
+      onChange([...images, ...newImgs])
+    }
     if (inputRef.current) inputRef.current.value = ''
   }
 
@@ -90,10 +116,10 @@ export function EditorMultiImageUpload({ label, images, onChange }: {
           ))}
         </div>
       )}
-      <button onClick={() => inputRef.current?.click()}
-        className="w-full flex items-center justify-center gap-1 py-2 rounded-lg text-[10px] font-semibold"
+      <button onClick={() => inputRef.current?.click()} disabled={uploading}
+        className="w-full flex items-center justify-center gap-1 py-2 rounded-lg text-[10px] font-semibold disabled:opacity-50"
         style={{ border: '1px dashed rgba(200,146,42,0.25)', color: '#7a7068' }}>
-        <Upload size={12} /> Add Photos
+        {uploading ? <><Loader2 size={12} className="animate-spin" /> Uploading...</> : <><Upload size={12} /> Add Photos</>}
       </button>
       <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={addPhotos} />
       <p className="text-[9px] mt-1" style={{ color: '#7a7068' }}>{images.length} photos</p>
