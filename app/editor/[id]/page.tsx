@@ -15,6 +15,8 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [data, setData] = useState<WeddingFormData>({ ...DEFAULT_FORM_DATA, events: getDefaultEvents(id) })
   const [saved, setSaved] = useState(false)
+  const [publishing, setPublishing] = useState(false)
+  const [publishedUrl, setPublishedUrl] = useState<string | null>(null)
   const [panelOpen, setPanelOpen] = useState(true)
   const [activeTab, setActiveTab] = useState(0)
 
@@ -63,6 +65,35 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" /></div>
 
   const save = () => { localStorage.setItem(`editor-${id}`, JSON.stringify(data)); setSaved(true); setTimeout(() => setSaved(false), 2000) }
+
+  const publish = async () => {
+    save()
+    setPublishing(true)
+    try {
+      const res = await fetch('/api/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateId: id, data, userId: user?.id }),
+      })
+      const result = await res.json()
+      if (res.ok && result.slug) {
+        const url = `${window.location.origin}/invite/${result.slug}`
+        setPublishedUrl(url)
+      } else {
+        alert(result.error || 'Publishing failed')
+      }
+    } catch {
+      alert('Publishing failed. Try again.')
+    }
+    setPublishing(false)
+  }
+
+  const copyUrl = () => {
+    if (publishedUrl) {
+      navigator.clipboard.writeText(publishedUrl)
+      alert('Link copied to clipboard!')
+    }
+  }
 
   const set = (key: keyof WeddingFormData, val: string) => setData(prev => ({ ...prev, [key]: val }))
 
@@ -245,10 +276,19 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <button onClick={save} className="flex items-center gap-1 px-3 py-2 rounded-full text-xs font-semibold" style={{ background: 'rgba(12,10,18,0.9)', backdropFilter: 'blur(8px)', color: saved ? '#16a34a' : '#c8922a' }}>
             <Save size={12} /> {saved ? 'Saved!' : 'Save'}
           </button>
-          <button onClick={() => { save(); alert('Publishing coming soon!') }} className="flex items-center gap-1 px-3 py-2 rounded-full text-xs font-semibold text-white" style={{ background: '#c8922a' }}>
-            <Share2 size={12} /> Publish
+          <button onClick={publish} disabled={publishing} className="flex items-center gap-1 px-3 py-2 rounded-full text-xs font-semibold text-white disabled:opacity-50" style={{ background: '#c8922a' }}>
+            <Share2 size={12} /> {publishing ? 'Publishing...' : 'Publish'}
           </button>
         </div>
+
+        {/* Published URL banner */}
+        {publishedUrl && (
+          <div className="absolute top-16 left-4 z-50 flex items-center gap-2 px-4 py-2 rounded-full text-xs" style={{ background: 'rgba(22,163,74,0.9)', backdropFilter: 'blur(8px)', color: '#fff' }}>
+            <span>Live at: {publishedUrl.replace(window.location.origin, '')}</span>
+            <button onClick={copyUrl} className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Copy</button>
+            <button onClick={() => window.open(publishedUrl, '_blank')} className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Open</button>
+          </div>
+        )}
 
         {/* Panel toggle */}
         <button onClick={() => setPanelOpen(!panelOpen)} className="absolute top-1/2 -translate-y-1/2 z-50 w-6 h-12 rounded-l-lg flex items-center justify-center"
