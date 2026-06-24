@@ -15,6 +15,7 @@ const SECTION_LABELS: Record<keyof ToggleType, string> = {
   countdown: 'Countdown',
   venue: 'Venue Details',
   family: 'Family Members',
+  info: 'Info Cards',
   footer: 'Footer',
 }
 
