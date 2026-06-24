@@ -28,13 +28,15 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const { user, loading } = useUser()
   const template = getTemplate(id)
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const dataRef = useRef<WeddingFormData>(null!)
   const [data, setData] = useState<WeddingFormData>({ ...DEFAULT_FORM_DATA, events: getDefaultEvents(id) })
   const [activeSection, setActiveSection] = useState(0)
   const [saved, setSaved] = useState(false)
   const [previewMode, setPreviewMode] = useState(false)
   const [deviceView, setDeviceView] = useState<'phone' | 'desktop'>('phone')
-  const [iframeReady, setIframeReady] = useState(false)
-  const sendTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Keep ref in sync with latest data
+  dataRef.current = data
 
   // Load saved data from localStorage
   useEffect(() => {
@@ -43,7 +45,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       try {
         const parsed = JSON.parse(s)
         setData({ ...DEFAULT_FORM_DATA, events: getDefaultEvents(id), ...parsed, sections: { ...DEFAULT_FORM_DATA.sections, ...parsed.sections } })
-      } catch { /* ignore corrupt data */ }
+      } catch { /* ignore */ }
     }
   }, [id])
 
@@ -51,31 +53,35 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     if (!loading && !user) router.replace('/templates')
   }, [user, loading, router])
 
-  const sendToPreview = useCallback((formData: WeddingFormData) => {
+  // Send data to iframe via postMessage
+  const sendToPreview = useCallback(() => {
     if (iframeRef.current?.contentWindow) {
-      iframeRef.current.contentWindow.postMessage({ type: 'VIVAHPATRA_UPDATE', data: formData }, '*')
+      iframeRef.current.contentWindow.postMessage({ type: 'VIVAHPATRA_UPDATE', data: dataRef.current }, '*')
     }
   }, [])
 
-  // Debounced send — 150ms after last keystroke
+  // Send on every data change (debounced 200ms)
   useEffect(() => {
-    if (!iframeReady) return
-    if (sendTimerRef.current) clearTimeout(sendTimerRef.current)
-    sendTimerRef.current = setTimeout(() => sendToPreview(data), 150)
-    return () => { if (sendTimerRef.current) clearTimeout(sendTimerRef.current) }
-  }, [data, iframeReady, sendToPreview])
+    const timer = setTimeout(sendToPreview, 200)
+    return () => clearTimeout(timer)
+  }, [data, sendToPreview])
 
-  // Resend when iframe loads
+  // When iframe loads, send data after React inside has mounted
   const handleIframeLoad = useCallback(() => {
-    setIframeReady(true)
-    // Small delay to let the React app inside iframe mount
-    setTimeout(() => sendToPreview(data), 500)
-  }, [sendToPreview, data])
+    setTimeout(sendToPreview, 800)
+    setTimeout(sendToPreview, 2000)
+  }, [sendToPreview])
 
-  // Reset iframe ready state when switching device view
+  // Also listen for iframe requesting data
   useEffect(() => {
-    setIframeReady(false)
-  }, [deviceView])
+    function handleMessage(e: MessageEvent) {
+      if (e.data?.type === 'VIVAHPATRA_READY') {
+        sendToPreview()
+      }
+    }
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [sendToPreview])
 
   if (!template) return <div className="min-h-screen flex items-center justify-center"><Button href="/templates">Browse Templates</Button></div>
 
@@ -85,7 +91,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     setTimeout(() => setSaved(false), 2000)
   }
 
-  // Auto-save on data change (debounced)
+  // Auto-save on data change
   useEffect(() => {
     const timer = setTimeout(() => {
       localStorage.setItem(`editor-${id}`, JSON.stringify(data))
@@ -200,7 +206,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           </div>
         </div>
 
-        {/* Right: Live preview — single iframe, styled differently per device */}
+        {/* Right: Live preview */}
         <div className={`${!previewMode ? 'hidden lg:flex' : 'flex'} flex-1 items-start justify-center overflow-auto`}
           style={{ background: '#0a0a0a' }}>
           {deviceView === 'phone' ? (
