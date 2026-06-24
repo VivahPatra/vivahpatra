@@ -14,7 +14,9 @@ export default function Navbar() {
   const isTemplatesPage = pathname === '/templates'
   const isPreviewPage = pathname.startsWith('/preview')
 
-  if (isPreviewPage) return null
+  const isEditorPage = pathname.startsWith('/editor')
+
+  if (isPreviewPage || isEditorPage) return null
 
   return (
     <>
