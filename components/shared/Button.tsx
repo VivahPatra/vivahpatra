@@ -15,15 +15,15 @@ export default function Button({ children, variant = 'primary', href, onClick, c
   const width = fullWidth ? 'w-full' : ''
 
   const variants = {
-    primary: 'text-white hover:brightness-110 hover:scale-[1.02]',
+    primary: 'text-white hover:shadow-lg hover:scale-[1.02]',
     secondary: 'hover:opacity-80',
-    outline: 'border hover:border-[rgba(200,146,42,0.5)]',
+    outline: 'border hover:bg-gray-50',
   }
 
   const styles: Record<string, React.CSSProperties> = {
-    primary: { background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent2))', boxShadow: '0 4px 24px rgba(200,146,42,0.25)' },
-    secondary: { background: 'var(--color-text)', color: 'var(--color-bg)' },
-    outline: { borderColor: 'var(--color-border)', color: 'var(--color-text)' },
+    primary: { background: '#e8384f' },
+    secondary: { background: '#1a1a1a', color: '#fff' },
+    outline: { borderColor: '#ddd', color: '#555' },
   }
 
   const cls = `${base} ${sizes} ${variants[variant]} ${width} ${className}`

@@ -9,14 +9,14 @@ export default function FeaturedTemplates() {
   return (
     <section className="py-24 overflow-hidden relative">
       <div className="absolute inset-0"
-        style={{ background: 'linear-gradient(180deg, var(--color-bg) 0%, var(--color-surface) 10%, var(--color-surface) 90%, var(--color-bg) 100%)' }} />
+        style={{ background: 'linear-gradient(180deg, #fff 0%, #f8f8f8 10%, #f8f8f8 90%, #fff 100%)' }} />
 
       <div className="relative z-10">
         <motion.div className="max-w-6xl mx-auto px-6 text-center mb-14"
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <p className="font-sans text-[10px] tracking-[0.5em] uppercase mb-4" style={{ color: 'var(--color-accent)' }}>Curated Collection</p>
+          <p className="font-sans text-[10px] tracking-[0.5em] uppercase mb-4" style={{ color: '#e8384f' }}>Curated Collection</p>
           <h2 className="font-display text-3xl md:text-4xl mb-3">Explore Our Templates</h2>
-          <p className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>Handpicked designs loved by couples across India</p>
+          <p className="font-sans text-sm" style={{ color: '#777' }}>Handpicked designs loved by couples across India</p>
         </motion.div>
 
         <style>{`
@@ -26,8 +26,8 @@ export default function FeaturedTemplates() {
           }
         `}</style>
         <div className="relative pointer-events-none select-none">
-          <div className="absolute left-0 top-0 bottom-0 w-28 z-10" style={{ background: 'linear-gradient(to right, var(--color-surface), transparent)' }} />
-          <div className="absolute right-0 top-0 bottom-0 w-28 z-10" style={{ background: 'linear-gradient(to left, var(--color-surface), transparent)' }} />
+          <div className="absolute left-0 top-0 bottom-0 w-28 z-10" style={{ background: 'linear-gradient(to right, #f8f8f8, transparent)' }} />
+          <div className="absolute right-0 top-0 bottom-0 w-28 z-10" style={{ background: 'linear-gradient(to left, #f8f8f8, transparent)' }} />
 
           <div className="flex gap-6" style={{ width: 'max-content', animation: 'carouselScroll 45s linear infinite' }}>
             {doubled.map((t, i) => (

@@ -51,7 +51,7 @@ export default function FeatureShowcase() {
           return (
             <motion.div key={section.tag}
               className={`flex flex-col ${section.reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-12 lg:gap-20 py-16 ${idx < SECTIONS.length - 1 ? 'border-b' : ''}`}
-              style={{ borderColor: 'var(--color-border)' }}
+              style={{ borderColor: 'rgba(0,0,0,0.06)' }}
               initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.7 }}>
 
@@ -77,19 +77,19 @@ export default function FeatureShowcase() {
               {/* Text content */}
               <div className="flex-1 max-w-lg">
                 <span className="font-sans text-[10px] tracking-[0.4em] uppercase"
-                  style={{ color: 'var(--color-accent)' }}>{section.tag}</span>
+                  style={{ color: '#e8384f' }}>{section.tag}</span>
                 <h3 className="font-display text-2xl md:text-3xl mt-3 mb-4">{section.title}</h3>
-                <p className="font-sans text-sm leading-relaxed mb-6" style={{ color: 'var(--color-muted)' }}>
+                <p className="font-sans text-sm leading-relaxed mb-6" style={{ color: '#777' }}>
                   {section.desc}
                 </p>
                 <div className="flex flex-col gap-3">
                   {section.features.map(f => (
                     <div key={f.text} className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                        style={{ background: 'rgba(200,146,42,0.08)' }}>
-                        <f.Icon size={14} style={{ color: 'var(--color-accent)' }} />
+                        style={{ background: 'rgba(232,56,79,0.08)' }}>
+                        <f.Icon size={14} style={{ color: '#e8384f' }} />
                       </div>
-                      <span className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>{f.text}</span>
+                      <span className="font-sans text-sm" style={{ color: '#777' }}>{f.text}</span>
                     </div>
                   ))}
                 </div>

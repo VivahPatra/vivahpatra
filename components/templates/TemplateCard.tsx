@@ -29,11 +29,16 @@ export default function TemplateCard({ template: t }: { template: Template }) {
     return () => obs.disconnect()
   }, [])
 
-  // Check if purchased
+  // Check if purchased — only when logged in
   useEffect(() => {
-    const saved = localStorage.getItem(`editor-${t.id}`)
-    if (saved) setPurchased(true)
-  }, [t.id])
+    if (user) {
+      const saved = localStorage.getItem(`editor-${t.id}`)
+      if (saved) setPurchased(true)
+      else setPurchased(false)
+    } else {
+      setPurchased(false)
+    }
+  }, [t.id, user])
 
   useEffect(() => {
     if (user && pendingBuy) {
