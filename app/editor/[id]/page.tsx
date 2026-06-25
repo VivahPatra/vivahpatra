@@ -23,7 +23,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     ...DEFAULT_FORM_DATA,
     events: getDefaultEvents(id),
     infoCards: getDefaultInfoCards(id),
-    sections: { ...DEFAULT_FORM_DATA.sections, info: config.infoVisibleByDefault },
+    sections: { ...DEFAULT_FORM_DATA.sections, info: config.infoVisibleByDefault }
   })
   const [saved, setSaved] = useState(false)
   const [publishing, setPublishing] = useState(false)
@@ -36,20 +36,22 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   useEffect(() => {
     async function loadData() {
       // Try cloud first
+      const defaultInfoCards = getDefaultInfoCards(id)
+      const defaultSections = { ...DEFAULT_FORM_DATA.sections, info: config.infoVisibleByDefault }
+
+      function merge(saved: Partial<WeddingFormData>) {
+        const cards = saved.infoCards?.length ? saved.infoCards : defaultInfoCards
+        const secs = { ...defaultSections, ...(saved.sections || {}) }
+        return { ...DEFAULT_FORM_DATA, events: getDefaultEvents(id), ...saved, infoCards: cards, sections: secs } as WeddingFormData
+      }
+
       if (user?.id) {
         const cloud = await loadFromCloud(user.id, id)
-        if (cloud) {
-          setData({ ...DEFAULT_FORM_DATA, ...cloud, sections: { ...DEFAULT_FORM_DATA.sections, ...cloud.sections } })
-          return
-        }
+        if (cloud) { setData(merge(cloud)); return }
       }
-      // Fallback to localStorage
       const s = localStorage.getItem(`editor-${id}`)
       if (s) {
-        try {
-          const p = JSON.parse(s)
-          setData({ ...DEFAULT_FORM_DATA, events: getDefaultEvents(id), ...p, sections: { ...DEFAULT_FORM_DATA.sections, ...p.sections } })
-        } catch { /* ignore */ }
+        try { setData(merge(JSON.parse(s))) } catch { /* ignore */ }
       }
     }
     loadData()
