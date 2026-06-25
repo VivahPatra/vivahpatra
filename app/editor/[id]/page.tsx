@@ -128,7 +128,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
 
   const setGallery = (imgs: { src: string; alt: string }[]) => setData(prev => ({ ...prev, galleryImages: imgs.map(img => ({ ...img, span: 'normal' as const })) }))
 
-  const allTabs = ['Couple', 'Invitation', 'Events', 'Story', 'Gallery', 'Venue', 'RSVP', ...(config.hasInfoCards ? ['Info'] : []), 'Social']
+  const allTabs = ['Couple', 'Invitation', 'Events', 'Story', 'Gallery', 'Venue', 'RSVP', ...(config.hasInfoCards ? ['Info'] : []), 'Music', 'Social']
   const tabs = allTabs
 
   const renderTab = () => {
@@ -266,26 +266,21 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           </button>
         </>
       )
-      case 'Social': return (
+      case 'Music': return (
         <>
-          <SectionHeader label="Music & Social" visible={data.sections.footer} onToggle={() => toggle('footer')} />
-          <EditorInput label="Instagram URL" value={data.instagram} onChange={v => set('instagram', v)} placeholder="https://instagram.com/..." />
+          <SectionHeader label="Background Music" visible={data.sections.music} onToggle={() => toggle('music')} />
+          {data.backgroundMusic && (
+            <div className="flex items-center gap-2 mb-2 p-2 rounded-lg" style={{ background: 'rgba(200,146,42,0.08)', border: '1px solid rgba(200,146,42,0.15)' }}>
+              <Music size={14} style={{ color: '#c8922a' }} />
+              <span className="text-xs flex-1 truncate" style={{ color: '#f0ece4' }}>
+                {MUSIC_LIBRARY.find(t => t.url === data.backgroundMusic)?.name || 'Custom track'}
+              </span>
+              <button onClick={() => set('backgroundMusic', '')} className="text-[10px]" style={{ color: '#c00' }}>Remove</button>
+            </div>
+          )}
+          <EditorImageUpload label="Upload Custom MP3" value="" onChange={v => set('backgroundMusic', v)} userId={user?.id} folder="music" />
 
-          <div className="mt-4 mb-2">
-            <label className="text-[10px] font-semibold tracking-wider uppercase mb-2 block" style={{ color: '#7a7068' }}>Background Music</label>
-            {data.backgroundMusic && (
-              <div className="flex items-center gap-2 mb-2 p-2 rounded-lg" style={{ background: 'rgba(200,146,42,0.08)', border: '1px solid rgba(200,146,42,0.15)' }}>
-                <Music size={14} style={{ color: '#c8922a' }} />
-                <span className="text-xs flex-1 truncate" style={{ color: '#f0ece4' }}>
-                  {MUSIC_LIBRARY.find(t => t.url === data.backgroundMusic)?.name || 'Custom track'}
-                </span>
-                <button onClick={() => set('backgroundMusic', '')} className="text-[10px]" style={{ color: '#c00' }}>Remove</button>
-              </div>
-            )}
-            <EditorImageUpload label="Upload Custom Music" value="" onChange={v => set('backgroundMusic', v)} userId={user?.id} folder="music" />
-          </div>
-
-          <label className="text-[10px] font-semibold tracking-wider uppercase mb-2 block" style={{ color: '#7a7068' }}>Music Library</label>
+          <label className="text-[10px] font-semibold tracking-wider uppercase mb-2 mt-3 block" style={{ color: '#7a7068' }}>Music Library</label>
           <div className="flex flex-col gap-1.5">
             {MUSIC_LIBRARY.map(track => {
               const isSelected = data.backgroundMusic === track.url
@@ -318,7 +313,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               )
             })}
           </div>
-          <p className="text-[9px] mt-2" style={{ color: '#7a7068' }}>Upload your own MP3 or pick from the library. Music plays when guests open your invite.</p>
+          <p className="text-[9px] mt-2" style={{ color: '#7a7068' }}>Music plays softly when guests open your invite.</p>
+        </>
+      )
+      case 'Social': return (
+        <>
+          <SectionHeader label="Social & Footer" visible={data.sections.footer} onToggle={() => toggle('footer')} />
+          <EditorInput label="Instagram URL" value={data.instagram} onChange={v => set('instagram', v)} placeholder="https://instagram.com/..." />
         </>
       )
       default: return null

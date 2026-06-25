@@ -50,6 +50,7 @@ export interface SectionToggle {
   venue: boolean
   family: boolean
   info: boolean
+  music: boolean
   footer: boolean
 }
 
@@ -166,6 +167,7 @@ export const DEFAULT_FORM_DATA: WeddingFormData = {
     venue: true,
     family: true,
     info: true,
+    music: true,
     footer: true,
   },
 }

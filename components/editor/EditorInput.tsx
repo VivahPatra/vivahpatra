@@ -134,8 +134,11 @@ export function SectionHeader({ label, visible, onToggle }: {
   return (
     <div className="flex items-center justify-between mb-3 pb-2" style={{ borderBottom: '1px solid rgba(200,146,42,0.15)' }}>
       <h3 className="text-sm font-semibold" style={{ color: '#f0ece4' }}>{label}</h3>
-      <button onClick={onToggle} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: visible ? 'rgba(200,146,42,0.15)' : 'rgba(255,255,255,0.05)', color: visible ? '#c8922a' : '#7a7068' }}>
-        {visible ? 'Visible' : 'Hidden'}
+      <button onClick={onToggle} className="relative flex items-center" title={visible ? 'Section visible' : 'Section hidden'}>
+        <div className="w-9 h-5 rounded-full transition-colors" style={{ background: visible ? '#c8922a' : '#3a3a3a' }}>
+          <div className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform"
+            style={{ transform: visible ? 'translateX(18px)' : 'translateX(2px)' }} />
+        </div>
       </button>
     </div>
   )
