@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { Save, ArrowLeft, Share2, ChevronLeft, ChevronRight, Plus, Trash2, MapPin } from 'lucide-react'
 import { getTemplate } from '@/lib/templates'
 import { WeddingFormData, DEFAULT_FORM_DATA, SectionToggle, WeddingEvent, StoryItem, InfoCard } from '@/lib/editor-types'
-import { getDefaultEvents } from '@/lib/template-defaults'
+import { getDefaultEvents, getDefaultInfoCards } from '@/lib/template-defaults'
 import { getEditorConfig } from '@/lib/editor-config'
 import { useUser } from '@/components/auth/AuthProvider'
 import { saveToCloud, loadFromCloud } from '@/lib/cloud-save'
@@ -18,7 +18,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const template = getTemplate(id)
   const config = getEditorConfig(id)
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const [data, setData] = useState<WeddingFormData>({ ...DEFAULT_FORM_DATA, events: getDefaultEvents(id) })
+  const [data, setData] = useState<WeddingFormData>({ ...DEFAULT_FORM_DATA, events: getDefaultEvents(id), infoCards: getDefaultInfoCards(id) })
   const [saved, setSaved] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null)
@@ -109,11 +109,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
 
   const setGallery = (imgs: { src: string; alt: string }[]) => setData(prev => ({ ...prev, galleryImages: imgs.map(img => ({ ...img, span: 'normal' as const })) }))
 
-  const tabs = ['Couple', 'Invitation', 'Events', 'Story', 'Gallery', 'Venue', 'RSVP', 'Info', 'Social']
+  const allTabs = ['Couple', 'Invitation', 'Events', 'Story', 'Gallery', 'Venue', 'RSVP', ...(config.hasInfoCards ? ['Info'] : []), 'Social']
+  const tabs = allTabs
 
   const renderTab = () => {
-    switch (activeTab) {
-      case 0: return (
+    const currentTab = tabs[activeTab]
+    switch (currentTab) {
+      case 'Couple': return (
         <>
           <SectionHeader label="Couple & Hero" visible={data.sections.hero} onToggle={() => toggle('hero')} />
           <div className="grid grid-cols-2 gap-2">
@@ -137,7 +139,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <EditorInput label="Hero Subtitle" value={data.heroSubtitle} onChange={v => set('heroSubtitle', v)} placeholder="✦ Together Forever ✦" />
         </>
       )
-      case 1: return (
+      case 'Invitation': return (
         <>
           <SectionHeader label="Invitation" visible={data.sections.invitation} onToggle={() => toggle('invitation')} />
           <EditorInput label="Heading" value={data.invitationHeading} onChange={v => set('invitationHeading', v)} placeholder="You Are Invited" />
@@ -146,7 +148,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <EditorTextArea label="Invitation Text" value={data.invitationText} onChange={v => set('invitationText', v)} placeholder="Together with our families..." />
         </>
       )
-      case 2: return (
+      case 'Events': return (
         <>
           <SectionHeader label="Events" visible={data.sections.events} onToggle={() => toggle('events')} />
           {data.events.map((ev, i) => (
@@ -174,7 +176,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           </button>
         </>
       )
-      case 3: return (
+      case 'Story': return (
         <>
           <SectionHeader label="Our Story" visible={data.sections.coupleStory} onToggle={() => toggle('coupleStory')} />
           {data.coupleStory.map((s, i) => (
@@ -196,13 +198,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           </button>
         </>
       )
-      case 4: return (
+      case 'Gallery': return (
         <>
           <SectionHeader label="Photo Gallery" visible={data.sections.gallery} onToggle={() => toggle('gallery')} />
           <EditorMultiImageUpload label="Gallery Photos" images={data.galleryImages.map(g => ({ src: g.src, alt: g.alt }))} onChange={setGallery} userId={user?.id} folder="gallery" />
         </>
       )
-      case 5: return (
+      case 'Venue': return (
         <>
           <SectionHeader label="Venue & Location" visible={data.sections.venue} onToggle={() => toggle('venue')} />
           <EditorInput label="Venue Name" value={data.venueName} onChange={v => set('venueName', v)} placeholder="The Grand Palace" />
@@ -215,7 +217,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <p className="text-[10px]" style={{ color: '#7a7068' }}>Uses wedding date from Couple tab.</p>
         </>
       )
-      case 6: return (
+      case 'RSVP': return (
         <>
           <SectionHeader label="RSVP" visible={data.sections.rsvp} onToggle={() => toggle('rsvp')} />
           <EditorInput label="Heading" value={data.rsvpHeading} onChange={v => set('rsvpHeading', v)} placeholder="Will You Attend?" />
@@ -225,7 +227,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <EditorTextArea label="WhatsApp Message" value={data.rsvpMessage} onChange={v => set('rsvpMessage', v)} />
         </>
       )
-      case 7: return (
+      case 'Info': return (
         <>
           <SectionHeader label="Info Cards" visible={data.sections.info} onToggle={() => toggle('info')} />
           {data.infoCards.map((card, i) => (
@@ -244,7 +246,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           </button>
         </>
       )
-      case 8: return (
+      case 'Social': return (
         <>
           <SectionHeader label="Music & Social" visible={data.sections.footer} onToggle={() => toggle('footer')} />
           <EditorInput label="Instagram URL" value={data.instagram} onChange={v => set('instagram', v)} placeholder="https://instagram.com/..." />
@@ -275,10 +277,26 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         </div>
 
         {publishedUrl && (
-          <div className="absolute top-16 left-4 z-50 flex items-center gap-2 px-4 py-2 rounded-full text-xs" style={{ background: 'rgba(22,163,74,0.9)', color: '#fff' }}>
-            <span>Live: {publishedUrl.replace(window.location.origin, '')}</span>
-            <button onClick={() => { navigator.clipboard.writeText(publishedUrl); alert('Copied!') }} className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Copy</button>
-            <button onClick={() => window.open(publishedUrl, '_blank')} className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Open</button>
+          <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl text-xs shadow-2xl"
+            style={{ background: 'rgba(22,163,74,0.95)', color: '#fff', backdropFilter: 'blur(12px)', maxWidth: '90vw' }}>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] opacity-70 mb-0.5">Your invite is live!</p>
+              <p className="font-semibold truncate">{publishedUrl.replace(window.location.origin, '')}</p>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button onClick={() => { navigator.clipboard.writeText(publishedUrl); alert('Link copied!') }}
+                className="px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                Copy Link
+              </button>
+              <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent('Check out our wedding invitation! ' + publishedUrl)}`, '_blank')}
+                className="px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                WhatsApp
+              </button>
+              <button onClick={() => window.open(publishedUrl, '_blank')}
+                className="px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.25)' }}>
+                Open
+              </button>
+            </div>
           </div>
         )}
 

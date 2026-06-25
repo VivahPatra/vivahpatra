@@ -1,4 +1,4 @@
-import { WeddingEvent } from './editor-types'
+import { WeddingEvent, InfoCard } from './editor-types'
 
 const IMG = '/assets/events'
 
@@ -75,4 +75,27 @@ export const TEMPLATE_EVENTS: Record<string, WeddingEvent[]> = {
 
 export function getDefaultEvents(templateId: string): WeddingEvent[] {
   return TEMPLATE_EVENTS[templateId] || TEMPLATE_EVENTS.invitation
+}
+
+export const TEMPLATE_INFO_CARDS: Record<string, InfoCard[]> = {
+  southindian: [
+    { icon: '👗', title: 'Dress Code', description: 'Traditional Kerala attire preferred — kasavu saree or mundum neriyathum for ladies, mundu for gents.' },
+    { icon: '#️⃣', title: 'Wedding Hashtag', description: 'Share your photos with our wedding hashtag on Instagram.' },
+    { icon: '🅿️', title: 'Parking', description: 'Valet parking available at all venues. Please carry your invitation.' },
+    { icon: '🌿', title: 'Sadya', description: 'Traditional Kerala Sadya served on banana leaf. 26 dishes including avial, thoran, payasam.' },
+    { icon: '🌤️', title: 'Weather', description: 'December weather is pleasant — 22°C to 32°C. Light cotton or silk is ideal.' },
+    { icon: '🪔', title: 'Tradition', description: 'The Muhurtham follows traditional Kerala rites. Please arrive by 7:45 AM.' },
+  ],
+  invitation: [
+    { icon: '👗', title: 'Dress Code', description: 'Traditional Indian attire for ceremonies, elegant ethnic for reception.' },
+    { icon: '#️⃣', title: 'Wedding Hashtag', description: 'Share your photos with our wedding hashtag on Instagram.' },
+    { icon: '🅿️', title: 'Parking', description: 'Valet parking available at all venues.' },
+    { icon: '🎁', title: 'Gifts', description: 'Your presence is the best gift. If you wish to bless us, we prefer monetary gifts.' },
+    { icon: '🌤️', title: 'Weather', description: 'Check the weather forecast and dress accordingly.' },
+    { icon: '📱', title: 'Contact', description: 'For any queries, please reach out via WhatsApp.' },
+  ],
+}
+
+export function getDefaultInfoCards(templateId: string): InfoCard[] {
+  return TEMPLATE_INFO_CARDS[templateId] || []
 }
