@@ -5,6 +5,7 @@ export interface TemplateEditorConfig {
   hasFamily: boolean
   hasHindiNames: boolean
   hasInfoCards: boolean
+  infoVisibleByDefault: boolean
   coupleFields: string[]
   eventFields: string[]
 }
@@ -16,6 +17,7 @@ const DEFAULT_CONFIG: TemplateEditorConfig = {
   hasFamily: true,
   hasHindiNames: false,
   hasInfoCards: true,
+  infoVisibleByDefault: false,
   coupleFields: ['groomName', 'brideName', 'groomParents', 'brideParents', 'weddingDate', 'hashtag', 'tagline', 'invitationText'],
   eventFields: ['name', 'date', 'time', 'venue', 'venueAddress', 'venueMapLink'],
 }
@@ -27,12 +29,14 @@ const TEMPLATE_CONFIGS: Record<string, Partial<TemplateEditorConfig>> = {
     hasSubtitles: true,
     hasFamily: false,
     hasInfoCards: true,
+    infoVisibleByDefault: true,
     coupleFields: ['groomName', 'brideName', 'groomSubtitle', 'brideSubtitle', 'groomParents', 'brideParents', 'weddingDate', 'hashtag'],
   },
   invitation: {
     hasHindiNames: true,
     hasSubtitles: false,
     hasInfoCards: true,
+    infoVisibleByDefault: true,
     coupleFields: ['groomName', 'brideName', 'groomParents', 'brideParents', 'weddingDate', 'hashtag'],
   },
   template2: { hasSubtitles: false },

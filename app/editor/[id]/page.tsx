@@ -19,7 +19,12 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const template = getTemplate(id)
   const config = getEditorConfig(id)
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const [data, setData] = useState<WeddingFormData>({ ...DEFAULT_FORM_DATA, events: getDefaultEvents(id), infoCards: getDefaultInfoCards(id) })
+  const [data, setData] = useState<WeddingFormData>({
+    ...DEFAULT_FORM_DATA,
+    events: getDefaultEvents(id),
+    infoCards: getDefaultInfoCards(id),
+    sections: { ...DEFAULT_FORM_DATA.sections, info: config.infoVisibleByDefault },
+  })
   const [saved, setSaved] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null)
