@@ -96,6 +96,15 @@ export const TEMPLATE_INFO_CARDS: Record<string, InfoCard[]> = {
   ],
 }
 
+const DEFAULT_INFO_CARDS: InfoCard[] = [
+  { icon: '👗', title: 'Dress Code', description: 'Traditional attire for ceremonies, elegant wear for reception.' },
+  { icon: '#️⃣', title: 'Wedding Hashtag', description: 'Share your photos with our wedding hashtag on Instagram.' },
+  { icon: '🅿️', title: 'Parking', description: 'Parking available at the venue. Please follow signage.' },
+  { icon: '🎁', title: 'Gifts', description: 'Your presence is the best gift. If you wish to bless us, we prefer monetary gifts.' },
+  { icon: '🌤️', title: 'Weather', description: 'Check the weather forecast and dress accordingly.' },
+  { icon: '📱', title: 'Contact', description: 'For any queries, please reach out via WhatsApp.' },
+]
+
 export function getDefaultInfoCards(templateId: string): InfoCard[] {
-  return TEMPLATE_INFO_CARDS[templateId] || []
+  return TEMPLATE_INFO_CARDS[templateId] || DEFAULT_INFO_CARDS
 }
