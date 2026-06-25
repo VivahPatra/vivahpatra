@@ -1,7 +1,7 @@
 'use client'
 import { use, useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, ArrowLeft, Share2, ChevronLeft, ChevronRight, Plus, Trash2, MapPin } from 'lucide-react'
+import { Save, ArrowLeft, Share2, ChevronLeft, ChevronRight, Plus, Trash2, MapPin, Music, Play, Check } from 'lucide-react'
 import { getTemplate } from '@/lib/templates'
 import { WeddingFormData, DEFAULT_FORM_DATA, SectionToggle, WeddingEvent, StoryItem, InfoCard } from '@/lib/editor-types'
 import { getDefaultEvents, getDefaultInfoCards } from '@/lib/template-defaults'
@@ -10,6 +10,7 @@ import { useUser } from '@/components/auth/AuthProvider'
 import { saveToCloud, loadFromCloud } from '@/lib/cloud-save'
 import { publishInvite } from '@/lib/publish'
 import { EditorInput, EditorTextArea, EditorImageUpload, EditorMultiImageUpload, SectionHeader } from '@/components/editor/EditorInput'
+import { MUSIC_LIBRARY } from '@/lib/music-library'
 
 export default function EditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -24,6 +25,8 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null)
   const [panelOpen, setPanelOpen] = useState(true)
   const [activeTab, setActiveTab] = useState(0)
+  const [playingTrack, setPlayingTrack] = useState<string | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
     async function loadData() {
@@ -250,7 +253,55 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         <>
           <SectionHeader label="Music & Social" visible={data.sections.footer} onToggle={() => toggle('footer')} />
           <EditorInput label="Instagram URL" value={data.instagram} onChange={v => set('instagram', v)} placeholder="https://instagram.com/..." />
-          <p className="text-[10px] mt-2" style={{ color: '#7a7068' }}>Background music upload coming soon.</p>
+
+          <div className="mt-4 mb-2">
+            <label className="text-[10px] font-semibold tracking-wider uppercase mb-2 block" style={{ color: '#7a7068' }}>Background Music</label>
+            {data.backgroundMusic && (
+              <div className="flex items-center gap-2 mb-2 p-2 rounded-lg" style={{ background: 'rgba(200,146,42,0.08)', border: '1px solid rgba(200,146,42,0.15)' }}>
+                <Music size={14} style={{ color: '#c8922a' }} />
+                <span className="text-xs flex-1 truncate" style={{ color: '#f0ece4' }}>
+                  {MUSIC_LIBRARY.find(t => t.url === data.backgroundMusic)?.name || 'Custom track'}
+                </span>
+                <button onClick={() => set('backgroundMusic', '')} className="text-[10px]" style={{ color: '#c00' }}>Remove</button>
+              </div>
+            )}
+            <EditorImageUpload label="Upload Custom Music" value="" onChange={v => set('backgroundMusic', v)} userId={user?.id} folder="music" />
+          </div>
+
+          <label className="text-[10px] font-semibold tracking-wider uppercase mb-2 block" style={{ color: '#7a7068' }}>Music Library</label>
+          <div className="flex flex-col gap-1.5">
+            {MUSIC_LIBRARY.map(track => {
+              const isSelected = data.backgroundMusic === track.url
+              const isPlaying = playingTrack === track.id
+              return (
+                <div key={track.id} className="flex items-center gap-2 p-2 rounded-lg transition-all"
+                  style={{ background: isSelected ? 'rgba(200,146,42,0.12)' : 'rgba(12,10,18,0.5)', border: `1px solid ${isSelected ? 'rgba(200,146,42,0.3)' : 'rgba(200,146,42,0.08)'}` }}>
+                  <button onClick={() => {
+                    if (isPlaying) { audioRef.current?.pause(); setPlayingTrack(null) }
+                    else {
+                      if (audioRef.current) audioRef.current.pause()
+                      const a = new Audio(track.url); a.play().catch(() => {}); audioRef.current = a
+                      a.onended = () => setPlayingTrack(null)
+                      setPlayingTrack(track.id)
+                    }
+                  }} className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                    style={{ background: 'rgba(200,146,42,0.15)' }}>
+                    <Play size={10} style={{ color: '#c8922a' }} />
+                  </button>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] font-semibold truncate" style={{ color: '#f0ece4' }}>{track.name}</p>
+                    <p className="text-[9px]" style={{ color: '#7a7068' }}>{track.category} · {track.duration}</p>
+                  </div>
+                  <button onClick={() => { set('backgroundMusic', track.url); if (audioRef.current) { audioRef.current.pause(); setPlayingTrack(null) } }}
+                    className="px-2 py-1 rounded-full text-[9px] font-semibold shrink-0"
+                    style={{ background: isSelected ? '#c8922a' : 'rgba(200,146,42,0.1)', color: isSelected ? '#fff' : '#c8922a' }}>
+                    {isSelected ? <Check size={10} /> : 'Use'}
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+          <p className="text-[9px] mt-2" style={{ color: '#7a7068' }}>Upload your own MP3 or pick from the library. Music plays when guests open your invite.</p>
         </>
       )
       default: return null

@@ -15,7 +15,7 @@ const DEFAULT_CONFIG: TemplateEditorConfig = {
   hasSubtitles: false,
   hasFamily: true,
   hasHindiNames: false,
-  hasInfoCards: false,
+  hasInfoCards: true,
   coupleFields: ['groomName', 'brideName', 'groomParents', 'brideParents', 'weddingDate', 'hashtag', 'tagline', 'invitationText'],
   eventFields: ['name', 'date', 'time', 'venue', 'venueAddress', 'venueMapLink'],
 }

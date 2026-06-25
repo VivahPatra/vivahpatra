@@ -15,8 +15,9 @@ export default function Navbar() {
   const isPreviewPage = pathname.startsWith('/preview')
 
   const isEditorPage = pathname.startsWith('/editor')
+  const isInvitePage = pathname.startsWith('/invite')
 
-  if (isPreviewPage || isEditorPage) return null
+  if (isPreviewPage || isEditorPage || isInvitePage) return null
 
   return (
     <>
