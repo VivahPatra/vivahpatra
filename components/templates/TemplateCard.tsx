@@ -85,7 +85,8 @@ export default function TemplateCard({ template: t }: { template: Template }) {
               </div>
             )}
 
-            <div className="absolute inset-0 bg-transparent group-hover:bg-black/50 transition-all duration-300 flex flex-col items-center justify-center gap-3 z-10">
+            {/* Desktop: hover overlay */}
+            <div className="absolute inset-0 bg-transparent group-hover:bg-black/50 transition-all duration-300 hidden md:flex flex-col items-center justify-center gap-3 z-10">
               <a href={`/preview/${t.id}`}
                 className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 px-6 py-2.5 rounded-full text-sm font-semibold bg-white pointer-events-auto"
                 style={{ color: t.color }}>
@@ -106,7 +107,20 @@ export default function TemplateCard({ template: t }: { template: Template }) {
             <span className="font-sans text-[9px] tracking-wider uppercase px-2 py-0.5 rounded-full"
               style={{ background: `${t.color}15`, color: t.color }}>{t.category}</span>
           </div>
-          <p className="font-display text-lg" style={{ color: 'var(--color-accent)' }}>₹{t.price}</p>
+          <p className="font-display text-lg mb-2" style={{ color: 'var(--color-accent)' }}>₹{t.price}</p>
+          {/* Mobile: always-visible buttons */}
+          <div className="flex items-center justify-center gap-2 md:hidden">
+            <a href={`/preview/${t.id}`}
+              className="px-4 py-2 rounded-full text-xs font-semibold"
+              style={{ border: `1px solid ${t.color}`, color: t.color }}>
+              Preview
+            </a>
+            <button onClick={handleBuy} disabled={paying}
+              className="px-4 py-2 rounded-full text-xs font-semibold text-white disabled:opacity-50"
+              style={{ background: t.color }}>
+              {paying ? '...' : `Buy ₹${t.price}`}
+            </button>
+          </div>
         </div>
       </motion.div>
 
