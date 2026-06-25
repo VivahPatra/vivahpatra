@@ -5,6 +5,7 @@ export interface Template {
   description: string
   color: string
   price: number
+  originalPrice: number
   port: number
   url: string
   features: string[]
@@ -18,6 +19,7 @@ export const TEMPLATES: Template[] = [
     description: 'Kerala kasavu gold theme with coconut trees, boat animations, diya glow effects, and traditional kolam patterns.',
     color: '#c9a84c',
     price: 1499,
+    originalPrice: 3749,
     port: 3000,
     url: 'https://template-southindian.vercel.app',
     features: ['Curtain opener', 'Boat animation', 'Diya glow', 'Kolam patterns'],
@@ -29,6 +31,7 @@ export const TEMPLATES: Template[] = [
     description: 'Classic gold & green design with peacock opener, lantern parallax, ornate kasavu frames.',
     color: '#c49a6c',
     price: 1499,
+    originalPrice: 3749,
     port: 3001,
     url: 'https://template-invitation-liard.vercel.app',
     features: ['Peacock opener', 'Lantern parallax', 'Flower overlay', 'Ornate frames'],
@@ -40,6 +43,7 @@ export const TEMPLATES: Template[] = [
     description: 'Palace backdrop with cloud parallax, swing decorations, walking elephant animation.',
     color: '#c0425c',
     price: 1499,
+    originalPrice: 3749,
     port: 3002,
     url: 'https://template-2-brown.vercel.app',
     features: ['Cloud parallax', 'Swing decor', 'Elephant walk', 'Palace backdrop'],
@@ -51,6 +55,7 @@ export const TEMPLATES: Template[] = [
     description: 'Artistic caricature style with ink botanical vines, floating swans, watercolor wash effects.',
     color: '#c4683a',
     price: 1499,
+    originalPrice: 3749,
     port: 3003,
     url: 'https://template-3-ruddy.vercel.app',
     features: ['Auto caricature', 'Swan pond', 'Ink vines', 'Watercolor wash'],
@@ -62,6 +67,7 @@ export const TEMPLATES: Template[] = [
     description: 'Krishna-Radha Pichwai painting theme with cow animations, lotus pond, sriji intro animation.',
     color: '#c8922a',
     price: 1499,
+    originalPrice: 3749,
     port: 3004,
     url: 'https://template-4-chi.vercel.app',
     features: ['Sriji intro', 'Cow animation', 'Lotus pond', 'Pichwai art'],
@@ -73,6 +79,7 @@ export const TEMPLATES: Template[] = [
     description: 'Turmeric & plum theme with Ik Onkar, golden temple, floating diyas, water body reflection.',
     color: '#e8a820',
     price: 1499,
+    originalPrice: 3749,
     port: 3005,
     url: 'https://template-punjabi.vercel.app',
     features: ['Floating diyas', 'Water reflection', 'Golden temple', 'Fireworks'],
@@ -84,6 +91,7 @@ export const TEMPLATES: Template[] = [
     description: 'Ocean gradient with animated waves, floating swans, lantern parallax, beach vibes.',
     color: '#1a8a9a',
     price: 1499,
+    originalPrice: 3749,
     port: 3006,
     url: 'https://template-christian.vercel.app',
     features: ['Ocean waves', 'Swan pond', 'Lantern parallax', 'Beach sunset'],
@@ -95,6 +103,7 @@ export const TEMPLATES: Template[] = [
     description: 'Horizontal scroll layout with glassmorphism cards, city bokeh lights, minimal aesthetic.',
     color: '#c0a060',
     price: 1499,
+    originalPrice: 3749,
     port: 3007,
     url: 'https://template-modern-psi.vercel.app',
     features: ['Horizontal scroll', 'Glassmorphism', 'City bokeh', 'Minimal design'],
@@ -106,6 +115,7 @@ export const TEMPLATES: Template[] = [
     description: 'Rotating mandala rings with jewel tones, sacred geometry borders, spinning dividers.',
     color: '#8b3a8b',
     price: 1499,
+    originalPrice: 3749,
     port: 3008,
     url: 'https://template-mandala.vercel.app',
     features: ['Rotating mandalas', 'Sacred geometry', 'Jewel tones', 'Spinning dividers'],

@@ -121,7 +121,11 @@ export default function TemplateCard({ template: t }: { template: Template }) {
             <span className="font-sans text-[9px] tracking-wider uppercase px-2 py-0.5 rounded-full"
               style={{ background: `${t.color}15`, color: t.color }}>{t.category}</span>
           </div>
-          <p className="font-display text-lg mb-2" style={{ color: 'var(--color-accent)' }}>₹{t.price}</p>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <span className="font-sans text-xs line-through" style={{ color: 'var(--color-muted)' }}>₹{t.originalPrice}</span>
+            <span className="font-display text-lg" style={{ color: 'var(--color-accent)' }}>₹{t.price}</span>
+            <span className="font-sans text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#16a34a', color: '#fff' }}>60% OFF</span>
+          </div>
           {/* Mobile: always-visible buttons */}
           <div className="flex items-center justify-center gap-2 md:hidden">
             <a href={`/preview/${t.id}`}

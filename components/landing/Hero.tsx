@@ -20,11 +20,13 @@ export default function Hero() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left: Text */}
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
-            <motion.p className="font-sans text-[10px] tracking-[0.5em] uppercase mb-6 glow-pulse"
-              style={{ color: 'var(--color-accent)' }}
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-              Digital Wedding Invitations
-            </motion.p>
+            <motion.div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6"
+              style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', boxShadow: '0 0 20px rgba(22,163,74,0.3)' }}
+              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}
+            >
+              <span className="font-sans text-[10px] font-bold tracking-wider uppercase text-white">Wedding Season Mega Sale</span>
+              <span className="font-sans text-[10px] font-bold px-1.5 py-0.5 rounded text-green-900" style={{ background: '#bbf7d0' }}>FLAT 60% OFF</span>
+            </motion.div>
 
             <h1 className="font-display leading-[1.15]" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
               <motion.span className="block" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
@@ -37,8 +39,9 @@ export default function Hero() {
 
             <motion.p className="font-sans text-sm mt-6 leading-relaxed max-w-md"
               style={{ color: 'var(--color-muted)' }}
+
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
-              Stunning templates for every Indian wedding culture. Customize in minutes, share instantly via WhatsApp. Starting at ₹1499.
+              Stunning templates for every Indian wedding culture. Customize in minutes, share instantly via WhatsApp. <span style={{ color: 'var(--color-accent)' }}>Now at ₹1499</span> <span className="line-through" style={{ color: 'var(--color-muted)', opacity: 0.6 }}>₹3749</span>
             </motion.p>
 
             <motion.div className="flex flex-wrap items-center gap-4 mt-8"
