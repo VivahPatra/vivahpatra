@@ -309,11 +309,11 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       <div className="h-full overflow-hidden transition-all duration-300 flex flex-col" style={{ width: panelOpen ? 320 : 0, background: 'rgba(14,12,20,0.98)', borderLeft: '1px solid rgba(200,146,42,0.15)' }}>
         {panelOpen && (
           <>
-            <div className="flex overflow-x-auto gap-0 shrink-0" style={{ borderBottom: '1px solid rgba(200,146,42,0.15)' }}>
+            <div className="flex flex-wrap gap-0 shrink-0 px-1 pt-1" style={{ borderBottom: '1px solid rgba(200,146,42,0.15)' }}>
               {tabs.map((tab, i) => (
                 <button key={tab} onClick={() => setActiveTab(i)}
-                  className="px-2.5 py-3 text-[9px] font-semibold tracking-wider uppercase whitespace-nowrap"
-                  style={{ color: activeTab === i ? '#c8922a' : '#7a7068', borderBottom: activeTab === i ? '2px solid #c8922a' : '2px solid transparent' }}>
+                  className="px-2.5 py-2 text-[9px] font-semibold tracking-wider uppercase"
+                  style={{ color: activeTab === i ? '#c8922a' : '#7a7068', background: activeTab === i ? 'rgba(200,146,42,0.1)' : 'transparent', borderRadius: '6px 6px 0 0' }}>
                   {tab}
                 </button>
               ))}
