@@ -51,3 +51,17 @@ export async function publishInvite(templateId: string, data: unknown, userId: s
 
   return { slug, updated: false }
 }
+
+export async function checkPublished(templateId: string, userId: string): Promise<string | null> {
+  const supabase = createClient()
+  if (!supabase) return null
+
+  const { data } = await supabase
+    .from('published_invites')
+    .select('slug')
+    .eq('user_id', userId)
+    .eq('template_id', templateId)
+    .maybeSingle()
+
+  return data?.slug || null
+}

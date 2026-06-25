@@ -8,7 +8,7 @@ import { getDefaultEvents, getDefaultInfoCards } from '@/lib/template-defaults'
 import { getEditorConfig } from '@/lib/editor-config'
 import { useUser } from '@/components/auth/AuthProvider'
 import { saveToCloud, loadFromCloud } from '@/lib/cloud-save'
-import { publishInvite } from '@/lib/publish'
+import { publishInvite, checkPublished } from '@/lib/publish'
 import { EditorInput, EditorTextArea, EditorImageUpload, EditorMultiImageUpload, SectionHeader } from '@/components/editor/EditorInput'
 import { MUSIC_LIBRARY } from '@/lib/music-library'
 
@@ -28,6 +28,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const [saved, setSaved] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null)
+  const [hasPublished, setHasPublished] = useState(false)
   const [panelOpen, setPanelOpen] = useState(true)
   const [activeTab, setActiveTab] = useState(0)
   const [playingTrack, setPlayingTrack] = useState<string | null>(null)
@@ -55,6 +56,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       }
     }
     loadData()
+
+    // Check if already published
+    if (user?.id) {
+      checkPublished(id, user.id).then(slug => {
+        if (slug) { setHasPublished(true); setPublishedUrl(`${window.location.origin}/invite/${slug}`) }
+      })
+    }
   }, [id, user])
 
   useEffect(() => { if (!loading && !user) router.replace('/templates') }, [user, loading, router])
@@ -90,6 +98,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     const result = await publishInvite(id, data, user.id)
     if ('slug' in result) {
       setPublishedUrl(`${window.location.origin}/invite/${result.slug}`)
+      setHasPublished(true)
     } else {
       alert(result.error || 'Publishing failed')
     }
@@ -129,9 +138,10 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         <>
           <SectionHeader label="Couple & Hero" visible={data.sections.hero} onToggle={() => toggle('hero')} />
           <div className="grid grid-cols-2 gap-2">
-            <EditorInput label="Groom Name" value={data.groomName} onChange={v => set('groomName', v)} placeholder="Rahul" />
-            <EditorInput label="Bride Name" value={data.brideName} onChange={v => set('brideName', v)} placeholder="Priya" />
+            <EditorInput label="Groom Name" value={data.groomName} onChange={v => set('groomName', v)} placeholder="Rahul" disabled={hasPublished} />
+            <EditorInput label="Bride Name" value={data.brideName} onChange={v => set('brideName', v)} placeholder="Priya" disabled={hasPublished} />
           </div>
+          {hasPublished && <p className="text-[9px] -mt-1 mb-2" style={{ color: '#c8922a' }}>Names locked after first publish (used in invite URL)</p>}
           <div className="grid grid-cols-2 gap-2">
             <EditorInput label="Groom's Parents" value={data.groomParents} onChange={v => set('groomParents', v)} placeholder="Mr. & Mrs. Sharma" />
             <EditorInput label="Bride's Parents" value={data.brideParents} onChange={v => set('brideParents', v)} placeholder="Mr. & Mrs. Gupta" />

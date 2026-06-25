@@ -58,8 +58,8 @@ export default function PreviewPage({ params }: { params: Promise<{ id: string }
       <div className="min-h-screen relative" style={{ background: '#000' }}>
         <iframe
           src={template.url}
-          className="w-full h-screen"
-          style={{ border: 'none' }}
+          className="w-full"
+          style={{ border: 'none', height: 'calc(100vh - 64px)' }}
           title={template.name}
         />
 

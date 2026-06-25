@@ -8,13 +8,14 @@ const inputStyle: React.CSSProperties = { border: '1px solid rgba(200,146,42,0.1
 const labelCls = "text-[10px] font-semibold tracking-wider uppercase mb-1 block"
 const labelStyle: React.CSSProperties = { color: '#7a7068' }
 
-export function EditorInput({ label, value, onChange, type = 'text', placeholder = '' }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string
+export function EditorInput({ label, value, onChange, type = 'text', placeholder = '', disabled }: {
+  label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string; disabled?: boolean
 }) {
   return (
     <div className="mb-3">
-      <label className={labelCls} style={labelStyle}>{label}</label>
-      <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className={inputCls} style={inputStyle} />
+      <label className={labelCls} style={labelStyle}>{label} {disabled && <span style={{ color: '#c8922a', fontSize: 8 }}>LOCKED</span>}</label>
+      <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} disabled={disabled}
+        className={inputCls} style={{ ...inputStyle, opacity: disabled ? 0.5 : 1, cursor: disabled ? 'not-allowed' : 'text' }} />
     </div>
   )
 }
