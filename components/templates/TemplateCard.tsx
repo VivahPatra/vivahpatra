@@ -73,7 +73,7 @@ export default function TemplateCard({ template: t }: { template: Template }) {
         className="flex flex-col items-center">
 
         <div className="group relative w-full max-w-[260px] mx-auto">
-          <div className="rounded-[32px] overflow-hidden border-[5px] border-gray-800 shadow-2xl relative"
+          <a href={`/preview/${t.id}`} className="block md:pointer-events-none rounded-[32px] overflow-hidden border-[5px] border-gray-800 shadow-2xl relative"
             style={{ aspectRatio: '9/16', background: t.color }}>
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 rounded-b-xl z-20" style={{ background: '#1a1a1a' }} />
 
@@ -103,21 +103,20 @@ export default function TemplateCard({ template: t }: { template: Template }) {
                 style={{ color: t.color }}>
                 Preview
               </a>
-              {purchased ? (
+              {purchased && (
                 <a href={`/editor/${t.id}`}
                   className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 px-6 py-2.5 rounded-full text-sm font-semibold text-white pointer-events-auto flex items-center gap-2"
                   style={{ background: t.color, transitionDelay: '0.05s' }}>
-                  <PenLine size={14} /> Edit Template
+                  <PenLine size={14} /> Edit
                 </a>
-              ) : (
-                <button onClick={handleBuy} disabled={paying}
-                  className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 px-6 py-2.5 rounded-full text-sm font-semibold text-white pointer-events-auto disabled:opacity-50"
-                  style={{ background: t.color, transitionDelay: '0.05s' }}>
-                  {paying ? 'Processing...' : `Buy ₹${t.price}`}
-                </button>
               )}
+              <button onClick={handleBuy} disabled={paying}
+                className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 px-6 py-2.5 rounded-full text-sm font-semibold text-white pointer-events-auto disabled:opacity-50"
+                style={{ background: purchased ? '#333' : t.color, transitionDelay: '0.1s' }}>
+                {paying ? 'Processing...' : `Buy ₹${t.price}`}
+              </button>
             </div>
-          </div>
+          </a>
         </div>
 
         <div className="text-center mt-4 w-full max-w-[260px]">
@@ -133,24 +132,18 @@ export default function TemplateCard({ template: t }: { template: Template }) {
           </div>
           {/* Mobile: always-visible buttons */}
           <div className="flex items-center justify-center gap-2 md:hidden">
-            <a href={`/preview/${t.id}`}
-              className="px-4 py-2 rounded-full text-xs font-semibold"
-              style={{ border: `1px solid ${t.color}`, color: t.color }}>
-              Preview
-            </a>
-            {purchased ? (
+            {purchased && (
               <a href={`/editor/${t.id}`}
                 className="px-4 py-2 rounded-full text-xs font-semibold text-white flex items-center gap-1"
                 style={{ background: t.color }}>
                 <PenLine size={12} /> Edit
               </a>
-            ) : (
-              <button onClick={handleBuy} disabled={paying}
-                className="px-4 py-2 rounded-full text-xs font-semibold text-white disabled:opacity-50"
-                style={{ background: t.color }}>
+            )}
+            <button onClick={handleBuy} disabled={paying}
+              className="px-4 py-2 rounded-full text-xs font-semibold text-white disabled:opacity-50"
+              style={{ background: purchased ? '#333' : t.color }}>
                 {paying ? '...' : `Buy ₹${t.price}`}
               </button>
-            )}
           </div>
         </div>
       </motion.div>
