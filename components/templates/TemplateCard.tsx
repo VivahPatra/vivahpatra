@@ -15,7 +15,13 @@ export default function TemplateCard({ template: t }: { template: Template }) {
   const [visible, setVisible] = useState(false)
   const [iframeLoaded, setIframeLoaded] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
-  const [pendingBuy, setPendingBuy] = useState(false)
+  const [pendingBuy, setPendingBuy] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const pending = localStorage.getItem('pendingBuy')
+      if (pending === t.id) return true
+    }
+    return false
+  })
   const [purchased, setPurchased] = useState(false)
   const [latestInst, setLatestInst] = useState('')
   const { user } = useUser()
@@ -56,7 +62,11 @@ export default function TemplateCard({ template: t }: { template: Template }) {
   }, [t.id, user])
 
   useEffect(() => {
-    if (user && pendingBuy) { setPendingBuy(false); handlePayment() }
+    if (user && pendingBuy) {
+      setPendingBuy(false)
+      localStorage.removeItem('pendingBuy')
+      handlePayment()
+    }
   }, [user, pendingBuy])
 
   const handlePayment = async () => {
@@ -76,7 +86,12 @@ export default function TemplateCard({ template: t }: { template: Template }) {
   }
 
   const handleBuy = () => {
-    if (!user) { setPendingBuy(true); setAuthOpen(true); return }
+    if (!user) {
+      setPendingBuy(true)
+      localStorage.setItem('pendingBuy', t.id)
+      setAuthOpen(true)
+      return
+    }
     handlePayment()
   }
 
