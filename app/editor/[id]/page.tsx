@@ -157,6 +157,12 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <EditorInput label="Hashtag" value={data.hashtag} onChange={v => set('hashtag', v)} placeholder="#RahulWedsPrivya" />
           {config.hasTagline && <EditorInput label="Tagline" value={data.tagline} onChange={v => set('tagline', v)} placeholder="Two souls, one love story" />}
           <EditorInput label="Hero Subtitle" value={data.heroSubtitle} onChange={v => set('heroSubtitle', v)} placeholder="✦ Together Forever ✦" />
+          {config.hasCouplePhoto && (
+            <>
+              <EditorImageUpload label="Couple Photo (auto-caricature)" value={data.heroImage} onChange={v => set('heroImage', v)} userId={user?.id} folder="couple" />
+              <p className="text-[11px] -mt-1 mb-3" style={{ color: '#7a7068' }}>Photo will be converted to caricature style in template</p>
+            </>
+          )}
         </>
       )
       case 'Invitation': return (

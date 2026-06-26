@@ -131,7 +131,12 @@ export default function TemplateCard({ template: t }: { template: Template }) {
             <span className="font-sans text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#16a34a', color: '#fff' }}>60% OFF</span>
           </div>
           {/* Mobile: always-visible buttons */}
-          <div className="flex items-center justify-center gap-2 md:hidden">
+          <div className="flex items-center justify-center gap-2 md:hidden flex-wrap">
+            <a href={`/preview/${t.id}`}
+              className="px-4 py-2 rounded-full text-xs font-semibold"
+              style={{ border: `1px solid ${t.color}`, color: t.color }}>
+              Preview
+            </a>
             {purchased && (
               <a href={`/editor/${t.id}`}
                 className="px-4 py-2 rounded-full text-xs font-semibold text-white flex items-center gap-1"

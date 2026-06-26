@@ -6,6 +6,7 @@ export const TEMPLATE_EVENTS: Record<string, WeddingEvent[]> = {
   southindian: [
     { id: 'nichayathartham', name: 'Nichayathartham', emoji: '💍', image: `${IMG}/engagement.png`, date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#c9a84c' },
     { id: 'nalagu', name: 'Nalagu', emoji: '🌿', image: `${IMG}/haldi.png`, date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#c8a030' },
+{ id: 'sangeetam', name: 'Sangeetam', emoji: '🎶', image: `${IMG}/sangeet.png`, date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#8b6fc4' },
     { id: 'muhurtham', name: 'Muhurtham', emoji: '🪔', image: `${IMG}/wedding.png`, date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#c9a84c' },
     { id: 'sadya', name: 'Sadya', emoji: '🍃', image: `${IMG}/mehendi.png`, date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#5a9a60' },
     { id: 'reception', name: 'Reception', emoji: '🌺', image: `${IMG}/reception.png`, date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#c07060' },
@@ -51,7 +52,7 @@ export const TEMPLATE_EVENTS: Record<string, WeddingEvent[]> = {
   ],
   christian: [
     { id: 'rehearsal', name: 'Rehearsal Dinner', emoji: '🥂', image: `${IMG}/reception.png`, date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#1a8a9a' },
-    { id: 'mehendi', name: 'Mehendi Night', emoji: '🌿', image: `${IMG}/mehendi.png`, date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#e07050' },
+    { id: 'mehendi', name: 'Opera Night', emoji: '🌿', image: `${IMG}/mehendi.png`, date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#e07050' },
     { id: 'sangeet', name: 'Beach Party', emoji: '🎶', image: `${IMG}/sangeet.png`, date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#4a90c0' },
     { id: 'ceremony', name: 'Holy Matrimony', emoji: '✝️', image: `${IMG}/wedding.png`, date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#d4a040' },
     { id: 'reception', name: 'Beach Reception', emoji: '🌊', image: `${IMG}/reception.png`, date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#e07050' },
