@@ -5,15 +5,22 @@ import { motion } from 'framer-motion'
 import { User, Mail, Phone, Calendar, ExternalLink, Clock } from 'lucide-react'
 import { useUser } from '@/components/auth/AuthProvider'
 import { TEMPLATES } from '@/lib/templates'
-import { getCloudInstances, CloudInstance } from '@/lib/cloud-save'
+import { getUserPurchases } from '@/lib/purchases'
 import Button from '@/components/shared/Button'
 import Footer from '@/components/shared/Footer'
+
+interface ProfileInstance {
+  instanceId: string
+  groomName: string
+  brideName: string
+  updatedAt: string
+}
 
 interface PurchaseEntry {
   templateId: string
   templateName: string
   templateColor: string
-  instances: CloudInstance[]
+  instances: ProfileInstance[]
 }
 
 export default function ProfilePage() {
@@ -27,30 +34,20 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user?.id) return
-    async function loadPurchases() {
+    getUserPurchases(user.id).then(pList => {
       const entries: PurchaseEntry[] = []
-      for (const t of TEMPLATES) {
-        const instances = await getCloudInstances(user!.id, t.id)
-        if (instances.length > 0) {
-          entries.push({ templateId: t.id, templateName: t.name, templateColor: t.color, instances })
+      for (const p of pList) {
+        const t = TEMPLATES.find(t => t.id === p.templateId)
+        if (!t) continue
+        let entry = entries.find(e => e.templateId === p.templateId)
+        if (!entry) {
+          entry = { templateId: p.templateId, templateName: t.name, templateColor: t.color, instances: [] }
+          entries.push(entry)
         }
-      }
-      // Also check localStorage instances
-      for (const t of TEMPLATES) {
-        if (entries.find(e => e.templateId === t.id)) continue
-        const localInsts = JSON.parse(localStorage.getItem(`instances-${t.id}`) || '[]')
-        if (localInsts.length > 0) {
-          entries.push({
-            templateId: t.id, templateName: t.name, templateColor: t.color,
-            instances: localInsts.map((inst: {id: string; createdAt: string}) => ({
-              instanceId: inst.id, groomName: '', brideName: '', updatedAt: inst.createdAt,
-            })),
-          })
-        }
+        entry.instances.push({ instanceId: p.instanceId, groomName: '', brideName: '', updatedAt: p.createdAt })
       }
       setPurchases(entries)
-    }
-    loadPurchases()
+    })
   }, [user])
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" /></div>
