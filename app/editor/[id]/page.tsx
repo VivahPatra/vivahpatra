@@ -51,6 +51,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const [panelOpen, setPanelOpen] = useState(true)
   const [activeTab, setActiveTab] = useState(0)
   const [playingTrack, setPlayingTrack] = useState<string | null>(null)
+  const [galleryTarget, setGalleryTarget] = useState(6)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
@@ -260,38 +261,50 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         </>
       )
       case 'Gallery': {
-        const photoCount = data.galleryImages.length
-        const maxPhotos = 8
-        const layoutLabel = photoCount <= 4 ? '2×2 Grid' : photoCount <= 6 ? '2×3 Grid' : '2×4 Grid'
+        const uploaded = data.galleryImages.length
+        const target = galleryTarget
+        const remaining = target - uploaded
+        const layoutLabel = target <= 4 ? '2×2 Grid' : target <= 6 ? '2×3 Grid' : '2×4 Grid'
         return (
           <>
             <SectionHeader label="Photo Gallery" visible={data.sections.gallery} onToggle={() => toggle('gallery')} />
             <div className="mb-4">
-              <label className="text-xs font-semibold tracking-wider uppercase mb-2 block" style={{ color: '#9a8a7a' }}>Number of Photos (4-8)</label>
+              <label className="text-xs font-semibold tracking-wider uppercase mb-2 block" style={{ color: '#9a8a7a' }}>Select Number of Photos</label>
               <div className="flex gap-2">
                 {[4, 5, 6, 7, 8].map(n => (
                   <button key={n} onClick={() => {
-                    if (n < photoCount) { setGallery(data.galleryImages.slice(0, n).map(g => ({ src: g.src, alt: g.alt }))) }
+                    setGalleryTarget(n)
+                    if (n < uploaded) setGallery(data.galleryImages.slice(0, n).map(g => ({ src: g.src, alt: g.alt })))
                   }}
                     className="w-10 h-10 rounded-lg text-sm font-semibold transition-all"
                     style={{
-                      background: photoCount === n ? '#c8922a' : 'rgba(200,146,42,0.08)',
-                      color: photoCount === n ? '#fff' : '#c8922a',
-                      border: `1px solid ${photoCount === n ? '#c8922a' : 'rgba(200,146,42,0.15)'}`,
+                      background: target === n ? '#c8922a' : 'rgba(200,146,42,0.08)',
+                      color: target === n ? '#fff' : '#c8922a',
+                      border: `1px solid ${target === n ? '#c8922a' : 'rgba(200,146,42,0.15)'}`,
                     }}>
                     {n}
                   </button>
                 ))}
               </div>
-              <p className="text-[11px] mt-1" style={{ color: '#7a7068' }}>{photoCount}/{maxPhotos} photos · {layoutLabel}</p>
+              <p className="text-[11px] mt-2" style={{ color: '#7a7068' }}>Layout: {layoutLabel}</p>
             </div>
+
             <EditorMultiImageUpload
-              label={`Gallery Photos (max ${maxPhotos})`}
+              label={`Upload Photos (${uploaded}/${target})`}
               images={data.galleryImages.map(g => ({ src: g.src, alt: g.alt }))}
-              onChange={imgs => { if (imgs.length <= maxPhotos) setGallery(imgs) }}
+              onChange={imgs => { if (imgs.length <= target) setGallery(imgs) }}
               userId={user?.id} folder="gallery"
             />
-            {photoCount >= maxPhotos && <p className="text-xs mt-1" style={{ color: '#c33' }}>Maximum {maxPhotos} photos reached</p>}
+
+            {remaining > 0 && uploaded > 0 && (
+              <div className="mt-2 px-3 py-2 rounded-lg text-xs font-semibold"
+                style={{ background: 'rgba(232,168,32,0.1)', color: '#c8922a', border: '1px solid rgba(200,146,42,0.15)' }}>
+                {remaining} more photo{remaining > 1 ? 's' : ''} needed to complete your gallery
+              </div>
+            )}
+            {uploaded >= target && uploaded > 0 && (
+              <p className="text-xs mt-2 font-semibold" style={{ color: '#16a34a' }}>✓ Gallery complete — {target} photos uploaded</p>
+            )}
           </>
         )
       }
