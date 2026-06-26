@@ -8,16 +8,17 @@ function generateSlug(groomName: string, brideName: string): string {
   return `${g}-weds-${b}-${rand}`
 }
 
-export async function publishInvite(templateId: string, data: unknown, userId: string): Promise<{ slug: string; updated: boolean } | { error: string }> {
+export async function publishInvite(templateId: string, instanceId: string, data: unknown, userId: string): Promise<{ slug: string; updated: boolean } | { error: string }> {
   const supabase = createClient()
   if (!supabase) return { error: 'Database not configured' }
 
-  // Check if already published for this template
+  // Check if THIS instance already published
   const { data: existing } = await supabase
     .from('published_invites')
     .select('id, slug')
     .eq('user_id', userId)
     .eq('template_id', templateId)
+    .eq('instance_id', instanceId)
     .maybeSingle()
 
   if (existing) {
@@ -35,14 +36,14 @@ export async function publishInvite(templateId: string, data: unknown, userId: s
 
   const { error } = await supabase
     .from('published_invites')
-    .insert({ slug, template_id: templateId, user_id: userId, data })
+    .insert({ slug, template_id: templateId, instance_id: instanceId, user_id: userId, data })
 
   if (error) {
     if (error.code === '23505') {
       const retrySlug = slug + Math.random().toString(36).slice(2, 4)
       const { error: retryErr } = await supabase
         .from('published_invites')
-        .insert({ slug: retrySlug, template_id: templateId, user_id: userId, data })
+        .insert({ slug: retrySlug, template_id: templateId, instance_id: instanceId, user_id: userId, data })
       if (retryErr) return { error: retryErr.message }
       return { slug: retrySlug, updated: false }
     }
@@ -52,7 +53,7 @@ export async function publishInvite(templateId: string, data: unknown, userId: s
   return { slug, updated: false }
 }
 
-export async function checkPublished(templateId: string, userId: string): Promise<string | null> {
+export async function checkPublished(templateId: string, instanceId: string, userId: string): Promise<string | null> {
   const supabase = createClient()
   if (!supabase) return null
 
@@ -61,6 +62,7 @@ export async function checkPublished(templateId: string, userId: string): Promis
     .select('slug')
     .eq('user_id', userId)
     .eq('template_id', templateId)
+    .eq('instance_id', instanceId)
     .maybeSingle()
 
   return data?.slug || null

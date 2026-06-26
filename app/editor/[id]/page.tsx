@@ -7,7 +7,7 @@ import { WeddingFormData, DEFAULT_FORM_DATA, SectionToggle, WeddingEvent, StoryI
 import { getDefaultEvents, getDefaultInfoCards } from '@/lib/template-defaults'
 import { getEditorConfig } from '@/lib/editor-config'
 import { useUser } from '@/components/auth/AuthProvider'
-import { saveToCloud, loadFromCloud } from '@/lib/cloud-save'
+import { saveToCloud, loadFromCloud, getCloudInstances, CloudInstance } from '@/lib/cloud-save'
 import { publishInvite, checkPublished } from '@/lib/publish'
 import { EditorInput, EditorTextArea, EditorImageUpload, EditorMultiImageUpload, SectionHeader } from '@/components/editor/EditorInput'
 import { MUSIC_LIBRARY } from '@/lib/music-library'
@@ -20,24 +20,23 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const config = getEditorConfig(id)
   const [instId] = useState(() => typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('inst') || '' : '')
   const storageKey = instId ? `editor-${id}-${instId}` : `editor-${id}`
-  const [instances, setInstances] = useState<{id: string; name?: string}[]>([])
+  const [instances, setInstances] = useState<{id: string; name: string}[]>([])
 
   useEffect(() => {
-    const list = JSON.parse(localStorage.getItem(`instances-${id}`) || '[]')
-    const labeled = list
-      .filter((inst: {id: string}) => inst.id !== 'legacy')
-      .map((inst: {id: string}, i: number) => {
-        const saved = localStorage.getItem(`editor-${id}-${inst.id}`)
-        if (saved) {
-          try {
-            const d = JSON.parse(saved)
-            if (d.groomName && d.brideName) return { id: inst.id, name: `${d.groomName} & ${d.brideName}` }
-          } catch { /* ignore */ }
-        }
-        return { id: inst.id, name: `Invite ${i + 1}` }
-      })
-    setInstances(labeled)
-  }, [id])
+    if (!user?.id) return
+    getCloudInstances(user.id, id).then(cloudInsts => {
+      if (cloudInsts.length > 0) {
+        setInstances(cloudInsts.map((ci, i) => ({
+          id: ci.instanceId,
+          name: ci.groomName && ci.brideName ? `${ci.groomName} & ${ci.brideName}` : `Invite ${i + 1}`,
+        })))
+      } else {
+        // Fallback to localStorage instances
+        const list = JSON.parse(localStorage.getItem(`instances-${id}`) || '[]')
+        setInstances(list.filter((inst: {id: string}) => inst.id !== 'legacy').map((inst: {id: string}, i: number) => ({ id: inst.id, name: `Invite ${i + 1}` })))
+      }
+    })
+  }, [id, user])
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [data, setData] = useState<WeddingFormData>({
     ...DEFAULT_FORM_DATA,
@@ -65,7 +64,12 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         return { ...DEFAULT_FORM_DATA, events: getDefaultEvents(id), ...saved, infoCards: cards, sections: secs } as WeddingFormData
       }
 
-      // Load from instance-specific storage
+      // Try cloud first (with instanceId)
+      if (user?.id && instId) {
+        const cloud = await loadFromCloud(user.id, id, instId)
+        if (cloud) { setData(merge(cloud)); return }
+      }
+      // Fallback to localStorage
       const s = localStorage.getItem(storageKey)
       if (s) {
         try { setData(merge(JSON.parse(s))) } catch { /* ignore */ }
@@ -73,13 +77,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     }
     loadData()
 
-    // Check if THIS instance has been published (per-instance, not per-template)
-    const publishedSlug = localStorage.getItem(`published-${storageKey}`)
-    if (publishedSlug) {
-      setHasPublished(true)
-      setPublishedUrl(`${window.location.origin}/invite/${publishedSlug}`)
+    // Check if THIS instance has been published
+    if (user?.id && instId) {
+      checkPublished(id, instId, user.id).then(slug => {
+        if (slug) { setHasPublished(true); setPublishedUrl(`${window.location.origin}/invite/${slug}`) }
+      })
     }
-  }, [id, user, storageKey])
+  }, [id, user, storageKey, instId])
 
   useEffect(() => { if (!loading && !user) router.replace('/templates') }, [user, loading, router])
 
@@ -99,7 +103,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   // Auto-save: localStorage immediately, cloud with longer debounce
   useEffect(() => {
     const t1 = setTimeout(() => localStorage.setItem(storageKey, JSON.stringify(data)), 500)
-    const t2 = setTimeout(() => { if (user?.id) saveToCloud(user.id, id, data) }, 3000)
+    const t2 = setTimeout(() => { if (user?.id && instId) saveToCloud(user.id, id, instId, data) }, 3000)
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [data, id, user])
 
@@ -111,7 +115,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const publish = async () => {
     if (!user?.id) { alert('Please sign in to publish'); return }
     save(); setPublishing(true)
-    const result = await publishInvite(id, data, user.id)
+    const result = await publishInvite(id, instId || 'default', data, user.id)
     if ('slug' in result) {
       setPublishedUrl(`${window.location.origin}/invite/${result.slug}`)
       setHasPublished(true)

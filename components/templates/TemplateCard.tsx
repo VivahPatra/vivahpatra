@@ -6,6 +6,7 @@ import { PenLine } from 'lucide-react'
 import { Template } from '@/lib/templates'
 import { useUser } from '@/components/auth/AuthProvider'
 import { usePayment } from '@/lib/usePayment'
+import { getCloudInstances } from '@/lib/cloud-save'
 import SignInModal from '@/components/auth/SignInModal'
 
 export default function TemplateCard({ template: t }: { template: Template }) {
@@ -32,14 +33,23 @@ export default function TemplateCard({ template: t }: { template: Template }) {
   const [latestInst, setLatestInst] = useState<string>('')
 
   useEffect(() => {
-    if (user) {
-      const instances = JSON.parse(localStorage.getItem(`instances-${t.id}`) || '[]')
-      if (instances.length > 0) {
-        setPurchased(true)
-        setLatestInst(instances[instances.length - 1].id)
-      } else {
-        setPurchased(false)
-      }
+    if (user?.id) {
+      // Check cloud first
+      getCloudInstances(user.id, t.id).then(cloudInsts => {
+        if (cloudInsts.length > 0) {
+          setPurchased(true)
+          setLatestInst(cloudInsts[cloudInsts.length - 1].instanceId)
+        } else {
+          // Fallback to localStorage
+          const instances = JSON.parse(localStorage.getItem(`instances-${t.id}`) || '[]')
+          if (instances.length > 0) {
+            setPurchased(true)
+            setLatestInst(instances[instances.length - 1].id)
+          } else {
+            setPurchased(false)
+          }
+        }
+      })
     } else {
       setPurchased(false)
     }
