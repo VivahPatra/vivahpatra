@@ -333,25 +333,28 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         <iframe ref={iframeRef} src={template.url} className="w-full h-full" style={{ border: 'none' }} title="Preview" onLoad={handleIframeLoad} />
       </div>
 
-      {/* Mobile top bar — always visible */}
-      <div className="lg:hidden flex items-center justify-between px-4 py-2 shrink-0" style={{ background: 'rgba(14,12,20,0.98)', borderBottom: '1px solid rgba(200,146,42,0.15)' }}>
+      {/* Mobile toolbar — fixed at top */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-[60] flex items-center justify-between px-3 py-2 safe-area-top"
+        style={{ background: 'rgba(14,12,20,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(200,146,42,0.15)' }}>
         <button onClick={() => router.back()} className="flex items-center gap-1 text-xs text-white/70">
-          <ArrowLeft size={14} /> Back
+          <ArrowLeft size={14} />
         </button>
-        <div className="flex items-center gap-2">
-          <button onClick={() => setPanelOpen(!panelOpen)} className="px-3 py-1.5 rounded-full text-xs font-semibold"
+        <div className="flex items-center gap-1.5">
+          <button onClick={() => setPanelOpen(!panelOpen)} className="px-3 py-1.5 rounded-full text-[11px] font-semibold"
             style={{ border: '1px solid rgba(200,146,42,0.3)', color: '#c8922a' }}>
-            {panelOpen ? 'Preview' : 'Edit'}
+            {panelOpen ? '👁 Preview' : '✏️ Edit'}
           </button>
-          <button onClick={save} className="px-3 py-1.5 rounded-full text-xs font-semibold"
+          <button onClick={save} className="px-2.5 py-1.5 rounded-full text-[11px] font-semibold"
             style={{ border: '1px solid rgba(200,146,42,0.3)', color: saved ? '#16a34a' : '#c8922a' }}>
-            <Save size={10} className="inline mr-1" />{saved ? 'Saved!' : 'Save'}
+            {saved ? '✓' : '💾'}
           </button>
-          <button onClick={publish} disabled={publishing} className="px-3 py-1.5 rounded-full text-xs font-semibold text-white disabled:opacity-50" style={{ background: '#c8922a' }}>
-            <Share2 size={10} className="inline mr-1" />{publishing ? '...' : 'Publish'}
+          <button onClick={publish} disabled={publishing} className="px-3 py-1.5 rounded-full text-[11px] font-semibold text-white disabled:opacity-50" style={{ background: '#c8922a' }}>
+            {publishing ? '...' : 'Publish'}
           </button>
         </div>
       </div>
+      {/* Spacer for fixed toolbar */}
+      <div className="lg:hidden h-11 shrink-0" />
 
       {/* Desktop toolbar — on template preview */}
       <div className="hidden lg:block">
@@ -393,12 +396,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         </button>
       </div>
 
-      {/* Published URL banner — mobile */}
+      {/* Published URL banner — mobile, fixed below toolbar */}
       {publishedUrl && (
-        <div className="lg:hidden px-4 py-2 flex items-center gap-2 text-xs shrink-0" style={{ background: 'rgba(22,163,74,0.95)', color: '#fff' }}>
-          <span className="flex-1 truncate text-xs">{publishedUrl.replace(window.location.origin, '')}</span>
-          <button onClick={() => { navigator.clipboard.writeText(publishedUrl); alert('Copied!') }} className="px-2 py-1 rounded text-[11px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Copy</button>
-          <button onClick={() => window.open(publishedUrl, '_blank')} className="px-2 py-1 rounded text-[11px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Open</button>
+        <div className="lg:hidden fixed top-11 left-0 right-0 z-[59] flex items-center gap-2 px-3 py-1.5 text-[10px]"
+          style={{ background: 'rgba(22,163,74,0.95)', color: '#fff' }}>
+          <span className="flex-1 truncate">{publishedUrl.replace(window.location.origin, '')}</span>
+          <button onClick={() => { navigator.clipboard.writeText(publishedUrl); alert('Copied!') }} className="px-2 py-0.5 rounded font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Copy</button>
+          <button onClick={() => window.open(publishedUrl, '_blank')} className="px-2 py-0.5 rounded font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Open</button>
         </div>
       )}
 
