@@ -1,6 +1,7 @@
 'use client'
 import { use, useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { Save, ArrowLeft, Share2, ChevronLeft, ChevronRight, Plus, Trash2, MapPin, Music, Play, Check } from 'lucide-react'
 import { getTemplate } from '@/lib/templates'
 import { WeddingFormData, DEFAULT_FORM_DATA, SectionToggle, WeddingEvent, StoryItem, InfoCard } from '@/lib/editor-types'
@@ -87,15 +88,24 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     }
   }, [id, user, storageKey, instId])
 
+  const [accessDenied, setAccessDenied] = useState(false)
+  const [countdown, setCountdown] = useState(5)
+
   useEffect(() => {
     if (!loading && !user) { router.replace('/templates'); return }
-    // Verify purchase — redirect if not purchased
     if (user?.id) {
       hasPurchased(user.id, id).then(bought => {
-        if (!bought) { alert('Please purchase this template first.'); router.replace('/templates') }
+        if (!bought) setAccessDenied(true)
       })
     }
   }, [user, loading, router, id])
+
+  useEffect(() => {
+    if (!accessDenied) return
+    if (countdown <= 0) { router.replace('/templates'); return }
+    const t = setTimeout(() => setCountdown(c => c - 1), 1000)
+    return () => clearTimeout(t)
+  }, [accessDenied, countdown, router])
 
   const sendToPreview = useCallback(() => {
     if (iframeRef.current?.contentWindow) {
@@ -118,6 +128,43 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   }, [data, id, user])
 
   if (!template) return <div className="min-h-screen flex items-center justify-center"><p>Template not found</p></div>
+
+  if (accessDenied) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
+      <div className="text-center px-8">
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.6 }}>
+          <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center"
+            style={{ background: 'rgba(232,56,79,0.1)', border: '2px solid #e8384f' }}>
+            <span className="text-3xl">🔒</span>
+          </div>
+        </motion.div>
+        <motion.h1 className="font-display text-2xl mb-3 text-white"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          Purchase Required
+        </motion.h1>
+        <motion.p className="font-sans text-sm mb-6" style={{ color: '#999' }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
+          Please purchase this template to use the editor.
+        </motion.p>
+        <motion.p className="font-sans text-xs mb-8" style={{ color: '#666' }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
+          Redirecting to templates in <span className="font-bold text-white">{countdown}</span> seconds...
+        </motion.p>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+          <div className="w-48 h-1 rounded-full mx-auto overflow-hidden" style={{ background: '#333' }}>
+            <motion.div className="h-full rounded-full" style={{ background: '#e8384f' }}
+              initial={{ width: '100%' }} animate={{ width: '0%' }}
+              transition={{ duration: 5, ease: 'linear' }} />
+          </div>
+        </motion.div>
+        <motion.a href="/templates" className="inline-block mt-6 px-6 py-2 rounded-full font-sans text-sm font-semibold text-white"
+          style={{ background: '#e8384f' }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
+          Browse Templates
+        </motion.a>
+      </div>
+    </div>
+  )
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" /></div>
 
   const save = () => { localStorage.setItem(storageKey, JSON.stringify(data)); setSaved(true); setTimeout(() => setSaved(false), 2000) }
