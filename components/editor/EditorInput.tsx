@@ -45,11 +45,12 @@ export function EditorImageUpload({ label, value, onChange, userId, folder }: {
       setUploading(true)
       const url = await uploadPhoto(file, userId, folder)
       setUploading(false)
-      if (url) onChange(url)
-      else onChange(URL.createObjectURL(file))
-    } else {
-      onChange(URL.createObjectURL(file))
+      if (url) { onChange(url); return }
     }
+    // Fallback: convert to base64 data URL (works cross-origin)
+    const reader = new FileReader()
+    reader.onload = () => { if (reader.result) onChange(reader.result as string) }
+    reader.readAsDataURL(file)
   }
 
   return (
@@ -83,18 +84,23 @@ export function EditorMultiImageUpload({ label, images, onChange, userId, folder
     const files = Array.from(e.target.files || [])
     if (!files.length) return
 
+    const toDataUrl = (f: File): Promise<string> => new Promise(res => {
+      const r = new FileReader(); r.onload = () => res(r.result as string); r.readAsDataURL(f)
+    })
+
     if (userId && folder) {
       setUploading(true)
       const uploaded = await Promise.all(
         files.map(async (f, i) => {
           const url = await uploadPhoto(f, userId, folder)
-          return { src: url || URL.createObjectURL(f), alt: `Photo ${images.length + i + 1}` }
+          const src = url || await toDataUrl(f)
+          return { src, alt: `Photo ${images.length + i + 1}` }
         })
       )
       setUploading(false)
       onChange([...images, ...uploaded])
     } else {
-      const newImgs = files.map((f, i) => ({ src: URL.createObjectURL(f), alt: `Photo ${images.length + i + 1}` }))
+      const newImgs = await Promise.all(files.map(async (f, i) => ({ src: await toDataUrl(f), alt: `Photo ${images.length + i + 1}` })))
       onChange([...images, ...newImgs])
     }
     if (inputRef.current) inputRef.current.value = ''
