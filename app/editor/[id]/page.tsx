@@ -20,6 +20,23 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const config = getEditorConfig(id)
   const [instId] = useState(() => typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('inst') || '' : '')
   const storageKey = instId ? `editor-${id}-${instId}` : `editor-${id}`
+  const [instances, setInstances] = useState<{id: string; name?: string}[]>([])
+
+  useEffect(() => {
+    const list = JSON.parse(localStorage.getItem(`instances-${id}`) || '[]')
+    // Add couple names to instance labels
+    const labeled = list.map((inst: {id: string}) => {
+      const saved = localStorage.getItem(`editor-${id}-${inst.id}`)
+      if (saved) {
+        try {
+          const d = JSON.parse(saved)
+          return { id: inst.id, name: d.groomName && d.brideName ? `${d.groomName} & ${d.brideName}` : `Instance ${inst.id}` }
+        } catch { return { id: inst.id, name: `Instance ${inst.id}` } }
+      }
+      return { id: inst.id, name: `New` }
+    })
+    setInstances(labeled)
+  }, [id])
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [data, setData] = useState<WeddingFormData>({
     ...DEFAULT_FORM_DATA,
@@ -41,25 +58,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       const defaultInfoCards = getDefaultInfoCards(id)
       const defaultSections = { ...DEFAULT_FORM_DATA.sections, info: config.infoVisibleByDefault }
 
-      // Check if this is a fresh purchase (new=true param)
-      const isNew = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('new') === 'true'
-      if (isNew) {
-        // Clear old data and start fresh
-        localStorage.removeItem(storageKey)
-        window.history.replaceState({}, '', window.location.pathname)
-        return
-      }
-
       function merge(saved: Partial<WeddingFormData>) {
         const cards = saved.infoCards?.length ? saved.infoCards : defaultInfoCards
         const secs = { ...defaultSections, ...(saved.sections || {}) }
         return { ...DEFAULT_FORM_DATA, events: getDefaultEvents(id), ...saved, infoCards: cards, sections: secs } as WeddingFormData
       }
 
-      if (user?.id) {
-        const cloud = await loadFromCloud(user.id, id)
-        if (cloud) { setData(merge(cloud)); return }
-      }
+      // Load from instance-specific storage
       const s = localStorage.getItem(storageKey)
       if (s) {
         try { setData(merge(JSON.parse(s))) } catch { /* ignore */ }
@@ -67,13 +72,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     }
     loadData()
 
-    // Check if already published
-    if (user?.id) {
-      checkPublished(id, user.id).then(slug => {
-        if (slug) { setHasPublished(true); setPublishedUrl(`${window.location.origin}/invite/${slug}`) }
-      })
+    // Check if THIS instance has been published (per-instance, not per-template)
+    const publishedSlug = localStorage.getItem(`published-${storageKey}`)
+    if (publishedSlug) {
+      setHasPublished(true)
+      setPublishedUrl(`${window.location.origin}/invite/${publishedSlug}`)
     }
-  }, [id, user])
+  }, [id, user, storageKey])
 
   useEffect(() => { if (!loading && !user) router.replace('/templates') }, [user, loading, router])
 
@@ -109,6 +114,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     if ('slug' in result) {
       setPublishedUrl(`${window.location.origin}/invite/${result.slug}`)
       setHasPublished(true)
+      localStorage.setItem(`published-${storageKey}`, result.slug)
     } else {
       alert(result.error || 'Publishing failed')
     }
@@ -425,6 +431,18 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       {/* Edit panel — full screen on mobile, 320px sidebar on desktop */}
       <div className={`${panelOpen ? 'flex' : 'hidden lg:flex'} flex-col transition-all duration-300 lg:w-[320px] lg:min-w-[320px] ${panelOpen ? 'flex-1 lg:flex-none' : 'w-0'}`}
         style={{ background: 'rgba(14,12,20,0.98)', borderLeft: '1px solid rgba(200,146,42,0.15)' }}>
+        {/* Instance switcher */}
+        {instances.length > 1 && (
+          <div className="flex items-center gap-2 px-3 py-2 shrink-0" style={{ borderBottom: '1px solid rgba(200,146,42,0.1)', background: 'rgba(200,146,42,0.05)' }}>
+            <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#7a7068' }}>Invite:</span>
+            <select value={instId} onChange={e => router.push(`/editor/${id}?inst=${e.target.value}`)}
+              className="flex-1 text-xs rounded px-2 py-1 outline-none" style={{ background: 'rgba(20,18,32,0.8)', color: '#f0ece4', border: '1px solid rgba(200,146,42,0.15)' }}>
+              {instances.map(inst => (
+                <option key={inst.id} value={inst.id}>{inst.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="flex flex-wrap gap-0 shrink-0 px-1 pt-1" style={{ borderBottom: '1px solid rgba(200,146,42,0.15)' }}>
           {tabs.map((tab, i) => (
             <button key={tab} onClick={() => setActiveTab(i)}
