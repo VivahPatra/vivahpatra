@@ -7,6 +7,7 @@ import { Template } from '@/lib/templates'
 import { useUser } from '@/components/auth/AuthProvider'
 import { usePayment } from '@/lib/usePayment'
 import { getCloudInstances } from '@/lib/cloud-save'
+import { hasPurchased as checkPurchase, recordPurchase } from '@/lib/purchases'
 import SignInModal from '@/components/auth/SignInModal'
 
 export default function TemplateCard({ template: t }: { template: Template }) {
@@ -33,18 +34,20 @@ export default function TemplateCard({ template: t }: { template: Template }) {
 
   useEffect(() => {
     if (user?.id) {
-      getCloudInstances(user.id, t.id).then(cloudInsts => {
-        if (cloudInsts.length > 0) {
+      // Check purchases table first (source of truth)
+      checkPurchase(user.id, t.id).then(bought => {
+        if (bought) {
           setPurchased(true)
-          setLatestInst(cloudInsts[cloudInsts.length - 1].instanceId)
+          // Get latest instance
+          getCloudInstances(user.id, t.id).then(insts => {
+            if (insts.length > 0) setLatestInst(insts[insts.length - 1].instanceId)
+            else {
+              const local = JSON.parse(localStorage.getItem(`instances-${t.id}`) || '[]')
+              if (local.length > 0) setLatestInst(local[local.length - 1].id)
+            }
+          })
         } else {
-          const instances = JSON.parse(localStorage.getItem(`instances-${t.id}`) || '[]')
-          if (instances.length > 0) {
-            setPurchased(true)
-            setLatestInst(instances[instances.length - 1].id)
-          } else {
-            setPurchased(false)
-          }
+          setPurchased(false)
         }
       })
     } else {
@@ -58,9 +61,12 @@ export default function TemplateCard({ template: t }: { template: Template }) {
 
   const handlePayment = async () => {
     if (!user) return
-    const success = await pay(t, user.email || '', user.phone || '')
-    if (success) {
+    const result = await pay(t, user.email || '', user.phone || '')
+    if (result.success) {
       const instId = Date.now().toString(36) + Math.random().toString(36).slice(2, 5)
+      // Record purchase in Supabase
+      await recordPurchase(user.id, t.id, instId, result.orderId || '', result.paymentId || '', t.price)
+      // Also save locally for offline access
       const instances = JSON.parse(localStorage.getItem(`instances-${t.id}`) || '[]')
       instances.push({ id: instId, createdAt: new Date().toISOString() })
       localStorage.setItem(`instances-${t.id}`, JSON.stringify(instances))

@@ -9,6 +9,7 @@ import { getEditorConfig } from '@/lib/editor-config'
 import { useUser } from '@/components/auth/AuthProvider'
 import { saveToCloud, loadFromCloud, getCloudInstances, CloudInstance } from '@/lib/cloud-save'
 import { publishInvite, checkPublished } from '@/lib/publish'
+import { hasPurchased } from '@/lib/purchases'
 import { EditorInput, EditorTextArea, EditorImageUpload, EditorMultiImageUpload, SectionHeader } from '@/components/editor/EditorInput'
 import { MUSIC_LIBRARY } from '@/lib/music-library'
 
@@ -86,7 +87,15 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     }
   }, [id, user, storageKey, instId])
 
-  useEffect(() => { if (!loading && !user) router.replace('/templates') }, [user, loading, router])
+  useEffect(() => {
+    if (!loading && !user) { router.replace('/templates'); return }
+    // Verify purchase — redirect if not purchased
+    if (user?.id) {
+      hasPurchased(user.id, id).then(bought => {
+        if (!bought) { alert('Please purchase this template first.'); router.replace('/templates') }
+      })
+    }
+  }, [user, loading, router, id])
 
   const sendToPreview = useCallback(() => {
     if (iframeRef.current?.contentWindow) {

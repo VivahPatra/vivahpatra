@@ -8,6 +8,12 @@ declare global {
   }
 }
 
+export interface PaymentResult {
+  success: boolean
+  orderId?: string
+  paymentId?: string
+}
+
 function loadRazorpayScript(): Promise<boolean> {
   return new Promise((resolve) => {
     if (window.Razorpay) { resolve(true); return }
@@ -22,14 +28,14 @@ function loadRazorpayScript(): Promise<boolean> {
 export function usePayment() {
   const [loading, setLoading] = useState(false)
 
-  const pay = async (template: Template, userEmail: string, userPhone: string): Promise<boolean> => {
+  const pay = async (template: Template, userEmail: string, userPhone: string): Promise<PaymentResult> => {
     setLoading(true)
 
     const scriptLoaded = await loadRazorpayScript()
     if (!scriptLoaded) {
       alert('Failed to load payment gateway. Please try again.')
       setLoading(false)
-      return false
+      return { success: false }
     }
 
     try {
@@ -43,7 +49,7 @@ export function usePayment() {
         const data = await res.json()
         alert(data.error || 'Failed to create order')
         setLoading(false)
-        return false
+        return { success: false }
       }
 
       const { orderId, amount, currency } = await res.json()
@@ -61,7 +67,7 @@ export function usePayment() {
             ...(userPhone ? { contact: userPhone } : {}),
             name: userEmail?.split('@')[0] || '',
           },
-          theme: { color: '#c8922a' },
+          theme: { color: '#e8384f' },
           handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
             const verifyRes = await fetch('/api/payment/verify', {
               method: 'POST',
@@ -71,17 +77,17 @@ export function usePayment() {
 
             if (verifyRes.ok) {
               setLoading(false)
-              resolve(true)
+              resolve({ success: true, orderId: response.razorpay_order_id, paymentId: response.razorpay_payment_id })
             } else {
               alert('Payment verification failed. Contact support.')
               setLoading(false)
-              resolve(false)
+              resolve({ success: false })
             }
           },
           modal: {
             ondismiss: () => {
               setLoading(false)
-              resolve(false)
+              resolve({ success: false })
             },
           },
         }
@@ -92,7 +98,7 @@ export function usePayment() {
     } catch {
       alert('Payment error. Please try again.')
       setLoading(false)
-      return false
+      return { success: false }
     }
   }
 

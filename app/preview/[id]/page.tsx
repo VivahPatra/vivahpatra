@@ -7,6 +7,7 @@ import { getTemplate } from '@/lib/templates'
 import { useUser } from '@/components/auth/AuthProvider'
 import { usePayment } from '@/lib/usePayment'
 import { getCloudInstances } from '@/lib/cloud-save'
+import { hasPurchased as checkPurchase } from '@/lib/purchases'
 import SignInModal from '@/components/auth/SignInModal'
 import Button from '@/components/shared/Button'
 
@@ -23,11 +24,16 @@ export default function PreviewPage({ params }: { params: Promise<{ id: string }
 
   useEffect(() => {
     if (user?.id) {
-      getCloudInstances(user.id, id).then(insts => {
-        if (insts.length > 0) { setPurchased(true); setLatestInst(insts[insts.length - 1].instanceId) }
-        else {
-          const local = JSON.parse(localStorage.getItem(`instances-${id}`) || '[]')
-          if (local.length > 0) { setPurchased(true); setLatestInst(local[local.length - 1].id) }
+      checkPurchase(user.id, id).then(bought => {
+        if (bought) {
+          setPurchased(true)
+          getCloudInstances(user.id, id).then(insts => {
+            if (insts.length > 0) setLatestInst(insts[insts.length - 1].instanceId)
+            else {
+              const local = JSON.parse(localStorage.getItem(`instances-${id}`) || '[]')
+              if (local.length > 0) setLatestInst(local[local.length - 1].id)
+            }
+          })
         }
       })
     }
