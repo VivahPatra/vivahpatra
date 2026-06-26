@@ -112,6 +112,20 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
 
   const save = () => { localStorage.setItem(storageKey, JSON.stringify(data)); setSaved(true); setTimeout(() => setSaved(false), 2000) }
 
+  const resetToDefaults = () => {
+    if (!confirm('Reset all fields to default? Your current edits will be lost.')) return
+    const fresh: WeddingFormData = {
+      ...DEFAULT_FORM_DATA,
+      events: getDefaultEvents(id),
+      infoCards: getDefaultInfoCards(id),
+      sections: { ...DEFAULT_FORM_DATA.sections, info: config.infoVisibleByDefault },
+    }
+    setData(fresh)
+    localStorage.setItem(storageKey, JSON.stringify(fresh))
+    setHasPublished(false)
+    setPublishedUrl(null)
+  }
+
   const publish = async () => {
     if (!user?.id) { alert('Please sign in to publish'); return }
     save(); setPublishing(true)
@@ -245,12 +259,42 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           </button>
         </>
       )
-      case 'Gallery': return (
-        <>
-          <SectionHeader label="Photo Gallery" visible={data.sections.gallery} onToggle={() => toggle('gallery')} />
-          <EditorMultiImageUpload label="Gallery Photos" images={data.galleryImages.map(g => ({ src: g.src, alt: g.alt }))} onChange={setGallery} userId={user?.id} folder="gallery" />
-        </>
-      )
+      case 'Gallery': {
+        const photoCount = data.galleryImages.length
+        const maxPhotos = 8
+        const layoutLabel = photoCount <= 4 ? '2×2 Grid' : photoCount <= 6 ? '2×3 Grid' : '2×4 Grid'
+        return (
+          <>
+            <SectionHeader label="Photo Gallery" visible={data.sections.gallery} onToggle={() => toggle('gallery')} />
+            <div className="mb-4">
+              <label className="text-xs font-semibold tracking-wider uppercase mb-2 block" style={{ color: '#9a8a7a' }}>Number of Photos (4-8)</label>
+              <div className="flex gap-2">
+                {[4, 5, 6, 7, 8].map(n => (
+                  <button key={n} onClick={() => {
+                    if (n < photoCount) { setGallery(data.galleryImages.slice(0, n).map(g => ({ src: g.src, alt: g.alt }))) }
+                  }}
+                    className="w-10 h-10 rounded-lg text-sm font-semibold transition-all"
+                    style={{
+                      background: photoCount === n ? '#c8922a' : 'rgba(200,146,42,0.08)',
+                      color: photoCount === n ? '#fff' : '#c8922a',
+                      border: `1px solid ${photoCount === n ? '#c8922a' : 'rgba(200,146,42,0.15)'}`,
+                    }}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] mt-1" style={{ color: '#7a7068' }}>{photoCount}/{maxPhotos} photos · {layoutLabel}</p>
+            </div>
+            <EditorMultiImageUpload
+              label={`Gallery Photos (max ${maxPhotos})`}
+              images={data.galleryImages.map(g => ({ src: g.src, alt: g.alt }))}
+              onChange={imgs => { if (imgs.length <= maxPhotos) setGallery(imgs) }}
+              userId={user?.id} folder="gallery"
+            />
+            {photoCount >= maxPhotos && <p className="text-xs mt-1" style={{ color: '#c33' }}>Maximum {maxPhotos} photos reached</p>}
+          </>
+        )
+      }
       case 'Venue': return (
         <>
           <SectionHeader label="Venue & Location" visible={data.sections.venue} onToggle={() => toggle('venue')} />
@@ -459,6 +503,12 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         </div>
         <div className="flex-1 overflow-y-auto p-4 font-sans">
           {renderTab()}
+          <div className="mt-6 pt-4" style={{ borderTop: '1px solid rgba(200,146,42,0.1)' }}>
+            <button onClick={resetToDefaults} className="w-full py-2 rounded-lg text-xs font-semibold transition-all hover:bg-red-500/10"
+              style={{ border: '1px solid rgba(200,50,50,0.2)', color: '#c33' }}>
+              Reset to Default
+            </button>
+          </div>
         </div>
       </div>
     </div>

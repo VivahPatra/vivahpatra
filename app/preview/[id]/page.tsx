@@ -2,10 +2,11 @@
 import { use, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, PenLine } from 'lucide-react'
 import { getTemplate } from '@/lib/templates'
 import { useUser } from '@/components/auth/AuthProvider'
 import { usePayment } from '@/lib/usePayment'
+import { getCloudInstances } from '@/lib/cloud-save'
 import SignInModal from '@/components/auth/SignInModal'
 import Button from '@/components/shared/Button'
 
@@ -17,6 +18,20 @@ export default function PreviewPage({ params }: { params: Promise<{ id: string }
   const { pay, loading: paying } = usePayment()
   const [authOpen, setAuthOpen] = useState(false)
   const [pendingBuy, setPendingBuy] = useState(false)
+  const [purchased, setPurchased] = useState(false)
+  const [latestInst, setLatestInst] = useState('')
+
+  useEffect(() => {
+    if (user?.id) {
+      getCloudInstances(user.id, id).then(insts => {
+        if (insts.length > 0) { setPurchased(true); setLatestInst(insts[insts.length - 1].instanceId) }
+        else {
+          const local = JSON.parse(localStorage.getItem(`instances-${id}`) || '[]')
+          if (local.length > 0) { setPurchased(true); setLatestInst(local[local.length - 1].id) }
+        }
+      })
+    }
+  }, [user, id])
 
   useEffect(() => {
     if (user && pendingBuy) {
@@ -72,9 +87,17 @@ export default function PreviewPage({ params }: { params: Promise<{ id: string }
           </button>
           <div className="flex items-center gap-4">
             <span className="font-sans text-sm text-white/50 hidden sm:block">{template.name}</span>
-            <Button onClick={handleBuy}>
-              {paying ? 'Processing...' : `Buy ₹${template.price}`}
-            </Button>
+            {purchased ? (
+              <a href={`/editor/${id}?inst=${latestInst}`}
+                className="flex items-center gap-2 px-6 py-3 rounded-full font-sans text-sm font-semibold text-white"
+                style={{ background: '#e8384f' }}>
+                <PenLine size={14} /> Edit Template
+              </a>
+            ) : (
+              <Button onClick={handleBuy}>
+                {paying ? 'Processing...' : `Buy ₹${template.price}`}
+              </Button>
+            )}
           </div>
         </motion.div>
       </div>
