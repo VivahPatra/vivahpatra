@@ -353,8 +353,8 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           </button>
         </div>
       </div>
-      {/* Spacer for fixed toolbar */}
-      <div className="lg:hidden h-11 shrink-0" />
+      {/* Spacer for fixed toolbar + published URL */}
+      <div className="lg:hidden shrink-0" style={{ height: publishedUrl ? 80 : 44 }} />
 
       {/* Desktop toolbar — on template preview */}
       <div className="hidden lg:block">
@@ -398,11 +398,11 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
 
       {/* Published URL banner — mobile, fixed below toolbar */}
       {publishedUrl && (
-        <div className="lg:hidden fixed top-11 left-0 right-0 z-[59] flex items-center gap-2 px-3 py-1.5 text-xs"
+        <div className="lg:hidden fixed top-[44px] left-0 right-0 z-[59] flex items-center gap-2 px-4 py-2.5 text-sm"
           style={{ background: 'rgba(22,163,74,0.95)', color: '#fff' }}>
-          <span className="flex-1 truncate">{publishedUrl.replace(window.location.origin, '')}</span>
-          <button onClick={() => { navigator.clipboard.writeText(publishedUrl); alert('Copied!') }} className="px-2 py-0.5 rounded font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Copy</button>
-          <button onClick={() => window.open(publishedUrl, '_blank')} className="px-2 py-0.5 rounded font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Open</button>
+          <span className="flex-1 truncate font-medium">{publishedUrl.replace(window.location.origin, '')}</span>
+          <button onClick={() => { navigator.clipboard.writeText(publishedUrl); alert('Copied!') }} className="px-3 py-1 rounded-full text-xs font-semibold" style={{ background: 'rgba(255,255,255,0.25)' }}>Copy</button>
+          <button onClick={() => window.open(publishedUrl, '_blank')} className="px-3 py-1 rounded-full text-xs font-semibold" style={{ background: 'rgba(255,255,255,0.25)' }}>Open</button>
         </div>
       )}
 
