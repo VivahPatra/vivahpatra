@@ -38,18 +38,7 @@ export default function TemplateCard({ template: t }: { template: Template }) {
         setPurchased(true)
         setLatestInst(instances[instances.length - 1].id)
       } else {
-        // Backward compat: check old editor key
-        const saved = localStorage.getItem(`editor-${t.id}`)
-        if (saved) {
-          // Migrate: create instance for old data
-          const instId = 'legacy'
-          localStorage.setItem(`editor-${t.id}-${instId}`, saved)
-          localStorage.setItem(`instances-${t.id}`, JSON.stringify([{ id: instId, createdAt: new Date().toISOString() }]))
-          setPurchased(true)
-          setLatestInst(instId)
-        } else {
-          setPurchased(false)
-        }
+        setPurchased(false)
       }
     } else {
       setPurchased(false)

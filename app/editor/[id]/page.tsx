@@ -24,17 +24,18 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
 
   useEffect(() => {
     const list = JSON.parse(localStorage.getItem(`instances-${id}`) || '[]')
-    // Add couple names to instance labels
-    const labeled = list.map((inst: {id: string}) => {
-      const saved = localStorage.getItem(`editor-${id}-${inst.id}`)
-      if (saved) {
-        try {
-          const d = JSON.parse(saved)
-          return { id: inst.id, name: d.groomName && d.brideName ? `${d.groomName} & ${d.brideName}` : `Instance ${inst.id}` }
-        } catch { return { id: inst.id, name: `Instance ${inst.id}` } }
-      }
-      return { id: inst.id, name: `New` }
-    })
+    const labeled = list
+      .filter((inst: {id: string}) => inst.id !== 'legacy')
+      .map((inst: {id: string}, i: number) => {
+        const saved = localStorage.getItem(`editor-${id}-${inst.id}`)
+        if (saved) {
+          try {
+            const d = JSON.parse(saved)
+            if (d.groomName && d.brideName) return { id: inst.id, name: `${d.groomName} & ${d.brideName}` }
+          } catch { /* ignore */ }
+        }
+        return { id: inst.id, name: `Invite ${i + 1}` }
+      })
     setInstances(labeled)
   }, [id])
   const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -435,7 +436,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         {instances.length > 1 && (
           <div className="flex items-center gap-2 px-3 py-2 shrink-0" style={{ borderBottom: '1px solid rgba(200,146,42,0.1)', background: 'rgba(200,146,42,0.05)' }}>
             <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#7a7068' }}>Invite:</span>
-            <select value={instId} onChange={e => router.push(`/editor/${id}?inst=${e.target.value}`)}
+            <select value={instId} onChange={e => { window.location.href = `/editor/${id}?inst=${e.target.value}` }}
               className="flex-1 text-xs rounded px-2 py-1 outline-none" style={{ background: 'rgba(20,18,32,0.8)', color: '#f0ece4', border: '1px solid rgba(200,146,42,0.15)' }}>
               {instances.map(inst => (
                 <option key={inst.id} value={inst.id}>{inst.name}</option>
