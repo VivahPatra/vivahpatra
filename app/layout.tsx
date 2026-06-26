@@ -20,6 +20,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'Vivah Patra — Beautiful Animated Templates',
   description: 'Create stunning, animated wedding invitations. Choose from 9+ templates, customize, and share instantly via WhatsApp.',
+  icons: { icon: '/favicon.png' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
