@@ -3,17 +3,17 @@ import { useRef, useState } from 'react'
 import { Upload, X, Loader2 } from 'lucide-react'
 import { uploadPhoto } from '@/lib/storage'
 
-const inputCls = "w-full px-3 py-2 rounded-lg text-sm outline-none transition-all focus:ring-1 focus:ring-[#c8922a33]"
+const inputCls = "w-full px-3 py-2.5 rounded-lg text-[15px] outline-none transition-all focus:ring-1 focus:ring-[#c8922a33]"
 const inputStyle: React.CSSProperties = { border: '1px solid rgba(200,146,42,0.15)', background: 'rgba(20,18,32,0.8)', color: '#f0ece4', colorScheme: 'dark' }
-const labelCls = "text-[10px] font-semibold tracking-wider uppercase mb-1 block"
-const labelStyle: React.CSSProperties = { color: '#7a7068' }
+const labelCls = "text-xs font-semibold tracking-wider uppercase mb-1.5 block"
+const labelStyle: React.CSSProperties = { color: '#9a8a7a' }
 
 export function EditorInput({ label, value, onChange, type = 'text', placeholder = '', disabled }: {
   label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string; disabled?: boolean
 }) {
   return (
     <div className="mb-3">
-      <label className={labelCls} style={labelStyle}>{label} {disabled && <span style={{ color: '#c8922a', fontSize: 8 }}>LOCKED</span>}</label>
+      <label className={labelCls} style={labelStyle}>{label} {disabled && <span style={{ color: '#c8922a', fontSize: 10 }}>LOCKED</span>}</label>
       <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} disabled={disabled}
         className={inputCls} style={{ ...inputStyle, opacity: disabled ? 0.5 : 1, cursor: disabled ? 'not-allowed' : 'text' }} />
     </div>
@@ -133,7 +133,7 @@ export function SectionHeader({ label, visible, onToggle }: {
 }) {
   return (
     <div className="flex items-center justify-between mb-3 pb-2" style={{ borderBottom: '1px solid rgba(200,146,42,0.15)' }}>
-      <h3 className="text-sm font-semibold" style={{ color: '#f0ece4' }}>{label}</h3>
+      <h3 className="text-base font-semibold" style={{ color: '#f0ece4' }}>{label}</h3>
       <button onClick={onToggle} className="relative flex items-center" title={visible ? 'Section visible' : 'Section hidden'}>
         <div className="w-9 h-5 rounded-full transition-colors" style={{ background: visible ? '#c8922a' : '#3a3a3a' }}>
           <div className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform"

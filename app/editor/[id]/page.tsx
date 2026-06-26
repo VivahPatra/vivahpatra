@@ -141,7 +141,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             <EditorInput label="Groom Name" value={data.groomName} onChange={v => set('groomName', v)} placeholder="Rahul" disabled={hasPublished} />
             <EditorInput label="Bride Name" value={data.brideName} onChange={v => set('brideName', v)} placeholder="Priya" disabled={hasPublished} />
           </div>
-          {hasPublished && <p className="text-[9px] -mt-1 mb-2" style={{ color: '#c8922a' }}>Names locked after first publish (used in invite URL)</p>}
+          {hasPublished && <p className="text-[11px] -mt-1 mb-2" style={{ color: '#c8922a' }}>Names locked after first publish (used in invite URL)</p>}
           <div className="grid grid-cols-2 gap-2">
             <EditorInput label="Groom's Parents" value={data.groomParents} onChange={v => set('groomParents', v)} placeholder="Mr. & Mrs. Sharma" />
             <EditorInput label="Bride's Parents" value={data.brideParents} onChange={v => set('brideParents', v)} placeholder="Mr. & Mrs. Gupta" />
@@ -153,7 +153,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             </div>
           )}
           <EditorInput label="Wedding Date" value={data.weddingDate} onChange={v => set('weddingDate', v)} type="date" />
-          <p className="text-[9px] -mt-2 mb-3" style={{ color: '#7a7068' }}>Used in hero, invitation, countdown & footer</p>
+          <p className="text-[11px] -mt-2 mb-3" style={{ color: '#7a7068' }}>Used in hero, invitation, countdown & footer</p>
           <EditorInput label="Hashtag" value={data.hashtag} onChange={v => set('hashtag', v)} placeholder="#RahulWedsPrivya" />
           {config.hasTagline && <EditorInput label="Tagline" value={data.tagline} onChange={v => set('tagline', v)} placeholder="Two souls, one love story" />}
           <EditorInput label="Hero Subtitle" value={data.heroSubtitle} onChange={v => set('heroSubtitle', v)} placeholder="✦ Together Forever ✦" />
@@ -230,11 +230,11 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <EditorInput label="Venue Name" value={data.venueName} onChange={v => set('venueName', v)} placeholder="The Grand Palace" />
           <EditorInput label="Address" value={data.venueAddress} onChange={v => set('venueAddress', v)} placeholder="MG Road, New Delhi" />
           <div className="mb-3">
-            <label className="text-[10px] font-semibold tracking-wider uppercase mb-1 flex items-center gap-1" style={{ color: '#7a7068' }}><MapPin size={10} /> Google Maps URL</label>
+            <label className="text-xs font-semibold tracking-wider uppercase mb-1 flex items-center gap-1" style={{ color: '#7a7068' }}><MapPin size={10} /> Google Maps URL</label>
             <input type="url" value={data.venueMapUrl} onChange={e => set('venueMapUrl', e.target.value)} placeholder="https://maps.google.com/..." className="w-full px-3 py-2 rounded-lg text-sm outline-none" style={{ border: '1px solid rgba(200,146,42,0.15)', background: 'rgba(20,18,32,0.8)', color: '#f0ece4' }} />
           </div>
           <SectionHeader label="Countdown" visible={data.sections.countdown} onToggle={() => toggle('countdown')} />
-          <p className="text-[10px]" style={{ color: '#7a7068' }}>Uses wedding date from Couple tab.</p>
+          <p className="text-xs" style={{ color: '#7a7068' }}>Uses wedding date from Couple tab.</p>
         </>
       )
       case 'RSVP': return (
@@ -275,12 +275,12 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               <span className="text-xs flex-1 truncate" style={{ color: '#f0ece4' }}>
                 {MUSIC_LIBRARY.find(t => t.url === data.backgroundMusic)?.name || 'Custom track'}
               </span>
-              <button onClick={() => set('backgroundMusic', '')} className="text-[10px]" style={{ color: '#c00' }}>Remove</button>
+              <button onClick={() => set('backgroundMusic', '')} className="text-xs" style={{ color: '#c00' }}>Remove</button>
             </div>
           )}
           <EditorImageUpload label="Upload Custom MP3" value="" onChange={v => set('backgroundMusic', v)} userId={user?.id} folder="music" />
 
-          <label className="text-[10px] font-semibold tracking-wider uppercase mb-2 mt-3 block" style={{ color: '#7a7068' }}>Music Library</label>
+          <label className="text-xs font-semibold tracking-wider uppercase mb-2 mt-3 block" style={{ color: '#7a7068' }}>Music Library</label>
           <div className="flex flex-col gap-1.5">
             {MUSIC_LIBRARY.map(track => {
               const isSelected = data.backgroundMusic === track.url
@@ -302,10 +302,10 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                   </button>
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] font-semibold truncate" style={{ color: '#f0ece4' }}>{track.name}</p>
-                    <p className="text-[9px]" style={{ color: '#7a7068' }}>{track.category} · {track.duration}</p>
+                    <p className="text-[11px]" style={{ color: '#7a7068' }}>{track.category} · {track.duration}</p>
                   </div>
                   <button onClick={() => { set('backgroundMusic', track.url); if (audioRef.current) { audioRef.current.pause(); setPlayingTrack(null) } }}
-                    className="px-2 py-1 rounded-full text-[9px] font-semibold shrink-0"
+                    className="px-2 py-1 rounded-full text-[11px] font-semibold shrink-0"
                     style={{ background: isSelected ? '#c8922a' : 'rgba(200,146,42,0.1)', color: isSelected ? '#fff' : '#c8922a' }}>
                     {isSelected ? <Check size={10} /> : 'Use'}
                   </button>
@@ -313,7 +313,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               )
             })}
           </div>
-          <p className="text-[9px] mt-2" style={{ color: '#7a7068' }}>Music plays softly when guests open your invite.</p>
+          <p className="text-[11px] mt-2" style={{ color: '#7a7068' }}>Music plays softly when guests open your invite.</p>
         </>
       )
       case 'Social': return (
@@ -339,15 +339,15 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <ArrowLeft size={14} /> Back
         </button>
         <div className="flex items-center gap-2">
-          <button onClick={() => setPanelOpen(!panelOpen)} className="px-3 py-1.5 rounded-full text-[10px] font-semibold"
+          <button onClick={() => setPanelOpen(!panelOpen)} className="px-3 py-1.5 rounded-full text-xs font-semibold"
             style={{ border: '1px solid rgba(200,146,42,0.3)', color: '#c8922a' }}>
             {panelOpen ? 'Preview' : 'Edit'}
           </button>
-          <button onClick={save} className="px-3 py-1.5 rounded-full text-[10px] font-semibold"
+          <button onClick={save} className="px-3 py-1.5 rounded-full text-xs font-semibold"
             style={{ border: '1px solid rgba(200,146,42,0.3)', color: saved ? '#16a34a' : '#c8922a' }}>
             <Save size={10} className="inline mr-1" />{saved ? 'Saved!' : 'Save'}
           </button>
-          <button onClick={publish} disabled={publishing} className="px-3 py-1.5 rounded-full text-[10px] font-semibold text-white disabled:opacity-50" style={{ background: '#c8922a' }}>
+          <button onClick={publish} disabled={publishing} className="px-3 py-1.5 rounded-full text-xs font-semibold text-white disabled:opacity-50" style={{ background: '#c8922a' }}>
             <Share2 size={10} className="inline mr-1" />{publishing ? '...' : 'Publish'}
           </button>
         </div>
@@ -373,16 +373,16 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl text-xs shadow-2xl"
             style={{ background: 'rgba(22,163,74,0.95)', color: '#fff', backdropFilter: 'blur(12px)', maxWidth: '90vw' }}>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] opacity-70 mb-0.5">Your invite is live!</p>
+              <p className="text-xs opacity-70 mb-0.5">Your invite is live!</p>
               <p className="font-semibold truncate">{publishedUrl.replace(window.location.origin, '')}</p>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
               <button onClick={() => { navigator.clipboard.writeText(publishedUrl); alert('Link copied!') }}
-                className="px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Copy</button>
+                className="px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Copy</button>
               <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent('Check out our wedding invitation! ' + publishedUrl)}`, '_blank')}
-                className="px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>WhatsApp</button>
+                className="px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>WhatsApp</button>
               <button onClick={() => window.open(publishedUrl, '_blank')}
-                className="px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.25)' }}>Open</button>
+                className="px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(255,255,255,0.25)' }}>Open</button>
             </div>
           </div>
         )}
@@ -396,9 +396,9 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       {/* Published URL banner — mobile */}
       {publishedUrl && (
         <div className="lg:hidden px-4 py-2 flex items-center gap-2 text-xs shrink-0" style={{ background: 'rgba(22,163,74,0.95)', color: '#fff' }}>
-          <span className="flex-1 truncate text-[10px]">{publishedUrl.replace(window.location.origin, '')}</span>
-          <button onClick={() => { navigator.clipboard.writeText(publishedUrl); alert('Copied!') }} className="px-2 py-1 rounded text-[9px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Copy</button>
-          <button onClick={() => window.open(publishedUrl, '_blank')} className="px-2 py-1 rounded text-[9px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Open</button>
+          <span className="flex-1 truncate text-xs">{publishedUrl.replace(window.location.origin, '')}</span>
+          <button onClick={() => { navigator.clipboard.writeText(publishedUrl); alert('Copied!') }} className="px-2 py-1 rounded text-[11px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Copy</button>
+          <button onClick={() => window.open(publishedUrl, '_blank')} className="px-2 py-1 rounded text-[11px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Open</button>
         </div>
       )}
 
@@ -408,7 +408,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         <div className="flex flex-wrap gap-0 shrink-0 px-1 pt-1" style={{ borderBottom: '1px solid rgba(200,146,42,0.15)' }}>
           {tabs.map((tab, i) => (
             <button key={tab} onClick={() => setActiveTab(i)}
-              className="px-2.5 py-2 text-[9px] font-semibold tracking-wider uppercase"
+              className="px-3 py-2.5 text-[11px] font-semibold tracking-wider uppercase"
               style={{ color: activeTab === i ? '#c8922a' : '#7a7068', background: activeTab === i ? 'rgba(200,146,42,0.1)' : 'transparent', borderRadius: '6px 6px 0 0' }}>
               {tab}
             </button>
