@@ -29,11 +29,28 @@ export default function TemplateCard({ template: t }: { template: Template }) {
     return () => obs.disconnect()
   }, [])
 
+  const [latestInst, setLatestInst] = useState<string>('')
+
   useEffect(() => {
     if (user) {
-      const saved = localStorage.getItem(`editor-${t.id}`)
-      if (saved) setPurchased(true)
-      else setPurchased(false)
+      const instances = JSON.parse(localStorage.getItem(`instances-${t.id}`) || '[]')
+      if (instances.length > 0) {
+        setPurchased(true)
+        setLatestInst(instances[instances.length - 1].id)
+      } else {
+        // Backward compat: check old editor key
+        const saved = localStorage.getItem(`editor-${t.id}`)
+        if (saved) {
+          // Migrate: create instance for old data
+          const instId = 'legacy'
+          localStorage.setItem(`editor-${t.id}-${instId}`, saved)
+          localStorage.setItem(`instances-${t.id}`, JSON.stringify([{ id: instId, createdAt: new Date().toISOString() }]))
+          setPurchased(true)
+          setLatestInst(instId)
+        } else {
+          setPurchased(false)
+        }
+      }
     } else {
       setPurchased(false)
     }
@@ -50,12 +67,14 @@ export default function TemplateCard({ template: t }: { template: Template }) {
     if (!user) return
     const success = await pay(t, user.email || '', user.phone || '')
     if (success) {
-      if (purchased) {
-        // Re-buy: clear old data and open fresh editor
-        localStorage.removeItem(`editor-${t.id}`)
-      }
+      // Each purchase gets a unique instance ID
+      const instId = Date.now().toString(36) + Math.random().toString(36).slice(2, 5)
+      // Save instance to list
+      const instances = JSON.parse(localStorage.getItem(`instances-${t.id}`) || '[]')
+      instances.push({ id: instId, createdAt: new Date().toISOString() })
+      localStorage.setItem(`instances-${t.id}`, JSON.stringify(instances))
       setPurchased(true)
-      router.push(`/editor/${t.id}${purchased ? '?new=true' : ''}`)
+      router.push(`/editor/${t.id}?inst=${instId}`)
     }
   }
 
@@ -101,7 +120,7 @@ export default function TemplateCard({ template: t }: { template: Template }) {
               Preview
             </a>
             {purchased && (
-              <a href={`/editor/${t.id}`}
+              <a href={`/editor/${t.id}?inst=${latestInst}`}
                 className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 px-6 py-2.5 rounded-full text-sm font-semibold text-white flex items-center gap-2"
                 style={{ background: t.color, transitionDelay: '0.05s' }}>
                 <PenLine size={14} /> Edit
@@ -134,7 +153,7 @@ export default function TemplateCard({ template: t }: { template: Template }) {
               Preview
             </a>
             {purchased && (
-              <a href={`/editor/${t.id}`}
+              <a href={`/editor/${t.id}?inst=${latestInst}`}
                 className="px-4 py-2 rounded-full text-xs font-semibold text-white flex items-center gap-1"
                 style={{ background: t.color }}>
                 <PenLine size={12} /> Edit

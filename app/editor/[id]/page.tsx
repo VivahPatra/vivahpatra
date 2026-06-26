@@ -18,6 +18,8 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const { user, loading } = useUser()
   const template = getTemplate(id)
   const config = getEditorConfig(id)
+  const [instId] = useState(() => typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('inst') || '' : '')
+  const storageKey = instId ? `editor-${id}-${instId}` : `editor-${id}`
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [data, setData] = useState<WeddingFormData>({
     ...DEFAULT_FORM_DATA,
@@ -43,7 +45,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       const isNew = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('new') === 'true'
       if (isNew) {
         // Clear old data and start fresh
-        localStorage.removeItem(`editor-${id}`)
+        localStorage.removeItem(storageKey)
         window.history.replaceState({}, '', window.location.pathname)
         return
       }
@@ -58,7 +60,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         const cloud = await loadFromCloud(user.id, id)
         if (cloud) { setData(merge(cloud)); return }
       }
-      const s = localStorage.getItem(`editor-${id}`)
+      const s = localStorage.getItem(storageKey)
       if (s) {
         try { setData(merge(JSON.parse(s))) } catch { /* ignore */ }
       }
@@ -90,7 +92,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
 
   // Auto-save: localStorage immediately, cloud with longer debounce
   useEffect(() => {
-    const t1 = setTimeout(() => localStorage.setItem(`editor-${id}`, JSON.stringify(data)), 500)
+    const t1 = setTimeout(() => localStorage.setItem(storageKey, JSON.stringify(data)), 500)
     const t2 = setTimeout(() => { if (user?.id) saveToCloud(user.id, id, data) }, 3000)
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [data, id, user])
@@ -98,7 +100,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   if (!template) return <div className="min-h-screen flex items-center justify-center"><p>Template not found</p></div>
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" /></div>
 
-  const save = () => { localStorage.setItem(`editor-${id}`, JSON.stringify(data)); setSaved(true); setTimeout(() => setSaved(false), 2000) }
+  const save = () => { localStorage.setItem(storageKey, JSON.stringify(data)); setSaved(true); setTimeout(() => setSaved(false), 2000) }
 
   const publish = async () => {
     if (!user?.id) { alert('Please sign in to publish'); return }
