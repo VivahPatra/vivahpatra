@@ -36,9 +36,17 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
 
   useEffect(() => {
     async function loadData() {
-      // Try cloud first
       const defaultInfoCards = getDefaultInfoCards(id)
       const defaultSections = { ...DEFAULT_FORM_DATA.sections, info: config.infoVisibleByDefault }
+
+      // Check if this is a fresh purchase (new=true param)
+      const isNew = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('new') === 'true'
+      if (isNew) {
+        // Clear old data and start fresh
+        localStorage.removeItem(`editor-${id}`)
+        window.history.replaceState({}, '', window.location.pathname)
+        return
+      }
 
       function merge(saved: Partial<WeddingFormData>) {
         const cards = saved.infoCards?.length ? saved.infoCards : defaultInfoCards
