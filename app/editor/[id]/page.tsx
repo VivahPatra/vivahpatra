@@ -327,10 +327,34 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   }
 
   return (
-    <div className="h-screen flex" style={{ background: '#0a0a0a' }}>
-      <div className="flex-1 relative">
+    <div className="h-screen flex flex-col lg:flex-row" style={{ background: '#0a0a0a' }}>
+      {/* Template preview — full screen on mobile when panel closed */}
+      <div className={`flex-1 relative ${panelOpen ? 'hidden lg:block' : ''}`}>
         <iframe ref={iframeRef} src={template.url} className="w-full h-full" style={{ border: 'none' }} title="Preview" onLoad={handleIframeLoad} />
+      </div>
 
+      {/* Mobile top bar — always visible */}
+      <div className="lg:hidden flex items-center justify-between px-4 py-2 shrink-0" style={{ background: 'rgba(14,12,20,0.98)', borderBottom: '1px solid rgba(200,146,42,0.15)' }}>
+        <button onClick={() => router.back()} className="flex items-center gap-1 text-xs text-white/70">
+          <ArrowLeft size={14} /> Back
+        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setPanelOpen(!panelOpen)} className="px-3 py-1.5 rounded-full text-[10px] font-semibold"
+            style={{ border: '1px solid rgba(200,146,42,0.3)', color: '#c8922a' }}>
+            {panelOpen ? 'Preview' : 'Edit'}
+          </button>
+          <button onClick={save} className="px-3 py-1.5 rounded-full text-[10px] font-semibold"
+            style={{ border: '1px solid rgba(200,146,42,0.3)', color: saved ? '#16a34a' : '#c8922a' }}>
+            <Save size={10} className="inline mr-1" />{saved ? 'Saved!' : 'Save'}
+          </button>
+          <button onClick={publish} disabled={publishing} className="px-3 py-1.5 rounded-full text-[10px] font-semibold text-white disabled:opacity-50" style={{ background: '#c8922a' }}>
+            <Share2 size={10} className="inline mr-1" />{publishing ? '...' : 'Publish'}
+          </button>
+        </div>
+      </div>
+
+      {/* Desktop toolbar — on template preview */}
+      <div className="hidden lg:block">
         <div className="absolute top-4 left-4 z-50">
           <button onClick={() => router.back()} className="flex items-center gap-1 px-3 py-2 rounded-full text-xs text-white/70 hover:text-white" style={{ background: 'rgba(12,10,18,0.9)', backdropFilter: 'blur(8px)' }}>
             <ArrowLeft size={14} /> Back
@@ -354,17 +378,11 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
               <button onClick={() => { navigator.clipboard.writeText(publishedUrl); alert('Link copied!') }}
-                className="px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>
-                Copy Link
-              </button>
+                className="px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Copy</button>
               <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent('Check out our wedding invitation! ' + publishedUrl)}`, '_blank')}
-                className="px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>
-                WhatsApp
-              </button>
+                className="px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>WhatsApp</button>
               <button onClick={() => window.open(publishedUrl, '_blank')}
-                className="px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.25)' }}>
-                Open
-              </button>
+                className="px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(255,255,255,0.25)' }}>Open</button>
             </div>
           </div>
         )}
@@ -375,23 +393,30 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         </button>
       </div>
 
-      <div className="h-full overflow-hidden transition-all duration-300 flex flex-col" style={{ width: panelOpen ? 320 : 0, background: 'rgba(14,12,20,0.98)', borderLeft: '1px solid rgba(200,146,42,0.15)' }}>
-        {panelOpen && (
-          <>
-            <div className="flex flex-wrap gap-0 shrink-0 px-1 pt-1" style={{ borderBottom: '1px solid rgba(200,146,42,0.15)' }}>
-              {tabs.map((tab, i) => (
-                <button key={tab} onClick={() => setActiveTab(i)}
-                  className="px-2.5 py-2 text-[9px] font-semibold tracking-wider uppercase"
-                  style={{ color: activeTab === i ? '#c8922a' : '#7a7068', background: activeTab === i ? 'rgba(200,146,42,0.1)' : 'transparent', borderRadius: '6px 6px 0 0' }}>
-                  {tab}
-                </button>
-              ))}
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 font-sans">
-              {renderTab()}
-            </div>
-          </>
-        )}
+      {/* Published URL banner — mobile */}
+      {publishedUrl && (
+        <div className="lg:hidden px-4 py-2 flex items-center gap-2 text-xs shrink-0" style={{ background: 'rgba(22,163,74,0.95)', color: '#fff' }}>
+          <span className="flex-1 truncate text-[10px]">{publishedUrl.replace(window.location.origin, '')}</span>
+          <button onClick={() => { navigator.clipboard.writeText(publishedUrl); alert('Copied!') }} className="px-2 py-1 rounded text-[9px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Copy</button>
+          <button onClick={() => window.open(publishedUrl, '_blank')} className="px-2 py-1 rounded text-[9px] font-semibold" style={{ background: 'rgba(255,255,255,0.2)' }}>Open</button>
+        </div>
+      )}
+
+      {/* Edit panel — full screen on mobile, 320px sidebar on desktop */}
+      <div className={`${panelOpen ? 'flex' : 'hidden lg:flex'} flex-col transition-all duration-300 lg:w-[320px] lg:min-w-[320px] ${panelOpen ? 'flex-1 lg:flex-none' : 'w-0'}`}
+        style={{ background: 'rgba(14,12,20,0.98)', borderLeft: '1px solid rgba(200,146,42,0.15)' }}>
+        <div className="flex flex-wrap gap-0 shrink-0 px-1 pt-1" style={{ borderBottom: '1px solid rgba(200,146,42,0.15)' }}>
+          {tabs.map((tab, i) => (
+            <button key={tab} onClick={() => setActiveTab(i)}
+              className="px-2.5 py-2 text-[9px] font-semibold tracking-wider uppercase"
+              style={{ color: activeTab === i ? '#c8922a' : '#7a7068', background: activeTab === i ? 'rgba(200,146,42,0.1)' : 'transparent', borderRadius: '6px 6px 0 0' }}>
+              {tab}
+            </button>
+          ))}
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 font-sans">
+          {renderTab()}
+        </div>
       </div>
     </div>
   )
