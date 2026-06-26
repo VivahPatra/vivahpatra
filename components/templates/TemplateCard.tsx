@@ -110,7 +110,7 @@ export default function TemplateCard({ template: t }: { template: Template }) {
                   <PenLine size={14} /> Edit
                 </a>
               )}
-              <button onClick={handleBuy} disabled={paying}
+              <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBuy() }} disabled={paying}
                 className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 px-6 py-2.5 rounded-full text-sm font-semibold text-white pointer-events-auto disabled:opacity-50"
                 style={{ background: purchased ? '#333' : t.color, transitionDelay: '0.1s' }}>
                 {paying ? 'Processing...' : `Buy ₹${t.price}`}
@@ -144,7 +144,7 @@ export default function TemplateCard({ template: t }: { template: Template }) {
                 <PenLine size={12} /> Edit
               </a>
             )}
-            <button onClick={handleBuy} disabled={paying}
+            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBuy() }} disabled={paying}
               className="px-4 py-2 rounded-full text-xs font-semibold text-white disabled:opacity-50"
               style={{ background: purchased ? '#333' : t.color }}>
                 {paying ? '...' : `Buy ₹${t.price}`}
