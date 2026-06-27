@@ -103,7 +103,7 @@ export default function TemplateCard({ template: t }: { template: Template }) {
         className="flex flex-col items-center">
 
         <div className="group relative w-full max-w-[260px] mx-auto">
-          <a href={`/preview/${t.id}`} className="block md:pointer-events-none rounded-[32px] overflow-hidden border-[5px] border-gray-800 shadow-2xl relative"
+          <a href={`/preview/${t.id}`} className="block lg:pointer-events-none rounded-[32px] overflow-hidden border-[5px] border-gray-800 shadow-2xl relative"
             style={{ aspectRatio: '9/16', background: t.color }}>
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 rounded-b-xl z-20" style={{ background: '#1a1a1a' }} />
             {visible && (
@@ -120,7 +120,7 @@ export default function TemplateCard({ template: t }: { template: Template }) {
           </a>
 
           {/* Desktop hover overlay */}
-          <div className="absolute inset-0 rounded-[32px] bg-transparent group-hover:bg-black/50 transition-all duration-300 hidden md:flex flex-col items-center justify-center gap-3 z-10">
+          <div className="absolute inset-0 rounded-[32px] bg-transparent group-hover:bg-black/50 transition-all duration-300 hidden lg:flex flex-col items-center justify-center gap-3 z-10">
             <a href={`/preview/${t.id}`}
               className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 px-6 py-2.5 rounded-full text-sm font-semibold bg-white"
               style={{ color: t.color }}>
@@ -154,7 +154,7 @@ export default function TemplateCard({ template: t }: { template: Template }) {
             <span className="font-sans text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#16a34a', color: '#fff' }}>60% OFF</span>
           </div>
           {/* Mobile buttons */}
-          <div className="flex items-center justify-center gap-2 md:hidden flex-wrap">
+          <div className="flex items-center justify-center gap-2 lg:hidden flex-wrap">
             <a href={`/preview/${t.id}`}
               className="px-4 py-2 rounded-full text-xs font-semibold"
               style={{ border: `1px solid ${t.color}`, color: t.color }}>
