@@ -78,28 +78,25 @@ export default function Hero() {
             </motion.div>
           </motion.div>
 
-          {/* Right: Mockup with live iframes */}
+          {/* Right: Phone mockup */}
           <motion.div className="flex justify-center lg:justify-end"
             initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.3 }}>
-            <div className="relative float-anim" style={{ width: 'clamp(400px, 50vw, 640px)' }}>
-              <div className="absolute inset-0 blur-[100px] rounded-full"
-                style={{ background: 'rgba(232,56,79,0.06)', transform: 'scale(1.3)' }} />
-              <img src="/mockup.png" alt="" className="relative w-full h-auto drop-shadow-2xl" />
-
-              {/* Laptop iframe */}
-              <iframe src={TEMPLATES[0].url} className="absolute pointer-events-none"
-                style={{ top: '8%', left: '4.5%', width: '52%', height: '58%', border: 'none', borderRadius: '2px' }}
-                title="Laptop preview" loading="lazy" />
-
-              {/* Tablet iframe */}
-              <iframe src={TEMPLATES[1].url} className="absolute pointer-events-none"
-                style={{ top: '10%', left: '59%', width: '24%', height: '62%', border: 'none', borderRadius: '2px' }}
-                title="Tablet preview" loading="lazy" />
-
-              {/* Phone iframe */}
-              <iframe src={TEMPLATES[2].url} className="absolute pointer-events-none"
-                style={{ top: '18%', left: '84%', width: '12%', height: '55%', border: 'none', borderRadius: '2px' }}
-                title="Phone preview" loading="lazy" />
+            <div className="relative float-anim">
+              <div className="absolute inset-0 blur-[80px] rounded-full"
+                style={{ background: 'rgba(232,56,79,0.08)', transform: 'scale(1.3)' }} />
+              <div className="relative w-[260px] sm:w-[280px]">
+                <div className="rounded-[36px] overflow-hidden border-[5px] shadow-2xl"
+                  style={{ borderColor: '#222', aspectRatio: '9/16', background: featured.color }}>
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 rounded-b-xl z-20" style={{ background: '#1a1a1a' }} />
+                  <iframe src={featured.url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
+                    style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
+                    title={featured.name} loading="lazy" />
+                </div>
+                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full font-sans text-[10px] tracking-wider font-semibold"
+                  style={{ background: '#fff', border: '1px solid #eee', color: '#e8384f', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
+                  {featured.name}
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
