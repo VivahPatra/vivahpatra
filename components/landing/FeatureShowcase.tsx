@@ -60,16 +60,24 @@ export default function FeatureShowcase() {
                 <div className="absolute inset-0 blur-[60px] rounded-full"
                   style={{ background: `${template.color}15`, transform: 'scale(1.4)' }} />
                 <div className="relative w-[220px]">
-                  <div className="rounded-[32px] overflow-hidden border-[4px] shadow-2xl"
-                    style={{ borderColor: '#2a2a2a', aspectRatio: '9/16', background: template.color }}>
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-4 rounded-b-lg z-20" style={{ background: '#1a1a1a' }} />
-                    <iframe
-                      src={template.url}
-                      className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
-                      style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
-                      title={template.name}
-                      loading="lazy"
-                    />
+                  <div className="relative rounded-[32px] overflow-hidden shadow-2xl"
+                    style={{ border: '5px solid #1a1a1a', aspectRatio: '9/19.5', background: '#000' }}>
+                    {/* Notch */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80px] h-[20px] rounded-b-2xl z-20" style={{ background: '#1a1a1a' }}>
+                      <div className="absolute top-[5px] left-1/2 -translate-x-1/2 w-[36px] h-[4px] rounded-full" style={{ background: '#333' }} />
+                    </div>
+                    {/* Screen */}
+                    <div className="absolute inset-0 rounded-[27px] overflow-hidden">
+                      <iframe
+                        src={template.url}
+                        className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
+                        style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
+                        title={template.name}
+                        loading="lazy"
+                      />
+                    </div>
+                    {/* Bottom bar */}
+                    <div className="absolute bottom-[3px] left-1/2 -translate-x-1/2 w-[90px] h-[4px] rounded-full z-20" style={{ background: '#444' }} />
                   </div>
                 </div>
               </div>

@@ -85,12 +85,20 @@ export default function Hero() {
               <div className="absolute inset-0 blur-[80px] rounded-full"
                 style={{ background: 'rgba(232,56,79,0.08)', transform: 'scale(1.3)' }} />
               <div className="relative w-[260px] sm:w-[280px]">
-                <div className="rounded-[36px] overflow-hidden border-[5px] shadow-2xl"
-                  style={{ borderColor: '#222', aspectRatio: '9/16', background: featured.color }}>
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 rounded-b-xl z-20" style={{ background: '#1a1a1a' }} />
-                  <iframe src={featured.url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
-                    style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
-                    title={featured.name} loading="lazy" />
+                <div className="relative rounded-[36px] overflow-hidden shadow-2xl"
+                  style={{ border: '6px solid #1a1a1a', aspectRatio: '9/19.5', background: '#000' }}>
+                  {/* Notch */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[90px] h-[22px] rounded-b-2xl z-20" style={{ background: '#1a1a1a' }}>
+                    <div className="absolute top-[6px] left-1/2 -translate-x-1/2 w-[40px] h-[4px] rounded-full" style={{ background: '#333' }} />
+                  </div>
+                  {/* Screen */}
+                  <div className="absolute inset-0 rounded-[30px] overflow-hidden">
+                    <iframe src={featured.url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
+                      style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
+                      title={featured.name} loading="lazy" />
+                  </div>
+                  {/* Bottom bar */}
+                  <div className="absolute bottom-[4px] left-1/2 -translate-x-1/2 w-[100px] h-[4px] rounded-full z-20" style={{ background: '#444' }} />
                 </div>
                 <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full font-sans text-[10px] tracking-wider font-semibold"
                   style={{ background: '#fff', border: '1px solid #eee', color: '#e8384f', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
