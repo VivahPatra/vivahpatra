@@ -37,7 +37,7 @@ export default function FeaturedTemplates() {
                 <div className="rounded-[24px] overflow-hidden shadow-2xl relative"
                   style={{ aspectRatio: '9/16', background: t.color, border: '2px solid rgba(255,255,255,0.06)' }}>
                   {VIDEOS.includes(t.id) ? (
-                    <video src={`/templates/${t.id}.mp4`} autoPlay loop muted playsInline preload="none"
+                    <video src={`/templates/${t.id}.mp4`} autoPlay loop muted playsInline preload="auto"
                       className="absolute inset-0 w-full h-full object-cover object-top" />
                   ) : (
                     <img src={`/templates/${t.id}.png`} alt={t.name}
