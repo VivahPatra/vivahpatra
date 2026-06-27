@@ -88,14 +88,14 @@ export default function Hero() {
                     <div className="absolute top-[6px] left-1/2 -translate-x-1/2 w-[40px] h-[4px] rounded-full" style={{ background: '#333' }} />
                   </div>
                   <div className="absolute inset-0 rounded-[30px] overflow-hidden">
-                    <video src="/templates/mandala.mp4" autoPlay loop muted playsInline preload="metadata"
+                    <video src="/templates/template2.mp4" autoPlay loop muted playsInline preload="metadata"
                       className="absolute inset-0 w-full h-full object-cover object-top" />
                   </div>
                   <div className="absolute bottom-[4px] left-1/2 -translate-x-1/2 w-[100px] h-[4px] rounded-full z-20" style={{ background: '#444' }} />
                 </div>
                 <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full font-sans text-[10px] tracking-wider font-semibold"
                   style={{ background: '#fff', border: '1px solid #eee', color: '#e8384f', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-                  Sacred Mandala
+                  Palace Romance
                 </div>
               </div>
             </div>
