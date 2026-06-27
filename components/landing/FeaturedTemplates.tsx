@@ -1,58 +1,98 @@
 'use client'
-import { motion } from 'framer-motion'
+import { useState, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { TEMPLATES } from '@/lib/templates'
 import Button from '@/components/shared/Button'
 
+const VIDEOS = ['invitation', 'template2', 'template3', 'template4', 'mandala', 'modern']
+
+function CardMedia({ id, name }: { id: string; name: string }) {
+  return VIDEOS.includes(id) ? (
+    <video src={`/templates/${id}.mp4`} autoPlay loop muted playsInline preload="none"
+      className="absolute inset-0 w-full h-full object-cover object-top" />
+  ) : (
+    <img src={`/templates/${id}.png`} alt={name}
+      className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
+  )
+}
+
+const POSITIONS = [
+  { x: -520, rotate: -18, scale: 0.7, z: 0, opacity: 0.4 },
+  { x: -340, rotate: -12, scale: 0.78, z: 1, opacity: 0.6 },
+  { x: -185, rotate: -6, scale: 0.88, z: 2, opacity: 0.85 },
+  { x: 0, rotate: 0, scale: 1, z: 3, opacity: 1 },
+  { x: 185, rotate: 6, scale: 0.88, z: 2, opacity: 0.85 },
+  { x: 340, rotate: 12, scale: 0.78, z: 1, opacity: 0.6 },
+  { x: 520, rotate: 18, scale: 0.7, z: 0, opacity: 0.4 },
+]
+
 export default function FeaturedTemplates() {
-  const doubled = [...TEMPLATES, ...TEMPLATES]
+  const [center, setCenter] = useState(0)
+  const total = TEMPLATES.length
+
+  const goNext = useCallback(() => setCenter(c => (c + 1) % total), [total])
+
+  useEffect(() => {
+    const timer = setInterval(goNext, 3000)
+    return () => clearInterval(timer)
+  }, [goNext])
+
+  const getVisible = () => {
+    const items: { template: typeof TEMPLATES[0]; pos: typeof POSITIONS[0]; key: string }[] = []
+    for (let i = -3; i <= 3; i++) {
+      const idx = ((center + i) % total + total) % total
+      items.push({
+        template: TEMPLATES[idx],
+        pos: POSITIONS[i + 3],
+        key: `${idx}-${i}`,
+      })
+    }
+    return items
+  }
 
   return (
-    <section className="py-24 overflow-hidden relative">
+    <section className="py-20 overflow-hidden relative">
       <div className="absolute inset-0"
-        style={{ background: 'linear-gradient(180deg, #fff 0%, #f8f8f8 10%, #f8f8f8 90%, #fff 100%)' }} />
+        style={{ background: 'linear-gradient(180deg, #fff 0%, #f5f5f5 30%, #f5f5f5 70%, #fff 100%)' }} />
 
       <div className="relative z-10">
-        <motion.div className="max-w-6xl mx-auto px-6 text-center mb-14"
+        <motion.div className="max-w-6xl mx-auto px-6 text-center mb-16"
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <p className="font-sans text-[10px] tracking-[0.5em] uppercase mb-4" style={{ color: '#e8384f' }}>Curated Collection</p>
           <h2 className="font-display text-3xl md:text-4xl mb-3">Explore Our Templates</h2>
           <p className="font-sans text-sm" style={{ color: '#777' }}>Handpicked designs loved by couples across India</p>
         </motion.div>
 
-        <style>{`
-          @keyframes carouselScroll {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-        `}</style>
-        <div className="relative pointer-events-none select-none">
-          <div className="absolute left-0 top-0 bottom-0 w-28 z-10" style={{ background: 'linear-gradient(to right, #f8f8f8, transparent)' }} />
-          <div className="absolute right-0 top-0 bottom-0 w-28 z-10" style={{ background: 'linear-gradient(to left, #f8f8f8, transparent)' }} />
-
-          <div className="flex gap-6" style={{ width: 'max-content', animation: 'carouselScroll 45s linear infinite' }}>
-            {doubled.map((t, i) => (
-              <div key={`${t.id}-${i}`} className="flex-shrink-0 w-[200px]">
-                <div className="rounded-[24px] overflow-hidden shadow-2xl relative"
-                  style={{ aspectRatio: '9/16', background: t.color, border: '2px solid rgba(255,255,255,0.06)' }}>
-                  {['southindian', 'christian', 'punjabi'].includes(t.id) ? (
-                    <img src={`/templates/${t.id}.png`} alt={t.name}
-                      className="absolute inset-0 w-full h-full object-cover object-top"
-                      loading="lazy" />
-                  ) : (
-                    <video src={`/templates/${t.id}.mp4`} autoPlay loop muted playsInline preload="none"
-                      className="absolute inset-0 w-full h-full object-cover object-top" />
-                  )}
-                  <div className="absolute inset-0 flex items-end p-4"
-                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }}>
-                    <p className="font-display text-white text-sm" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{t.name}</p>
-                  </div>
+        {/* Fan carousel */}
+        <div className="relative flex items-center justify-center" style={{ height: 480, perspective: 1200 }}>
+          <AnimatePresence mode="popLayout">
+            {getVisible().map(({ template: t, pos, key }) => (
+              <motion.div key={key}
+                className="absolute"
+                style={{ width: 230, zIndex: pos.z }}
+                initial={{ x: pos.x, rotateY: pos.rotate, scale: pos.scale, opacity: 0 }}
+                animate={{ x: pos.x, rotateY: pos.rotate, scale: pos.scale, opacity: pos.opacity }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6, ease: 'easeInOut' }}>
+                <div className="rounded-[20px] overflow-hidden shadow-2xl relative"
+                  style={{ aspectRatio: '9/16', background: t.color }}>
+                  <CardMedia id={t.id} name={t.name} />
                 </div>
-              </div>
+                {pos.z === 3 && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="font-sans text-sm font-semibold text-center mt-3"
+                    style={{ color: '#555' }}>
+                    {t.name}
+                  </motion.p>
+                )}
+              </motion.div>
             ))}
-          </div>
+          </AnimatePresence>
         </div>
 
-        <div className="text-center mt-12 px-6">
+        <div className="text-center mt-8 px-6">
           <Button href="/templates">View All Templates</Button>
         </div>
       </div>
