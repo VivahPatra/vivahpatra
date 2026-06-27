@@ -56,6 +56,7 @@ export interface SectionToggle {
 
 export interface WeddingFormData {
   // Couple
+  groomFirst: boolean
   groomName: string
   brideName: string
   groomParents: string
@@ -117,6 +118,7 @@ export interface WeddingFormData {
 }
 
 export const DEFAULT_FORM_DATA: WeddingFormData = {
+  groomFirst: true,
   groomName: '',
   brideName: '',
   groomParents: '',

@@ -170,17 +170,17 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const save = () => { localStorage.setItem(storageKey, JSON.stringify(data)); setSaved(true); setTimeout(() => setSaved(false), 2000) }
 
   const resetToDefaults = () => {
-    if (!confirm('Reset all fields to default? Your current edits will be lost.')) return
+    if (!confirm('Reset all fields to default? Groom & Bride names will be kept.')) return
     const fresh: WeddingFormData = {
       ...DEFAULT_FORM_DATA,
+      groomName: data.groomName,
+      brideName: data.brideName,
       events: getDefaultEvents(id),
       infoCards: getDefaultInfoCards(id),
       sections: { ...DEFAULT_FORM_DATA.sections, info: config.infoVisibleByDefault },
     }
     setData(fresh)
     localStorage.setItem(storageKey, JSON.stringify(fresh))
-    setHasPublished(false)
-    setPublishedUrl(null)
   }
 
   const publish = async () => {
@@ -234,6 +234,15 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             <EditorInput label="Bride Name" value={data.brideName} onChange={v => set('brideName', v)} placeholder="Priya" disabled={hasPublished} />
           </div>
           {hasPublished && <p className="text-[11px] -mt-1 mb-2" style={{ color: '#c8922a' }}>Names locked after first publish (used in invite URL)</p>}
+          <div className="flex items-center justify-between mb-3 px-1">
+            <span className="text-xs font-semibold" style={{ color: '#9a8a7a' }}>Name order in template</span>
+            <button onClick={() => setData(prev => ({ ...prev, groomFirst: !prev.groomFirst }))}
+              className="px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all"
+              style={{ background: 'rgba(200,146,42,0.1)', color: '#c8922a', border: '1px solid rgba(200,146,42,0.15)' }}>
+              {data.groomFirst ? `${data.groomName || 'Groom'} & ${data.brideName || 'Bride'}` : `${data.brideName || 'Bride'} & ${data.groomName || 'Groom'}`}
+              &nbsp; ↔
+            </button>
+          </div>
           <div className="grid grid-cols-2 gap-2">
             <EditorInput label="Groom's Parents" value={data.groomParents} onChange={v => set('groomParents', v)} placeholder="Mr. & Mrs. Sharma" />
             <EditorInput label="Bride's Parents" value={data.brideParents} onChange={v => set('brideParents', v)} placeholder="Mr. & Mrs. Gupta" />

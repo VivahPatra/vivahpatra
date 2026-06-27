@@ -65,7 +65,17 @@ export default function TemplateCard({ template: t }: { template: Template }) {
     if (user && pendingBuy) {
       setPendingBuy(false)
       localStorage.removeItem('pendingBuy')
-      handlePayment()
+      // Check if already purchased — skip payment, go to editor
+      checkPurchase(user.id, t.id).then(bought => {
+        if (bought) {
+          getCloudInstances(user.id, t.id).then(insts => {
+            const inst = insts.length > 0 ? insts[insts.length - 1].instanceId : ''
+            router.push(`/editor/${t.id}?inst=${inst}`)
+          })
+        } else {
+          handlePayment()
+        }
+      })
     }
   }, [user, pendingBuy])
 
