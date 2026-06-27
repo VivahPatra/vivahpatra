@@ -1,48 +1,17 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { TEMPLATES } from '@/lib/templates'
 import Button from '@/components/shared/Button'
 
 const VIDEOS = ['invitation', 'template2', 'template3', 'template4', 'mandala', 'modern']
 
-function CardMedia({ id, name }: { id: string; name: string }) {
-  return VIDEOS.includes(id) ? (
-    <video src={`/templates/${id}.mp4`} autoPlay loop muted playsInline preload="none"
-      className="absolute inset-0 w-full h-full object-cover object-top" />
-  ) : (
-    <img src={`/templates/${id}.png`} alt={name}
-      className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
-  )
-}
-
-const GAP = 260
-
-const SLOTS = [
-  { offset: -3, rotate: -14, y: 50, scale: 1,    opacity: 0.3 },
-  { offset: -2, rotate: -9,  y: 25, scale: 1,    opacity: 0.55 },
-  { offset: -1, rotate: -4,  y: 6,  scale: 1,    opacity: 0.85 },
-  { offset: 0,  rotate: 0,   y: 0,  scale: 0.75, opacity: 1 },
-  { offset: 1,  rotate: 4,   y: 6,  scale: 1,    opacity: 0.85 },
-  { offset: 2,  rotate: 9,   y: 25, scale: 1,    opacity: 0.55 },
-  { offset: 3,  rotate: 14,  y: 50, scale: 1,    opacity: 0.3 },
-]
-
 export default function FeaturedTemplates() {
-  const [center, setCenter] = useState(0)
-  const total = TEMPLATES.length
-
-  const goNext = useCallback(() => setCenter(c => (c + 1) % total), [total])
-
-  useEffect(() => {
-    const timer = setInterval(goNext, 3000)
-    return () => clearInterval(timer)
-  }, [goNext])
+  const doubled = [...TEMPLATES, ...TEMPLATES]
 
   return (
-    <section className="py-20 overflow-hidden relative">
+    <section className="py-24 overflow-hidden relative">
       <div className="absolute inset-0"
-        style={{ background: 'linear-gradient(180deg, #fff 0%, #f5f5f5 30%, #f5f5f5 70%, #fff 100%)' }} />
+        style={{ background: 'linear-gradient(180deg, #fff 0%, #f8f8f8 10%, #f8f8f8 90%, #fff 100%)' }} />
 
       <div className="relative z-10">
         <motion.div className="max-w-6xl mx-auto px-6 text-center mb-14"
@@ -52,53 +21,39 @@ export default function FeaturedTemplates() {
           <p className="font-sans text-sm" style={{ color: '#777' }}>Handpicked designs loved by couples across India</p>
         </motion.div>
 
-        {/* Fan carousel */}
-        <div className="relative flex items-end justify-center select-none" style={{ height: 540 }}>
-          {SLOTS.map((slot) => {
-            const idx = ((center + slot.offset) % total + total) % total
-            const t = TEMPLATES[idx]
-            return (
-              <motion.div
-                key={`${center}-${slot.offset}`}
-                className="absolute"
-                style={{
-                  width: 200,
-                  bottom: 40,
-                  zIndex: 3 - Math.abs(slot.offset),
-                  transformOrigin: 'bottom center',
-                }}
-                initial={false}
-                animate={{
-                  x: slot.offset * GAP,
-                  rotate: slot.rotate,
-                  y: slot.y,
-                  scale: slot.scale,
-                  opacity: slot.opacity,
-                }}
-                transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}>
-                <div className="rounded-[16px] overflow-hidden shadow-xl relative"
-                  style={{ aspectRatio: '9/16', background: t.color }}>
-                  <CardMedia id={t.id} name={t.name} />
+        <style>{`
+          @keyframes carouselScroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+        `}</style>
+        <div className="relative pointer-events-none select-none">
+          <div className="absolute left-0 top-0 bottom-0 w-28 z-10" style={{ background: 'linear-gradient(to right, #f8f8f8, transparent)' }} />
+          <div className="absolute right-0 top-0 bottom-0 w-28 z-10" style={{ background: 'linear-gradient(to left, #f8f8f8, transparent)' }} />
+
+          <div className="flex gap-6" style={{ width: 'max-content', animation: 'carouselScroll 45s linear infinite' }}>
+            {doubled.map((t, i) => (
+              <div key={`${t.id}-${i}`} className="flex-shrink-0 w-[200px]">
+                <div className="rounded-[24px] overflow-hidden shadow-2xl relative"
+                  style={{ aspectRatio: '9/16', background: t.color, border: '2px solid rgba(255,255,255,0.06)' }}>
+                  {VIDEOS.includes(t.id) ? (
+                    <video src={`/templates/${t.id}.mp4`} autoPlay loop muted playsInline preload="none"
+                      className="absolute inset-0 w-full h-full object-cover object-top" />
+                  ) : (
+                    <img src={`/templates/${t.id}.png`} alt={t.name}
+                      className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
+                  )}
+                  <div className="absolute inset-0 flex items-end p-4"
+                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }}>
+                    <p className="font-display text-white text-sm" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{t.name}</p>
+                  </div>
                 </div>
-              </motion.div>
-            )
-          })}
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Dots */}
-        <div className="flex justify-center gap-1.5 mt-6">
-          {TEMPLATES.map((_, i) => (
-            <button key={i} onClick={() => setCenter(i)}
-              className="rounded-full transition-all duration-300"
-              style={{
-                width: i === center ? 20 : 6,
-                height: 6,
-                background: i === center ? '#e8384f' : '#ddd',
-              }} />
-          ))}
-        </div>
-
-        <div className="text-center mt-10 px-6">
+        <div className="text-center mt-12 px-6">
           <Button href="/templates">View All Templates</Button>
         </div>
       </div>
