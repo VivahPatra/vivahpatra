@@ -37,6 +37,12 @@ export default function Navbar() {
             {!loading && (
               user ? (
                 <div className="flex items-center gap-2">
+                  {user.email === 'pr@vivahpatra.co' && (
+                    <a href="/admin" className="px-3 py-1.5 rounded-full font-sans text-xs font-semibold"
+                      style={{ background: '#e8384f', color: '#fff' }}>
+                      Admin
+                    </a>
+                  )}
                   <a href="/profile" className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-gray-100 transition-colors">
                     <User size={14} style={{ color: '#555' }} />
                     <span className="font-sans text-xs" style={{ color: '#333' }}>
@@ -73,9 +79,14 @@ export default function Navbar() {
             <a href="/#how-it-works" className="font-sans text-sm" style={{ color: '#333' }}>How It Works</a>
             <a href="/#faq" className="font-sans text-sm" style={{ color: '#333' }}>FAQ</a>
             {user ? (
-              <div className="flex items-center justify-between">
-                <a href="/profile" className="font-sans text-sm" style={{ color: '#e8384f' }}>My Profile</a>
-                <button onClick={signOut} className="font-sans text-xs" style={{ color: '#999' }}>Sign Out</button>
+              <div className="flex flex-col gap-3">
+                {user.email === 'pr@vivahpatra.co' && (
+                  <a href="/admin" className="font-sans text-sm font-semibold" style={{ color: '#e8384f' }}>Admin Panel</a>
+                )}
+                <div className="flex items-center justify-between">
+                  <a href="/profile" className="font-sans text-sm" style={{ color: '#e8384f' }}>My Profile</a>
+                  <button onClick={signOut} className="font-sans text-xs" style={{ color: '#999' }}>Sign Out</button>
+                </div>
               </div>
             ) : (
               <button onClick={() => { setAuthOpen(true); setMenuOpen(false) }} className="font-sans text-sm text-left" style={{ color: '#555' }}>Sign In</button>
