@@ -124,8 +124,8 @@ export default function AdminUsers() {
                   <span className="text-xs">{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—'}</span>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <a href={`https://supabase.com/dashboard/project/uipzkfuilpscfbtolkjf/auth/users/${u.id}`} target="_blank"
-                    className="p-1 rounded hover:bg-blue-500/20 inline-block" title="Edit in Supabase">
+                  <a href={`https://supabase.com/dashboard/project/uipzkfuilpscfbtolkjf/auth/users`} target="_blank"
+                    className="p-1 rounded hover:bg-blue-500/20 inline-block" title="Edit in Supabase Auth">
                     <Edit3 size={14} style={{ color: '#3b82f6' }} />
                   </a>
                 </td>
