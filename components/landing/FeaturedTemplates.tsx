@@ -36,11 +36,10 @@ export default function FeaturedTemplates() {
                   style={{ aspectRatio: '9/16', background: t.color, border: '2px solid rgba(255,255,255,0.06)' }}>
                   {['template2', 'template4', 'mandala', 'modern'].includes(t.id) ? (
                     <video src={`/templates/${t.id}.mp4`} autoPlay loop muted playsInline
-                      className="w-full h-full object-cover object-top" />
+                      className="absolute inset-0 w-full h-full object-cover object-top" />
                   ) : (
                     <img src={`/templates/${t.id}.png`} alt={t.name}
-                      className="w-full h-full object-cover object-top"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                      className="absolute inset-0 w-full h-full object-cover object-top" />
                   )}
                   <div className="absolute inset-0 flex items-end p-4"
                     style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }}>
