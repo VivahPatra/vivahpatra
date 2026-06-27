@@ -32,16 +32,14 @@ export default function FeaturedTemplates() {
           <div className="flex gap-6" style={{ width: 'max-content', animation: 'carouselScroll 45s linear infinite' }}>
             {doubled.map((t, i) => (
               <div key={`${t.id}-${i}`} className="flex-shrink-0 w-[200px]">
-                <div className="rounded-[24px] overflow-hidden shadow-2xl relative"
-                  style={{ aspectRatio: '9/16', background: t.color, border: '2px solid rgba(255,255,255,0.06)' }}>
-                  <img src={`/templates/${t.id}.jpg`} alt={t.name}
-                    className="w-full h-full object-cover object-top"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
-                  <div className="absolute inset-0 flex items-end p-4"
-                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }}>
-                    <p className="font-display text-white text-sm" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{t.name}</p>
-                  </div>
+                <div className="rounded-[28px] overflow-hidden border-[4px] border-gray-800 shadow-2xl relative"
+                  style={{ aspectRatio: '9/16', background: t.color }}>
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-4 rounded-b-lg z-20" style={{ background: '#1a1a1a' }} />
+                  <iframe src={t.url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
+                    style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
+                    title={t.name} loading="lazy" />
                 </div>
+                <p className="font-sans text-xs text-center mt-2 font-semibold" style={{ color: '#555' }}>{t.name}</p>
               </div>
             ))}
           </div>
