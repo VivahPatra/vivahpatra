@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { TEMPLATES } from '@/lib/templates'
 import Button from '@/components/shared/Button'
 
-const VIDEOS = ['invitation', 'template2', 'template3', 'template4', 'mandala', 'modern']
+const VIDEOS = ['modern']
 
 export default function FeaturedTemplates() {
   const doubled = [...TEMPLATES, ...TEMPLATES]

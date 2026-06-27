@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { Smartphone, Palette, Share2, Sparkles, Globe, Clock } from 'lucide-react'
 import { TEMPLATES } from '@/lib/templates'
 
-const VIDEOS = ['invitation', 'template2', 'template3', 'template4', 'mandala', 'modern']
+const VIDEOS = ['modern']
 
 const SECTIONS = [
   {

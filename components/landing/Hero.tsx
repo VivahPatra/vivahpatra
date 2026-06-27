@@ -88,7 +88,7 @@ export default function Hero() {
                     <div className="absolute top-[6px] left-1/2 -translate-x-1/2 w-[40px] h-[4px] rounded-full" style={{ background: '#333' }} />
                   </div>
                   <div className="absolute inset-0 rounded-[30px] overflow-hidden">
-                    <video src="/templates/template2.mp4" autoPlay loop muted playsInline preload="metadata"
+                    <img src="/templates/template2.png" alt="Palace Romance"
                       className="absolute inset-0 w-full h-full object-cover object-top" />
                   </div>
                   <div className="absolute bottom-[4px] left-1/2 -translate-x-1/2 w-[100px] h-[4px] rounded-full z-20" style={{ background: '#444' }} />
