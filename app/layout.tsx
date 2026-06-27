@@ -18,9 +18,23 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Vivah Patra — Beautiful Animated Templates',
-  description: 'Create stunning, animated wedding invitations. Choose from 9+ templates, customize, and share instantly via WhatsApp.',
+  title: 'Vivah Patra — Beautiful Animated Wedding Invitations',
+  description: 'Create stunning, animated digital wedding invitations for every Indian culture. 9+ templates — Hindu, Sikh, Christian, Modern. Customize in minutes, share via WhatsApp. Starting at ₹1499.',
+  keywords: ['wedding invitation', 'digital wedding card', 'animated invitation', 'Indian wedding', 'Hindu wedding', 'Sikh wedding', 'Christian wedding', 'WhatsApp invitation', 'wedding template'],
   icons: { icon: '/favicon.png' },
+  metadataBase: new URL('https://www.vivahpatra.co'),
+  openGraph: {
+    title: 'Vivah Patra — Beautiful Animated Wedding Invitations',
+    description: 'Create stunning digital wedding invitations. 9+ animated templates for every Indian culture. Starting at ₹1499.',
+    url: 'https://www.vivahpatra.co',
+    siteName: 'Vivah Patra',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Vivah Patra — Animated Wedding Invitations',
+    description: '9+ stunning templates for every Indian wedding. Customize & share via WhatsApp.',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

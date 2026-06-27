@@ -109,7 +109,7 @@ export default function TemplateCard({ template: t }: { template: Template }) {
             {visible && (
               <iframe src={t.url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
                 style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
-                title={t.name} onLoad={() => setIframeLoaded(true)} />
+                title={t.name} loading="lazy" onLoad={() => setIframeLoaded(true)} />
             )}
             {!iframeLoaded && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
