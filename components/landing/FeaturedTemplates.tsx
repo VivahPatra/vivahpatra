@@ -32,19 +32,16 @@ export default function FeaturedTemplates() {
           <div className="flex gap-6" style={{ width: 'max-content', animation: 'carouselScroll 45s linear infinite' }}>
             {doubled.map((t, i) => (
               <div key={`${t.id}-${i}`} className="flex-shrink-0 w-[200px]">
-                <div className="relative rounded-[28px] overflow-hidden shadow-2xl"
-                  style={{ border: '4px solid #1a1a1a', aspectRatio: '9/19.5', background: '#000' }}>
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[70px] h-[16px] rounded-b-xl z-20" style={{ background: '#1a1a1a' }}>
-                    <div className="absolute top-[4px] left-1/2 -translate-x-1/2 w-[30px] h-[3px] rounded-full" style={{ background: '#333' }} />
+                <div className="rounded-[24px] overflow-hidden shadow-2xl relative"
+                  style={{ aspectRatio: '9/16', background: t.color, border: '2px solid rgba(255,255,255,0.06)' }}>
+                  <img src={`/templates/${t.id}.jpg`} alt={t.name}
+                    className="w-full h-full object-cover object-top"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                  <div className="absolute inset-0 flex items-end p-4"
+                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }}>
+                    <p className="font-display text-white text-sm" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{t.name}</p>
                   </div>
-                  <div className="absolute inset-0 rounded-[24px] overflow-hidden">
-                    <iframe src={t.url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
-                      style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
-                      title={t.name} loading="lazy" />
-                  </div>
-                  <div className="absolute bottom-[3px] left-1/2 -translate-x-1/2 w-[75px] h-[3px] rounded-full z-20" style={{ background: '#444' }} />
                 </div>
-                <p className="font-sans text-xs text-center mt-3 font-semibold" style={{ color: '#555' }}>{t.name}</p>
               </div>
             ))}
           </div>
