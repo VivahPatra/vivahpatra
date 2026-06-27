@@ -16,17 +16,16 @@ function CardMedia({ id, name }: { id: string; name: string }) {
   )
 }
 
-const CARD_W = 200
-const GAP = 210
+const GAP = 260
 
 const SLOTS = [
-  { offset: -3, rotate: -15, y: 60, opacity: 0.35 },
-  { offset: -2, rotate: -10, y: 30, opacity: 0.55 },
-  { offset: -1, rotate: -5,  y: 8,  opacity: 0.8 },
-  { offset: 0,  rotate: 0,   y: 0,  opacity: 1 },
-  { offset: 1,  rotate: 5,   y: 8,  opacity: 0.8 },
-  { offset: 2,  rotate: 10,  y: 30, opacity: 0.55 },
-  { offset: 3,  rotate: 15,  y: 60, opacity: 0.35 },
+  { offset: -3, rotate: -14, y: 50, scale: 1,    opacity: 0.3 },
+  { offset: -2, rotate: -9,  y: 25, scale: 1,    opacity: 0.55 },
+  { offset: -1, rotate: -4,  y: 6,  scale: 1,    opacity: 0.85 },
+  { offset: 0,  rotate: 0,   y: 0,  scale: 0.75, opacity: 1 },
+  { offset: 1,  rotate: 4,   y: 6,  scale: 1,    opacity: 0.85 },
+  { offset: 2,  rotate: 9,   y: 25, scale: 1,    opacity: 0.55 },
+  { offset: 3,  rotate: 14,  y: 50, scale: 1,    opacity: 0.3 },
 ]
 
 export default function FeaturedTemplates() {
@@ -54,7 +53,7 @@ export default function FeaturedTemplates() {
         </motion.div>
 
         {/* Fan carousel */}
-        <div className="relative flex items-end justify-center select-none" style={{ height: 520 }}>
+        <div className="relative flex items-end justify-center select-none" style={{ height: 540 }}>
           {SLOTS.map((slot) => {
             const idx = ((center + slot.offset) % total + total) % total
             const t = TEMPLATES[idx]
@@ -63,7 +62,7 @@ export default function FeaturedTemplates() {
                 key={`${center}-${slot.offset}`}
                 className="absolute"
                 style={{
-                  width: CARD_W,
+                  width: 200,
                   bottom: 40,
                   zIndex: 3 - Math.abs(slot.offset),
                   transformOrigin: 'bottom center',
@@ -73,6 +72,7 @@ export default function FeaturedTemplates() {
                   x: slot.offset * GAP,
                   rotate: slot.rotate,
                   y: slot.y,
+                  scale: slot.scale,
                   opacity: slot.opacity,
                 }}
                 transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}>
