@@ -1,11 +1,16 @@
 import type { NextConfig } from 'next'
 
 const config: NextConfig = {
+  compress: true,
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'uipzkfuilpscfbtolkjf.supabase.co' },
       { protocol: 'https', hostname: '*.vercel.app' },
     ],
+    formats: ['image/avif', 'image/webp'],
+  },
+  experimental: {
+    optimizeCss: true,
   },
   async headers() {
     return [
@@ -32,6 +37,18 @@ const config: NextConfig = {
       },
       {
         source: '/music/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/templates/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/favicon.png',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],

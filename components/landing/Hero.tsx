@@ -1,9 +1,22 @@
 'use client'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { TEMPLATES } from '@/lib/templates'
 
 export default function Hero() {
   const featured = TEMPLATES[0]
+  const phoneRef = useRef<HTMLDivElement>(null)
+  const [loadIframe, setLoadIframe] = useState(false)
+
+  useEffect(() => {
+    const el = phoneRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setLoadIframe(true); obs.disconnect() }
+    }, { rootMargin: '100px' })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
 
   return (
     <section className="relative overflow-hidden" style={{ background: '#fff' }}>
@@ -81,7 +94,7 @@ export default function Hero() {
           {/* Right: Phone mockup */}
           <motion.div className="flex justify-center lg:justify-end"
             initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.3 }}>
-            <div className="relative float-anim">
+            <div ref={phoneRef} className="relative float-anim">
               <div className="absolute inset-0 blur-[80px] rounded-full"
                 style={{ background: 'rgba(232,56,79,0.08)', transform: 'scale(1.3)' }} />
               <div className="relative w-[260px] sm:w-[280px]">
@@ -93,9 +106,15 @@ export default function Hero() {
                   </div>
                   {/* Screen */}
                   <div className="absolute inset-0 rounded-[30px] overflow-hidden">
-                    <iframe src={featured.url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
-                      style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
-                      title={featured.name} loading="lazy" />
+                    {loadIframe ? (
+                      <iframe src={featured.url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
+                        style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
+                        title={featured.name} loading="lazy" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center" style={{ background: featured.color }}>
+                        <div className="w-6 h-6 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />
+                      </div>
+                    )}
                   </div>
                   {/* Bottom bar */}
                   <div className="absolute bottom-[4px] left-1/2 -translate-x-1/2 w-[100px] h-[4px] rounded-full z-20" style={{ background: '#444' }} />

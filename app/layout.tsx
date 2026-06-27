@@ -42,6 +42,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
       <head>
+        <link rel="preconnect" href="https://template-southindian.vercel.app" />
+        <link rel="dns-prefetch" href="https://template-southindian.vercel.app" />
+        <link rel="dns-prefetch" href="https://template-invitation-liard.vercel.app" />
+        <link rel="dns-prefetch" href="https://template-2-brown.vercel.app" />
+        <link rel="dns-prefetch" href="https://template-3-ruddy.vercel.app" />
+        <link rel="dns-prefetch" href="https://template-4-chi.vercel.app" />
+        <link rel="dns-prefetch" href="https://template-punjabi.vercel.app" />
+        <link rel="dns-prefetch" href="https://template-christian.vercel.app" />
+        <link rel="dns-prefetch" href="https://template-modern-psi.vercel.app" />
+        <link rel="dns-prefetch" href="https://template-mandala.vercel.app" />
         {process.env.NEXT_PUBLIC_GA_ID && (
           <>
             <Script src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`} strategy="afterInteractive" />

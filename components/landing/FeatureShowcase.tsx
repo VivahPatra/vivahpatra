@@ -1,4 +1,5 @@
 'use client'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Smartphone, Palette, Share2, Sparkles, Globe, Clock } from 'lucide-react'
 import { TEMPLATES } from '@/lib/templates'
@@ -42,6 +43,44 @@ const SECTIONS = [
   },
 ]
 
+function LazyPhone({ url, name, color }: { url: string; name: string; color: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [load, setLoad] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setLoad(true); obs.disconnect() }
+    }, { rootMargin: '300px' })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  return (
+    <div ref={ref} className="relative w-[220px]">
+      <div className="relative rounded-[32px] overflow-hidden shadow-2xl"
+        style={{ border: '5px solid #1a1a1a', aspectRatio: '9/19.5', background: '#000' }}>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80px] h-[20px] rounded-b-2xl z-20" style={{ background: '#1a1a1a' }}>
+          <div className="absolute top-[5px] left-1/2 -translate-x-1/2 w-[36px] h-[4px] rounded-full" style={{ background: '#333' }} />
+        </div>
+        <div className="absolute inset-0 rounded-[27px] overflow-hidden">
+          {load ? (
+            <iframe src={url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
+              style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
+              title={name} loading="lazy" />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center" style={{ background: color }}>
+              <div className="w-6 h-6 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
+        <div className="absolute bottom-[3px] left-1/2 -translate-x-1/2 w-[90px] h-[4px] rounded-full z-20" style={{ background: '#444' }} />
+      </div>
+    </div>
+  )
+}
+
 export default function FeatureShowcase() {
   return (
     <section className="py-12 relative">
@@ -59,27 +98,7 @@ export default function FeatureShowcase() {
               <div className="flex-shrink-0 relative">
                 <div className="absolute inset-0 blur-[60px] rounded-full"
                   style={{ background: `${template.color}15`, transform: 'scale(1.4)' }} />
-                <div className="relative w-[220px]">
-                  <div className="relative rounded-[32px] overflow-hidden shadow-2xl"
-                    style={{ border: '5px solid #1a1a1a', aspectRatio: '9/19.5', background: '#000' }}>
-                    {/* Notch */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80px] h-[20px] rounded-b-2xl z-20" style={{ background: '#1a1a1a' }}>
-                      <div className="absolute top-[5px] left-1/2 -translate-x-1/2 w-[36px] h-[4px] rounded-full" style={{ background: '#333' }} />
-                    </div>
-                    {/* Screen */}
-                    <div className="absolute inset-0 rounded-[27px] overflow-hidden">
-                      <iframe
-                        src={template.url}
-                        className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
-                        style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
-                        title={template.name}
-                        loading="lazy"
-                      />
-                    </div>
-                    {/* Bottom bar */}
-                    <div className="absolute bottom-[3px] left-1/2 -translate-x-1/2 w-[90px] h-[4px] rounded-full z-20" style={{ background: '#444' }} />
-                  </div>
-                </div>
+                <LazyPhone url={template.url} name={template.name} color={template.color} />
               </div>
 
               {/* Text content */}
