@@ -1,22 +1,55 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { TEMPLATES } from '@/lib/templates'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+
+const VIDEOS = ['invitation', 'template2', 'template3', 'template4', 'mandala', 'modern']
+
+function PhoneFrame({ templateId, name, size, className = '' }: { templateId: string; name: string; size: 'sm' | 'lg'; className?: string }) {
+  const w = size === 'lg' ? 'w-[220px] sm:w-[260px]' : 'w-[140px] sm:w-[170px]'
+  const r = size === 'lg' ? 'rounded-[32px]' : 'rounded-[24px]'
+  const border = size === 'lg' ? '5px solid #1a1a1a' : '4px solid #1a1a1a'
+  const notchW = size === 'lg' ? 'w-[80px] h-[20px]' : 'w-[50px] h-[14px]'
+  const barW = size === 'lg' ? 'w-[90px]' : 'w-[55px]'
+  const isVideo = VIDEOS.includes(templateId)
+
+  return (
+    <div className={`${w} ${className}`}>
+      <div className={`relative ${r} overflow-hidden shadow-2xl`}
+        style={{ border, aspectRatio: '9/19.5', background: '#000' }}>
+        <div className={`absolute top-0 left-1/2 -translate-x-1/2 ${notchW} rounded-b-xl z-20`} style={{ background: '#1a1a1a' }}>
+          <div className="absolute top-[4px] left-1/2 -translate-x-1/2 w-[35%] h-[3px] rounded-full" style={{ background: '#333' }} />
+        </div>
+        <div className={`absolute inset-0 ${r} overflow-hidden`}>
+          {isVideo ? (
+            <video src={`/templates/${templateId}.mp4`} autoPlay loop muted playsInline preload="metadata"
+              className="absolute inset-0 w-full h-full object-cover object-top" />
+          ) : (
+            <img src={`/templates/${templateId}.png`} alt={name}
+              className="absolute inset-0 w-full h-full object-cover object-top" />
+          )}
+        </div>
+        <div className={`absolute bottom-[3px] left-1/2 -translate-x-1/2 ${barW} h-[3px] rounded-full z-20`} style={{ background: '#444' }} />
+      </div>
+    </div>
+  )
+}
 
 export default function Hero() {
-  const featured = TEMPLATES[0]
-  const phoneRef = useRef<HTMLDivElement>(null)
-  const [loadIframe, setLoadIframe] = useState(false)
+  const [current, setCurrent] = useState(0)
+  const total = TEMPLATES.length
+
+  const prev = (current - 1 + total) % total
+  const next = (current + 1) % total
+
+  const goNext = useCallback(() => setCurrent(c => (c + 1) % total), [total])
+  const goPrev = useCallback(() => setCurrent(c => (c - 1 + total) % total), [total])
 
   useEffect(() => {
-    const el = phoneRef.current
-    if (!el) return
-    const obs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setLoadIframe(true); obs.disconnect() }
-    }, { rootMargin: '100px' })
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
+    const timer = setInterval(goNext, 3500)
+    return () => clearInterval(timer)
+  }, [goNext])
 
   return (
     <section className="relative overflow-hidden" style={{ background: '#fff' }}>
@@ -33,8 +66,8 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 pt-16 pb-20 md:pt-24 md:pb-28 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="max-w-7xl mx-auto px-6 pt-14 pb-16 md:pt-20 md:pb-24 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
           {/* Left: Text */}
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
 
@@ -91,39 +124,83 @@ export default function Hero() {
             </motion.div>
           </motion.div>
 
-          {/* Right: Phone mockup */}
+          {/* Right: Phone Carousel — 3 phones, center featured */}
           <motion.div className="flex justify-center lg:justify-end"
             initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.3 }}>
-            <div ref={phoneRef} className="relative float-anim">
-              <div className="absolute inset-0 blur-[80px] rounded-full"
-                style={{ background: 'rgba(232,56,79,0.08)', transform: 'scale(1.3)' }} />
-              <div className="relative w-[260px] sm:w-[280px]">
-                <div className="relative rounded-[36px] overflow-hidden shadow-2xl"
-                  style={{ border: '6px solid #1a1a1a', aspectRatio: '9/19.5', background: '#000' }}>
-                  {/* Notch */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[90px] h-[22px] rounded-b-2xl z-20" style={{ background: '#1a1a1a' }}>
-                    <div className="absolute top-[6px] left-1/2 -translate-x-1/2 w-[40px] h-[4px] rounded-full" style={{ background: '#333' }} />
-                  </div>
-                  {/* Screen */}
-                  <div className="absolute inset-0 rounded-[30px] overflow-hidden">
-                    {loadIframe ? (
-                      <iframe src={featured.url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
-                        style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
-                        title={featured.name} loading="lazy" />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center" style={{ background: featured.color }}>
-                        <div className="w-6 h-6 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />
-                      </div>
-                    )}
-                  </div>
-                  {/* Bottom bar */}
-                  <div className="absolute bottom-[4px] left-1/2 -translate-x-1/2 w-[100px] h-[4px] rounded-full z-20" style={{ background: '#444' }} />
-                </div>
-                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full font-sans text-[10px] tracking-wider font-semibold"
-                  style={{ background: '#fff', border: '1px solid #eee', color: '#e8384f', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-                  {featured.name}
-                </div>
+            <div className="relative flex items-center gap-3 sm:gap-5">
+              {/* Left phone — smaller, faded */}
+              <AnimatePresence mode="popLayout">
+                <motion.div key={`left-${prev}`}
+                  initial={{ opacity: 0, x: -40, scale: 0.85 }}
+                  animate={{ opacity: 0.5, x: 0, scale: 0.95 }}
+                  exit={{ opacity: 0, x: -40, scale: 0.85 }}
+                  transition={{ duration: 0.5 }}
+                  className="hidden sm:block">
+                  <PhoneFrame templateId={TEMPLATES[prev].id} name={TEMPLATES[prev].name} size="sm" />
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Center phone — large, featured */}
+              <div className="relative">
+                <div className="absolute inset-0 blur-[60px] rounded-full -z-10"
+                  style={{ background: 'rgba(232,56,79,0.1)', transform: 'scale(1.5)' }} />
+                <AnimatePresence mode="popLayout">
+                  <motion.div key={`center-${current}`}
+                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                    transition={{ duration: 0.5 }}>
+                    <PhoneFrame templateId={TEMPLATES[current].id} name={TEMPLATES[current].name} size="lg" />
+                  </motion.div>
+                </AnimatePresence>
+                {/* Template name badge */}
+                <AnimatePresence mode="popLayout">
+                  <motion.div key={`name-${current}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute -bottom-5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full font-sans text-[10px] tracking-wider font-semibold whitespace-nowrap"
+                    style={{ background: '#fff', border: '1px solid #eee', color: '#e8384f', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
+                    {TEMPLATES[current].name}
+                  </motion.div>
+                </AnimatePresence>
               </div>
+
+              {/* Right phone — smaller, faded */}
+              <AnimatePresence mode="popLayout">
+                <motion.div key={`right-${next}`}
+                  initial={{ opacity: 0, x: 40, scale: 0.85 }}
+                  animate={{ opacity: 0.5, x: 0, scale: 0.95 }}
+                  exit={{ opacity: 0, x: 40, scale: 0.85 }}
+                  transition={{ duration: 0.5 }}
+                  className="hidden sm:block">
+                  <PhoneFrame templateId={TEMPLATES[next].id} name={TEMPLATES[next].name} size="sm" />
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Nav arrows */}
+              <button onClick={goPrev} className="absolute -left-4 sm:-left-8 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center z-30 transition-all hover:scale-110"
+                style={{ background: 'rgba(255,255,255,0.9)', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                <ChevronLeft size={16} style={{ color: '#333' }} />
+              </button>
+              <button onClick={goNext} className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center z-30 transition-all hover:scale-110"
+                style={{ background: 'rgba(255,255,255,0.9)', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                <ChevronRight size={16} style={{ color: '#333' }} />
+              </button>
+            </div>
+
+            {/* Dots indicator */}
+            <div className="flex justify-center gap-1.5 mt-10">
+              {TEMPLATES.map((_, i) => (
+                <button key={i} onClick={() => setCurrent(i)}
+                  className="rounded-full transition-all duration-300"
+                  style={{
+                    width: i === current ? 20 : 6,
+                    height: 6,
+                    background: i === current ? '#e8384f' : '#ddd',
+                  }} />
+              ))}
             </div>
           </motion.div>
         </div>
