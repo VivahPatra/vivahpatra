@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { TEMPLATES } from '@/lib/templates'
 import Button from '@/components/shared/Button'
 
@@ -16,14 +16,17 @@ function CardMedia({ id, name }: { id: string; name: string }) {
   )
 }
 
-const POSITIONS = [
-  { x: -520, rotate: -18, scale: 0.7, z: 0, opacity: 0.4 },
-  { x: -340, rotate: -12, scale: 0.78, z: 1, opacity: 0.6 },
-  { x: -185, rotate: -6, scale: 0.88, z: 2, opacity: 0.85 },
-  { x: 0, rotate: 0, scale: 1, z: 3, opacity: 1 },
-  { x: 185, rotate: 6, scale: 0.88, z: 2, opacity: 0.85 },
-  { x: 340, rotate: 12, scale: 0.78, z: 1, opacity: 0.6 },
-  { x: 520, rotate: 18, scale: 0.7, z: 0, opacity: 0.4 },
+const CARD_W = 200
+const GAP = 210
+
+const SLOTS = [
+  { offset: -3, rotate: -15, y: 60, opacity: 0.35 },
+  { offset: -2, rotate: -10, y: 30, opacity: 0.55 },
+  { offset: -1, rotate: -5,  y: 8,  opacity: 0.8 },
+  { offset: 0,  rotate: 0,   y: 0,  opacity: 1 },
+  { offset: 1,  rotate: 5,   y: 8,  opacity: 0.8 },
+  { offset: 2,  rotate: 10,  y: 30, opacity: 0.55 },
+  { offset: 3,  rotate: 15,  y: 60, opacity: 0.35 },
 ]
 
 export default function FeaturedTemplates() {
@@ -37,26 +40,13 @@ export default function FeaturedTemplates() {
     return () => clearInterval(timer)
   }, [goNext])
 
-  const getVisible = () => {
-    const items: { template: typeof TEMPLATES[0]; pos: typeof POSITIONS[0]; key: string }[] = []
-    for (let i = -3; i <= 3; i++) {
-      const idx = ((center + i) % total + total) % total
-      items.push({
-        template: TEMPLATES[idx],
-        pos: POSITIONS[i + 3],
-        key: `${idx}-${i}`,
-      })
-    }
-    return items
-  }
-
   return (
     <section className="py-20 overflow-hidden relative">
       <div className="absolute inset-0"
         style={{ background: 'linear-gradient(180deg, #fff 0%, #f5f5f5 30%, #f5f5f5 70%, #fff 100%)' }} />
 
       <div className="relative z-10">
-        <motion.div className="max-w-6xl mx-auto px-6 text-center mb-16"
+        <motion.div className="max-w-6xl mx-auto px-6 text-center mb-14"
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <p className="font-sans text-[10px] tracking-[0.5em] uppercase mb-4" style={{ color: '#e8384f' }}>Curated Collection</p>
           <h2 className="font-display text-3xl md:text-4xl mb-3">Explore Our Templates</h2>
@@ -64,35 +54,51 @@ export default function FeaturedTemplates() {
         </motion.div>
 
         {/* Fan carousel */}
-        <div className="relative flex items-center justify-center" style={{ height: 480, perspective: 1200 }}>
-          <AnimatePresence mode="popLayout">
-            {getVisible().map(({ template: t, pos, key }) => (
-              <motion.div key={key}
+        <div className="relative flex items-end justify-center select-none" style={{ height: 520 }}>
+          {SLOTS.map((slot) => {
+            const idx = ((center + slot.offset) % total + total) % total
+            const t = TEMPLATES[idx]
+            return (
+              <motion.div
+                key={`${center}-${slot.offset}`}
                 className="absolute"
-                style={{ width: 230, zIndex: pos.z }}
-                initial={{ x: pos.x, rotateY: pos.rotate, scale: pos.scale, opacity: 0 }}
-                animate={{ x: pos.x, rotateY: pos.rotate, scale: pos.scale, opacity: pos.opacity }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.6, ease: 'easeInOut' }}>
-                <div className="rounded-[20px] overflow-hidden shadow-2xl relative"
+                style={{
+                  width: CARD_W,
+                  bottom: 40,
+                  zIndex: 3 - Math.abs(slot.offset),
+                  transformOrigin: 'bottom center',
+                }}
+                initial={false}
+                animate={{
+                  x: slot.offset * GAP,
+                  rotate: slot.rotate,
+                  y: slot.y,
+                  opacity: slot.opacity,
+                }}
+                transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}>
+                <div className="rounded-[16px] overflow-hidden shadow-xl relative"
                   style={{ aspectRatio: '9/16', background: t.color }}>
                   <CardMedia id={t.id} name={t.name} />
                 </div>
-                {pos.z === 3 && (
-                  <motion.p
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="font-sans text-sm font-semibold text-center mt-3"
-                    style={{ color: '#555' }}>
-                    {t.name}
-                  </motion.p>
-                )}
               </motion.div>
-            ))}
-          </AnimatePresence>
+            )
+          })}
         </div>
 
-        <div className="text-center mt-8 px-6">
+        {/* Dots */}
+        <div className="flex justify-center gap-1.5 mt-6">
+          {TEMPLATES.map((_, i) => (
+            <button key={i} onClick={() => setCenter(i)}
+              className="rounded-full transition-all duration-300"
+              style={{
+                width: i === center ? 20 : 6,
+                height: 6,
+                background: i === center ? '#e8384f' : '#ddd',
+              }} />
+          ))}
+        </div>
+
+        <div className="text-center mt-10 px-6">
           <Button href="/templates">View All Templates</Button>
         </div>
       </div>
