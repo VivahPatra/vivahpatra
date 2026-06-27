@@ -1,0 +1,103 @@
+'use client'
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { Users, ShoppingBag, IndianRupee, Link2, TrendingUp } from 'lucide-react'
+import { createClient } from '@/lib/supabase'
+
+interface Stats {
+  totalUsers: number
+  totalPurchases: number
+  totalRevenue: number
+  totalInvites: number
+  recentPurchases: { template_id: string; amount: number; created_at: string }[]
+}
+
+export default function AdminDashboard() {
+  const [stats, setStats] = useState<Stats | null>(null)
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient()
+      if (!supabase) return
+
+      const [purchases, invites] = await Promise.all([
+        supabase.from('purchases').select('*').order('created_at', { ascending: false }),
+        supabase.from('published_invites').select('id'),
+      ])
+
+      const purchaseList = purchases.data || []
+      const totalRevenue = purchaseList.reduce((sum: number, p: { amount: number }) => sum + p.amount, 0)
+
+      setStats({
+        totalUsers: new Set(purchaseList.map((p: { user_id: string }) => p.user_id)).size,
+        totalPurchases: purchaseList.length,
+        totalRevenue,
+        totalInvites: invites.data?.length || 0,
+        recentPurchases: purchaseList.slice(0, 10),
+      })
+    }
+    load()
+  }, [])
+
+  const cards = stats ? [
+    { label: 'Total Users', value: stats.totalUsers, icon: Users, color: '#3b82f6' },
+    { label: 'Purchases', value: stats.totalPurchases, icon: ShoppingBag, color: '#e8384f' },
+    { label: 'Revenue', value: `₹${stats.totalRevenue.toLocaleString()}`, icon: IndianRupee, color: '#16a34a' },
+    { label: 'Published Invites', value: stats.totalInvites, icon: Link2, color: '#c8922a' },
+  ] : []
+
+  return (
+    <div className="p-8">
+      <div className="mb-8">
+        <h1 className="font-display text-2xl mb-1">Dashboard</h1>
+        <p className="font-sans text-sm" style={{ color: '#666' }}>Overview of Vivah Patra platform</p>
+      </div>
+
+      {/* Stats cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {cards.map((card, i) => (
+          <motion.div key={card.label}
+            className="p-5 rounded-xl"
+            style={{ background: '#1a1a1a', border: '1px solid #222' }}
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-sans text-xs uppercase tracking-wider" style={{ color: '#666' }}>{card.label}</span>
+              <card.icon size={18} style={{ color: card.color }} />
+            </div>
+            <p className="font-display text-2xl" style={{ color: '#fff' }}>{card.value}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Recent purchases */}
+      <div className="rounded-xl p-5" style={{ background: '#1a1a1a', border: '1px solid #222' }}>
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp size={16} style={{ color: '#e8384f' }} />
+          <h2 className="font-sans text-sm font-semibold">Recent Purchases</h2>
+        </div>
+        {stats?.recentPurchases.length ? (
+          <table className="w-full font-sans text-sm">
+            <thead>
+              <tr style={{ color: '#666' }}>
+                <th className="text-left py-2 text-xs uppercase tracking-wider">Template</th>
+                <th className="text-left py-2 text-xs uppercase tracking-wider">Amount</th>
+                <th className="text-left py-2 text-xs uppercase tracking-wider">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.recentPurchases.map((p, i) => (
+                <tr key={i} style={{ borderTop: '1px solid #222' }}>
+                  <td className="py-3">{p.template_id}</td>
+                  <td className="py-3">₹{p.amount}</td>
+                  <td className="py-3" style={{ color: '#888' }}>{new Date(p.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="font-sans text-sm" style={{ color: '#666' }}>No purchases yet</p>
+        )}
+      </div>
+    </div>
+  )
+}
