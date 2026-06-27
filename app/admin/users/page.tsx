@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Search, ShoppingBag, Mail, Phone, Calendar } from 'lucide-react'
+import { Search, ShoppingBag, Mail, Phone, Calendar, Edit3, Check, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
 interface UserProfile {
@@ -18,30 +18,50 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<UserProfile[]>([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
+  const [editing, setEditing] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editPhone, setEditPhone] = useState('')
 
   useEffect(() => {
+    loadUsers()
+  }, [])
+
+  async function loadUsers() {
     const supabase = createClient()
     if (!supabase) return
 
-    Promise.all([
+    const [profilesRes, purchasesRes] = await Promise.all([
       supabase.from('user_profiles').select('*').order('created_at', { ascending: false }),
       supabase.from('purchases').select('user_id, amount'),
-    ]).then(([profilesRes, purchasesRes]) => {
-      const profiles = (profilesRes.data || []) as { id: string; email: string; phone: string | null; full_name: string | null; created_at: string; last_sign_in_at: string | null }[]
-      const purchases = (purchasesRes.data || []) as { user_id: string; amount: number }[]
+    ])
 
-      const merged: UserProfile[] = profiles.map(p => {
-        const userPurchases = purchases.filter(pu => pu.user_id === p.id)
-        return {
-          ...p,
-          purchaseCount: userPurchases.length,
-          totalSpent: userPurchases.reduce((sum, pu) => sum + pu.amount, 0),
-        }
-      })
-      setUsers(merged)
-      setLoading(false)
-    })
-  }, [])
+    const profiles = (profilesRes.data || []) as { id: string; email: string; phone: string | null; full_name: string | null; created_at: string; last_sign_in_at: string | null }[]
+    const purchases = (purchasesRes.data || []) as { user_id: string; amount: number }[]
+
+    setUsers(profiles.map(p => ({
+      ...p,
+      purchaseCount: purchases.filter(pu => pu.user_id === p.id).length,
+      totalSpent: purchases.filter(pu => pu.user_id === p.id).reduce((sum, pu) => sum + pu.amount, 0),
+    })))
+    setLoading(false)
+  }
+
+  const startEdit = (u: UserProfile) => {
+    setEditing(u.id)
+    setEditName(u.full_name || '')
+    setEditPhone(u.phone || '')
+  }
+
+  const saveEdit = async (id: string) => {
+    const supabase = createClient()
+    if (!supabase) return
+    // Update auth user metadata via admin function
+    // Since we can't update auth.users directly from client, update a custom profile
+    // For now, store edits in user_templates or a profiles table
+    // The user_profiles is a VIEW (read-only), so we note this limitation
+    alert('User profile edits require Supabase Admin API. Use Supabase Dashboard → Authentication → Users to edit directly.')
+    setEditing(null)
+  }
 
   const filtered = search
     ? users.filter(u => u.email?.toLowerCase().includes(search.toLowerCase()) || u.full_name?.toLowerCase().includes(search.toLowerCase()) || u.phone?.includes(search))
@@ -61,7 +81,7 @@ export default function AdminUsers() {
         </div>
       </div>
 
-      <div className="rounded-xl overflow-hidden" style={{ background: '#1a1a1a', border: '1px solid #222' }}>
+      <div className="rounded-xl overflow-x-auto" style={{ background: '#1a1a1a', border: '1px solid #222' }}>
         <table className="w-full font-sans text-sm">
           <thead>
             <tr style={{ background: '#141414', color: '#666' }}>
@@ -71,6 +91,7 @@ export default function AdminUsers() {
               <th className="text-left px-4 py-3 text-xs uppercase tracking-wider">Spent</th>
               <th className="text-left px-4 py-3 text-xs uppercase tracking-wider">Joined</th>
               <th className="text-left px-4 py-3 text-xs uppercase tracking-wider">Last Login</th>
+              <th className="text-right px-4 py-3 text-xs uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -100,9 +121,13 @@ export default function AdminUsers() {
                   </div>
                 </td>
                 <td className="px-4 py-3" style={{ color: '#888' }}>
-                  <span className="text-xs">
-                    {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—'}
-                  </span>
+                  <span className="text-xs">{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—'}</span>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <a href={`https://supabase.com/dashboard/project/uipzkfuilpscfbtolkjf/auth/users/${u.id}`} target="_blank"
+                    className="p-1 rounded hover:bg-blue-500/20 inline-block" title="Edit in Supabase">
+                    <Edit3 size={14} style={{ color: '#3b82f6' }} />
+                  </a>
                 </td>
               </tr>
             ))}
