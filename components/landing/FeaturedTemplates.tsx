@@ -40,7 +40,7 @@ export default function FeaturedTemplates() {
                     <video src={`/templates/${t.id}.mp4`} autoPlay loop muted playsInline preload="auto"
                       className="absolute inset-0 w-full h-full object-cover object-top" />
                   ) : (
-                    <img src={`/templates/${t.id}.png`} alt={t.name}
+                    <img src={`/templates/${t.id}.webp`} alt={t.name}
                       className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
                   )}
                   <div className="absolute inset-0 flex items-end p-4"

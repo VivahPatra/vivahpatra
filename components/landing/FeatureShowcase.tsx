@@ -73,7 +73,7 @@ export default function FeatureShowcase() {
                         <video src={`/templates/${template.id}.mp4`} autoPlay loop muted playsInline preload="auto"
                           className="absolute inset-0 w-full h-full object-cover object-top" />
                       ) : (
-                        <img src={`/templates/${template.id}.png`} alt={template.name}
+                        <img src={`/templates/${template.id}.webp`} alt={template.name}
                           className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
                       )}
                     </div>
