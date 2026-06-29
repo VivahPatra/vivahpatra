@@ -36,10 +36,6 @@ export default function FeaturedTemplates() {
                   style={{ aspectRatio: '9/16', background: t.color, border: '2px solid rgba(255,255,255,0.06)' }}>
                   <img src={`/templates/carousel/${t.id}.webp`} alt={t.name}
                     className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
-                  <div className="absolute inset-0 flex items-end p-4"
-                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }}>
-                    <p className="font-display text-white text-sm" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{t.name}</p>
-                  </div>
                 </div>
               </div>
             ))}
