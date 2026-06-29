@@ -116,7 +116,10 @@ export default function TemplateCard({ template: t }: { template: Template }) {
           <a href={`/preview/${t.id}`} className="block xl:pointer-events-none rounded-[32px] overflow-hidden border-[5px] border-gray-800 shadow-2xl relative"
             style={{ aspectRatio: '9/16', background: t.color }}>
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 rounded-b-xl z-20" style={{ background: '#1a1a1a' }} />
-            {visible ? (
+            {t.id === 'template3' ? (
+              <img src={`/templates/${t.id}.webp`} alt={t.name}
+                className="absolute inset-0 w-full h-full object-cover object-top" />
+            ) : visible ? (
               <iframe src={t.url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
                 style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
                 title={t.name} loading="lazy" onLoad={() => setIframeLoaded(true)} />
