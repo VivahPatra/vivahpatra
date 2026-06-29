@@ -17,14 +17,21 @@ export default function InviteClient({ templateUrl, data }: Props) {
 
   useEffect(() => {
     function onMsg(e: MessageEvent) {
-      if (e.data?.type === 'VIVAHPATRA_READY') sendData()
+      if (e.data?.type === 'VIVAHPATRA_READY') {
+        sendData()
+        setTimeout(sendData, 100)
+        setTimeout(sendData, 300)
+      }
     }
     window.addEventListener('message', onMsg)
     return () => window.removeEventListener('message', onMsg)
   }, [sendData])
 
   const handleLoad = useCallback(() => {
-    setTimeout(sendData, 800)
+    sendData()
+    setTimeout(sendData, 200)
+    setTimeout(sendData, 500)
+    setTimeout(sendData, 1000)
     setTimeout(sendData, 2000)
   }, [sendData])
 
