@@ -32,8 +32,8 @@ export default function TemplateCard({ template: t }: { template: Template }) {
     const el = cardRef.current
     if (!el) return
     const obs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setVisible(true); obs.disconnect() }
-    }, { rootMargin: '200px' })
+      setVisible(entry.isIntersecting)
+    }, { rootMargin: '100px' })
     obs.observe(el)
     return () => obs.disconnect()
   }, [])
@@ -116,14 +116,20 @@ export default function TemplateCard({ template: t }: { template: Template }) {
           <a href={`/preview/${t.id}`} className="block xl:pointer-events-none rounded-[32px] overflow-hidden border-[5px] border-gray-800 shadow-2xl relative"
             style={{ aspectRatio: '9/16', background: t.color }}>
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 rounded-b-xl z-20" style={{ background: '#1a1a1a' }} />
-            {visible && (
+            {visible ? (
               <iframe src={t.url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
                 style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
                 title={t.name} loading="lazy" onLoad={() => setIframeLoaded(true)} />
+            ) : t.id === 'modern' ? (
+              <video src="/templates/modern.mp4" autoPlay loop muted playsInline preload="auto"
+                className="absolute inset-0 w-full h-full object-cover object-top" />
+            ) : (
+              <img src={`/templates/${t.id}.webp`} alt={t.name}
+                className="absolute inset-0 w-full h-full object-cover object-top" />
             )}
-            {!iframeLoaded && (
+            {visible && !iframeLoaded && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                {visible && <div className="w-6 h-6 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />}
+                <div className="w-6 h-6 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />
                 <p className="font-display text-white text-lg opacity-50" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{t.name}</p>
               </div>
             )}
