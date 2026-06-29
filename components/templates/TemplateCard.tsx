@@ -112,8 +112,9 @@ export default function TemplateCard({ template: t }: { template: Template }) {
         className="flex flex-col items-center">
 
         <div className="group relative w-full max-w-[260px] mx-auto">
-          <a href={`/preview/${t.id}`} className="block xl:pointer-events-none rounded-xl overflow-hidden shadow-2xl relative"
+          <a href={`/preview/${t.id}`} className="block xl:pointer-events-none rounded-[32px] overflow-hidden border-[5px] border-gray-800 shadow-2xl relative"
             style={{ aspectRatio: '9/16', background: t.color }}>
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 rounded-b-xl z-20" style={{ background: '#1a1a1a' }} />
             <img src={`/templates/${t.id}.webp`} alt={t.name}
               className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
           </a>
