@@ -23,20 +23,24 @@ export default function PreviewPage({ params }: { params: Promise<{ id: string }
   const [latestInst, setLatestInst] = useState('')
 
   useEffect(() => {
-    if (user?.id && template) {
-      checkPurchase(user.id, template.id).then(bought => {
-        if (bought) {
-          setPurchased(true)
-          getCloudInstances(user.id, template.id).then(insts => {
-            if (insts.length > 0) setLatestInst(insts[insts.length - 1].instanceId)
-            else {
-              const local = JSON.parse(localStorage.getItem(`instances-${template.id}`) || '[]')
-              if (local.length > 0) setLatestInst(local[local.length - 1].id)
-            }
-          })
-        }
-      })
+    if (!user?.id || !template) return
+    // Check localStorage first (instant)
+    if (localStorage.getItem(`purchased-${template.id}`) === 'true') {
+      setPurchased(true)
     }
+    checkPurchase(user.id, template.id).then(bought => {
+      setPurchased(bought || localStorage.getItem(`purchased-${template.id}`) === 'true')
+      if (bought) {
+        getCloudInstances(user.id, template.id).then(insts => {
+          if (insts.length > 0) {
+            setLatestInst(insts[insts.length - 1].instanceId)
+          } else {
+            const local = JSON.parse(localStorage.getItem(`instances-${template.id}`) || '[]')
+            if (local.length > 0) setLatestInst(local[local.length - 1].id)
+          }
+        })
+      }
+    })
   }, [user, template])
 
   useEffect(() => {
@@ -72,11 +76,15 @@ export default function PreviewPage({ params }: { params: Promise<{ id: string }
     const result = await pay(template, user.email || '', user.phone || '')
     if (result.success) {
       const instId = Date.now().toString(36) + Math.random().toString(36).slice(2, 5)
-      await recordPurchase(user.id, template.id, instId, result.orderId || '', result.paymentId || '', template.price)
+      // Save locally first (instant)
       const instances = JSON.parse(localStorage.getItem(`instances-${template.id}`) || '[]')
       instances.push({ id: instId, createdAt: new Date().toISOString() })
       localStorage.setItem(`instances-${template.id}`, JSON.stringify(instances))
+      localStorage.setItem(`purchased-${template.id}`, 'true')
       setPurchased(true)
+      setLatestInst(instId)
+      // Record in Supabase (async, don't block)
+      recordPurchase(user.id, template.id, instId, result.orderId || '', result.paymentId || '', template.price)
       router.push(`/editor/${template.id}?inst=${instId}`)
     }
   }
