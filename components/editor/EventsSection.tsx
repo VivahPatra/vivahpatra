@@ -17,7 +17,7 @@ export default function EventsSection({ data, onChange }: Props) {
   const addEvent = () => {
     onChange({
       ...data,
-      events: [...data.events, { id: `event-${Date.now()}`, name: '', emoji: '🎉', image: '/assets/events/wedding.png', date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#c8922a' }],
+      events: [...data.events, { id: `event-${Date.now()}`, name: '', emoji: '🎉', image: '/assets/events/wedding.webp', date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#c8922a' }],
     })
   }
 

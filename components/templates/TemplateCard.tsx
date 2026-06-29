@@ -115,18 +115,20 @@ export default function TemplateCard({ template: t }: { template: Template }) {
         <div className="group relative w-full max-w-[260px] mx-auto">
           <a href={`/preview/${t.id}`} className="block xl:pointer-events-none rounded-xl overflow-hidden shadow-2xl relative"
             style={{ aspectRatio: '9/16', background: t.color }}>
-            {visible ? (
-              <iframe src={t.url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
-                style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
-                title={t.name} loading="lazy" onLoad={() => setIframeLoaded(true)} />
-            ) : t.id === 'modern' ? (
-              <video src="/templates/modern.mp4" autoPlay loop muted playsInline preload="auto"
-                className="absolute inset-0 w-full h-full object-cover object-top" />
+            {t.id === 'modern' ? (
+              visible ? (
+                <iframe src={t.url} className="absolute inset-0 w-[300%] h-[300%] origin-top-left"
+                  style={{ transform: 'scale(0.3333)', border: 'none', pointerEvents: 'none' }}
+                  title={t.name} loading="lazy" onLoad={() => setIframeLoaded(true)} />
+              ) : (
+                <video src="/templates/modern.mp4" autoPlay loop muted playsInline preload="auto"
+                  className="absolute inset-0 w-full h-full object-cover object-top" />
+              )
             ) : (
               <img src={`/templates/${t.id}.webp`} alt={t.name}
-                className="absolute inset-0 w-full h-full object-cover object-top" />
+                className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
             )}
-            {visible && !iframeLoaded && (
+            {t.id === 'modern' && visible && !iframeLoaded && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
                 <div className="w-6 h-6 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />
                 <p className="font-display text-white text-lg opacity-50" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{t.name}</p>

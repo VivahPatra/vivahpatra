@@ -139,8 +139,8 @@ export const DEFAULT_FORM_DATA: WeddingFormData = {
   backgroundMusic: '',
   galleryImages: [],
   events: [
-    { id: 'ceremony', name: 'Wedding Ceremony', emoji: '💍', image: '/assets/events/wedding.png', date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: 'The sacred union', color: '#c8922a' },
-    { id: 'reception', name: 'Reception', emoji: '🥂', image: '/assets/events/reception.png', date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: 'Celebration dinner', color: '#8b1a1a' },
+    { id: 'ceremony', name: 'Wedding Ceremony', emoji: '💍', image: '/assets/events/wedding.webp', date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: 'The sacred union', color: '#c8922a' },
+    { id: 'reception', name: 'Reception', emoji: '🥂', image: '/assets/events/reception.webp', date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: 'Celebration dinner', color: '#8b1a1a' },
   ],
   coupleStory: [
     { date: '', title: 'How We Met', description: '', icon: '✨', image: '' },
