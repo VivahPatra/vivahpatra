@@ -476,7 +476,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   }
 
   return (
-    <div className="h-screen flex flex-col lg:flex-row" style={{ background: '#0a0a0a' }}>
+    <div className="h-screen flex flex-col lg:flex-row relative" style={{ background: '#0a0a0a' }}>
       {/* Template preview — full screen on mobile when panel closed */}
       <div className={`flex-1 relative ${panelOpen ? 'hidden lg:block' : ''}`}>
         <iframe ref={iframeRef} src={template.url} className="w-full h-full" style={{ border: 'none' }} title="Preview" onLoad={handleIframeLoad} />
@@ -506,13 +506,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       <div className="lg:hidden shrink-0" style={{ height: publishedUrl ? 80 : 44 }} />
 
       {/* Desktop toolbar — on template preview */}
-      <div className="hidden lg:block">
-        <div className="absolute top-4 left-4 z-50">
+      <div className="hidden lg:block absolute inset-0 pointer-events-none">
+        <div className="absolute top-4 left-4 z-50 pointer-events-auto">
           <button onClick={() => router.back()} className="flex items-center gap-1 px-3 py-2 rounded-full text-xs text-white/70 hover:text-white" style={{ background: 'rgba(12,10,18,0.9)', backdropFilter: 'blur(8px)' }}>
             <ArrowLeft size={14} /> Back
           </button>
         </div>
-        <div className="absolute top-4 z-50 flex items-center gap-2" style={{ right: panelOpen ? '340px' : '16px', transition: 'right 0.3s' }}>
+        <div className="absolute top-4 z-50 flex items-center gap-2 pointer-events-auto" style={{ right: panelOpen ? '340px' : '16px', transition: 'right 0.3s' }}>
           <button onClick={save} className="flex items-center gap-1 px-3 py-2 rounded-full text-xs font-semibold" style={{ background: 'rgba(12,10,18,0.9)', backdropFilter: 'blur(8px)', color: saved ? '#16a34a' : '#c8922a' }}>
             <Save size={12} /> {saved ? 'Saved!' : 'Save'}
           </button>
@@ -522,7 +522,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         </div>
 
         {publishedUrl && (
-          <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl text-xs shadow-2xl"
+          <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl text-xs shadow-2xl pointer-events-auto"
             style={{ background: 'rgba(22,163,74,0.95)', color: '#fff', backdropFilter: 'blur(12px)', maxWidth: '90vw' }}>
             <div className="flex-1 min-w-0">
               <p className="text-xs opacity-70 mb-0.5">Your invite is live!</p>
@@ -539,7 +539,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           </div>
         )}
 
-        <button onClick={() => setPanelOpen(!panelOpen)} className="absolute top-1/2 -translate-y-1/2 z-50 w-6 h-12 rounded-l-lg flex items-center justify-center"
+        <button onClick={() => setPanelOpen(!panelOpen)} className="absolute top-1/2 -translate-y-1/2 z-[70] w-8 h-14 rounded-l-lg flex items-center justify-center cursor-pointer pointer-events-auto"
           style={{ right: panelOpen ? '320px' : '0', transition: 'right 0.3s', background: 'rgba(20,18,32,0.95)', border: '1px solid rgba(200,146,42,0.2)', borderRight: 'none' }}>
           {panelOpen ? <ChevronRight size={14} style={{ color: '#c8922a' }} /> : <ChevronLeft size={14} style={{ color: '#c8922a' }} />}
         </button>
