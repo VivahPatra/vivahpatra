@@ -556,7 +556,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       )}
 
       {/* Edit panel — full screen on mobile, 320px sidebar on desktop */}
-      <div className={`${panelOpen ? 'flex' : 'hidden lg:flex'} flex-col transition-all duration-300 lg:w-[320px] lg:min-w-[320px] ${panelOpen ? 'flex-1 lg:flex-none' : 'w-0'}`}
+      <div className={`${panelOpen ? 'flex' : 'hidden'} flex-col transition-all duration-300 lg:w-[320px] lg:min-w-[320px] ${panelOpen ? 'flex-1 lg:flex-none' : 'w-0'}`}
         style={{ background: 'rgba(14,12,20,0.98)', borderLeft: '1px solid rgba(200,146,42,0.15)' }}>
         {/* Instance switcher */}
         {instances.length > 1 && (
