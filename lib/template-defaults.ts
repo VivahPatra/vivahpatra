@@ -65,7 +65,7 @@ export const TEMPLATE_EVENTS: Record<string, WeddingEvent[]> = {
     { id: 'reception', name: 'Beach Reception', emoji: '🌊', image: `${IMG}/reception.webp`, date: 'February 14, 2027', time: '6:00 PM', venue: 'Sunset Terrace Resort', venueAddress: 'Candolim Beach, Goa', venueMapLink: '', description: 'A sunset celebration of love and joy.', color: '#e07050' },
   ],
   modern: [
-    { id: 'cocktail', name: 'Engagement', emoji: '💍', image: `${IMG}/sangeet.webp`, date: 'December 18, 2026', time: '8:00 PM', venue: 'Skybar Rooftop', venueAddress: 'South Delhi', venueMapLink: '', description: '', color: '#3a8fd4' },
+    { id: 'cocktail', name: 'Engagement', emoji: '💍', image: `${IMG}/engagement.webp`, date: 'December 18, 2026', time: '8:00 PM', venue: 'Skybar Rooftop', venueAddress: 'South Delhi', venueMapLink: '', description: '', color: '#3a8fd4' },
     { id: 'cocktail-night', name: 'Cocktail Night', emoji: '🍸', image: `${IMG}/engagement2.webp`, date: 'December 18, 2026', time: '9:00 PM', venue: 'Skybar Rooftop', venueAddress: 'South Delhi', venueMapLink: '', description: '', color: '#3a8fd4', hidden: true },
     { id: 'mehendi', name: 'Mehendi', emoji: '🌿', image: `${IMG}/mehendi.webp`, date: 'December 19, 2026', time: '3:00 PM', venue: 'Home', venueAddress: 'South Delhi', venueMapLink: '', description: '', color: '#c0a060' },
     { id: 'sangeet', name: 'Sangeet Night', emoji: '🎵', image: `${IMG}/sangeet.webp`, date: 'December 19, 2026', time: '8:00 PM', venue: 'The Lodhi', venueAddress: 'Lodhi Road, Delhi', venueMapLink: '', description: '', color: '#e85050' },

@@ -64,13 +64,22 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       function migrateEvents(savedEvents: WeddingEvent[] | undefined): WeddingEvent[] {
         const defaults = getDefaultEvents(id)
         if (!savedEvents || savedEvents.length === 0) return defaults
+        const defaultById = new Map(defaults.map(d => [d.id, d]))
 
-        // Fix stale "Cocktail Night" name on the old engagement-style event id
-        const fixed = savedEvents.map(ev =>
-          ev.id === 'cocktail' && ev.name === 'Cocktail Night'
-            ? { ...ev, name: 'Engagement' }
-            : ev
-        )
+        const fixed = savedEvents.map(ev => {
+          let next = ev
+          // Fix stale "Cocktail Night" name on the old engagement-style event id
+          if (next.id === 'cocktail' && next.name === 'Cocktail Night') {
+            next = { ...next, name: 'Engagement' }
+          }
+          // Replace stale/old image paths (.png, blank, or pre-webp relative paths) with the current default
+          const isStale = !next.image || next.image.endsWith('.png') || next.image.startsWith('/assets/events/')
+          if (isStale) {
+            const fallback = defaultById.get(next.id)?.image
+            if (fallback) next = { ...next, image: fallback }
+          }
+          return next
+        })
 
         // Inject any new default events (e.g. cocktail-night) missing from old saved data
         const existingIds = new Set(fixed.map(e => e.id))
