@@ -1,6 +1,6 @@
 import { WeddingEvent, InfoCard } from './editor-types'
 
-const IMG = '/assets/events'
+const IMG = 'https://vivahpatra.co/assets/events'
 
 export const TEMPLATE_EVENTS: Record<string, WeddingEvent[]> = {
   southindian: [
