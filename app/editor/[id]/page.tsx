@@ -61,10 +61,28 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       const defaultInfoCards = getDefaultInfoCards(id)
       const defaultSections = { ...DEFAULT_FORM_DATA.sections, info: config.infoVisibleByDefault }
 
+      function migrateEvents(savedEvents: WeddingEvent[] | undefined): WeddingEvent[] {
+        const defaults = getDefaultEvents(id)
+        if (!savedEvents || savedEvents.length === 0) return defaults
+
+        // Fix stale "Cocktail Night" name on the old engagement-style event id
+        const fixed = savedEvents.map(ev =>
+          ev.id === 'cocktail' && ev.name === 'Cocktail Night'
+            ? { ...ev, name: 'Engagement' }
+            : ev
+        )
+
+        // Inject any new default events (e.g. cocktail-night) missing from old saved data
+        const existingIds = new Set(fixed.map(e => e.id))
+        const missing = defaults.filter(d => !existingIds.has(d.id))
+
+        return [...fixed, ...missing]
+      }
+
       function merge(saved: Partial<WeddingFormData>) {
         const cards = saved.infoCards?.length ? saved.infoCards : defaultInfoCards
         const secs = { ...defaultSections, ...(saved.sections || {}) }
-        return { ...DEFAULT_FORM_DATA, events: getDefaultEvents(id), ...saved, infoCards: cards, sections: secs } as WeddingFormData
+        return { ...DEFAULT_FORM_DATA, ...saved, events: migrateEvents(saved.events), infoCards: cards, sections: secs } as WeddingFormData
       }
 
       // Try cloud first (with instanceId)
