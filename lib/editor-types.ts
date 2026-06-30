@@ -10,6 +10,7 @@ export interface WeddingEvent {
   venueMapLink: string
   description: string
   color: string
+  hidden?: boolean
 }
 
 export interface StoryItem {

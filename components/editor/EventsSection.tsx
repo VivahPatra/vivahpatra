@@ -1,6 +1,6 @@
 import { WeddingFormData, WeddingEvent } from '@/lib/editor-types'
 import FormField from './FormField'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, Eye, EyeOff } from 'lucide-react'
 
 interface Props {
   data: WeddingFormData
@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function EventsSection({ data, onChange }: Props) {
-  const updateEvent = (index: number, key: keyof WeddingEvent, val: string) => {
+  const updateEvent = (index: number, key: keyof WeddingEvent, val: string | boolean) => {
     const events = [...data.events]
     events[index] = { ...events[index], [key]: val }
     onChange({ ...data, events })
@@ -36,20 +36,28 @@ export default function EventsSection({ data, onChange }: Props) {
       </div>
 
       {data.events.map((ev, i) => (
-        <div key={ev.id} className="p-4 rounded-xl mb-3" style={{ border: '1px solid var(--color-border)', background: 'var(--color-bg)' }}>
+        <div key={ev.id} className="p-4 rounded-xl mb-3" style={{ border: '1px solid var(--color-border)', background: 'var(--color-bg)', opacity: ev.hidden ? 0.5 : 1 }}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               {ev.image && (
                 <img src={ev.image} alt={ev.name} className="w-8 h-8 rounded-lg object-cover"
-                  style={{ border: '1px solid var(--color-border)' }} />
+                  style={{ border: '1px solid var(--color-border)' }}
+                  onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
               )}
               <span className="font-sans text-xs font-semibold" style={{ color: 'var(--color-accent)' }}>
                 {ev.name || `Event ${i + 1}`}
               </span>
             </div>
-            {data.events.length > 1 && (
-              <button onClick={() => removeEvent(i)} className="hover:opacity-70"><Trash2 size={14} style={{ color: '#c00' }} /></button>
-            )}
+            <div className="flex items-center gap-2">
+              <button onClick={() => updateEvent(i, 'hidden', !ev.hidden)}
+                title={ev.hidden ? 'Hidden — click to show' : 'Visible — click to hide'}
+                className="hover:opacity-70" style={{ color: ev.hidden ? '#999' : 'var(--color-accent)' }}>
+                {ev.hidden ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+              {data.events.length > 1 && (
+                <button onClick={() => removeEvent(i)} className="hover:opacity-70"><Trash2 size={14} style={{ color: '#c00' }} /></button>
+              )}
+            </div>
           </div>
           <FormField label="Event Name" value={ev.name} onChange={v => updateEvent(i, 'name', v)} placeholder="Mehendi" />
           <div className="grid grid-cols-2 gap-3">
