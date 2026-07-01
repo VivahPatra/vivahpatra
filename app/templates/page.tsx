@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import TemplateGrid from '@/components/templates/TemplateGrid'
 import Footer from '@/components/shared/Footer'
 
@@ -15,7 +16,9 @@ export default function TemplatesPage() {
           <p className="font-sans text-sm text-center mb-10" style={{ color: 'var(--color-muted)' }}>
             Stunning animated invitations for every culture and style
           </p>
-          <TemplateGrid />
+          <Suspense fallback={<div className="text-center py-20" style={{ color: 'var(--color-muted)' }}>Loading templates...</div>}>
+            <TemplateGrid />
+          </Suspense>
         </div>
       </section>
       <Footer />

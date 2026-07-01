@@ -2,6 +2,7 @@ export interface Template {
   id: string
   name: string
   category: string
+  categories?: string[]
   description: string
   color: string
   price: number
@@ -112,6 +113,7 @@ export const TEMPLATES: Template[] = [
     id: 'mandala',
     name: 'Sacred Mandala',
     category: 'Hindu',
+    categories: ['Hindu', 'Modern'],
     description: 'Rotating mandala rings with jewel tones, sacred geometry borders, spinning dividers.',
     color: '#8b3a8b',
     price: 1499,
@@ -131,5 +133,5 @@ export function getTemplate(id: string): Template | undefined {
 
 export function filterTemplates(category: Category): Template[] {
   if (category === 'All') return TEMPLATES
-  return TEMPLATES.filter(t => t.category === category)
+  return TEMPLATES.filter(t => t.category === category || t.categories?.includes(category))
 }

@@ -1,12 +1,24 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { AnimatePresence } from 'framer-motion'
-import { Category, filterTemplates, TEMPLATES } from '@/lib/templates'
+import { Category, filterTemplates, TEMPLATES, CATEGORIES } from '@/lib/templates'
 import CategoryFilter from './CategoryFilter'
 import TemplateCard from './TemplateCard'
 
 export default function TemplateGrid() {
-  const [category, setCategory] = useState<Category>('All')
+  const searchParams = useSearchParams()
+  const paramCat = searchParams.get('category') as Category | null
+  const [category, setCategory] = useState<Category>(
+    paramCat && (CATEGORIES as readonly string[]).includes(paramCat) ? paramCat : 'All'
+  )
+
+  useEffect(() => {
+    if (paramCat && (CATEGORIES as readonly string[]).includes(paramCat)) {
+      setCategory(paramCat as Category)
+    }
+  }, [paramCat])
+
   const filtered = filterTemplates(category)
 
   return (

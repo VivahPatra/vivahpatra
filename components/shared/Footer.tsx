@@ -11,9 +11,10 @@ export default function Footer() {
           </div>
           <div>
             <h4 className="font-sans text-[10px] font-semibold tracking-[0.3em] uppercase mb-4" style={{ color: '#e8384f' }}>Templates</h4>
-            {['Hindu', 'Sikh', 'Christian', 'Modern'].map(cat => (
-              <a key={cat} href="/templates" className="block font-sans text-xs mb-2.5 hover:text-black transition-colors" style={{ color: '#999' }}>{cat} Templates</a>
+            {(['Hindu', 'Sikh', 'Christian', 'Modern'] as const).map(cat => (
+              <a key={cat} href={`/templates?category=${cat}`} className="block font-sans text-xs mb-2.5 hover:text-black transition-colors" style={{ color: '#999' }}>{cat} Templates</a>
             ))}
+            <a href="/templates?category=Modern" className="block font-sans text-xs mb-2.5 hover:text-black transition-colors" style={{ color: '#999' }}>Sacred Mandala</a>
           </div>
           <div>
             <h4 className="font-sans text-[10px] font-semibold tracking-[0.3em] uppercase mb-4" style={{ color: '#e8384f' }}>Company</h4>
