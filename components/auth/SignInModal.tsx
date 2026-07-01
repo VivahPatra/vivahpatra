@@ -1,9 +1,7 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X } from 'lucide-react'
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
+import { X, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
 interface Props {
@@ -11,25 +9,29 @@ interface Props {
   onClose: () => void
 }
 
+type Step = 'choose' | 'login' | 'register'
+
 export default function SignInModal({ open, onClose }: Props) {
-  const [phone, setPhone] = useState('')
-  const [otp, setOtp] = useState('')
-  const [step, setStep] = useState<'choose' | 'phone' | 'otp'>('choose')
+  const [step, setStep] = useState<Step>('choose')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const confirmationRef = useRef<ConfirmationResult | null>(null)
-  const recaptchaRef = useRef<RecaptchaVerifier | null>(null)
-  const supabase = createClient()
+  const [showPass, setShowPass] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
 
-  // Cleanup recaptcha on unmount
-  useEffect(() => {
-    return () => {
-      if (recaptchaRef.current) {
-        recaptchaRef.current.clear()
-        recaptchaRef.current = null
-      }
-    }
-  }, [])
+  // Login fields
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+
+  // Register fields
+  const [name, setName] = useState('')
+  const [dob, setDob] = useState('')
+  const [gender, setGender] = useState('')
+  const [email, setEmail] = useState('')
+  const [mobile, setMobile] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const supabase = createClient()
 
   const signInWithGoogle = async () => {
     setLoading(true)
@@ -41,79 +43,55 @@ export default function SignInModal({ open, onClose }: Props) {
     setLoading(false)
   }
 
-  const sendOTP = async () => {
-    if (!phone || phone.length < 10) { setError('Enter valid 10-digit phone number'); return }
-    setLoading(true)
-    setError('')
-    try {
-      // Setup invisible reCAPTCHA
-      if (!recaptchaRef.current) {
-        recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
-          size: 'invisible',
-          callback: () => {},
-        })
-      }
-      const phoneNumber = phone.startsWith('+') ? phone : `+91${phone}`
-      const confirmation = await signInWithPhoneNumber(auth, phoneNumber, recaptchaRef.current)
-      confirmationRef.current = confirmation
-      setStep('otp')
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to send OTP'
-      setError(msg)
-      // Reset recaptcha on error
-      if (recaptchaRef.current) {
-        recaptchaRef.current.clear()
-        recaptchaRef.current = null
-      }
-    }
+  const login = async () => {
+    if (!loginEmail || !loginPassword) { setError('Enter email and password'); return }
+    setLoading(true); setError('')
+    const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPassword })
     setLoading(false)
+    if (error) { setError(error.message); return }
+    onClose()
   }
 
-  const verifyOTP = async () => {
-    if (!otp || otp.length < 6) { setError('Enter 6-digit OTP'); return }
-    if (!confirmationRef.current) { setError('Session expired. Please try again.'); setStep('phone'); return }
-    setLoading(true)
-    setError('')
-    try {
-      const result = await confirmationRef.current.confirm(otp)
-      const firebaseToken = await result.user.getIdToken()
-      const phoneNumber = phone.startsWith('+') ? phone : `+91${phone}`
+  const register = async () => {
+    if (!name.trim()) { setError('Name is required'); return }
+    if (!dob) { setError('Date of birth is required'); return }
+    if (!gender) { setError('Gender is required'); return }
+    if (!email.includes('@')) { setError('Valid email required'); return }
+    if (!mobile || mobile.length < 10) { setError('Valid 10-digit mobile required'); return }
+    if (password.length < 8) { setError('Password must be at least 8 characters'); return }
+    if (password !== confirmPassword) { setError('Passwords do not match'); return }
+    setLoading(true); setError('')
 
-      // Sign into Supabase using custom token (phone as identifier)
-      const { error: supaError } = await supabase.auth.signInWithPassword({
-        email: `${phoneNumber.replace('+', '')}@phone.vivahpatra.co`,
-        password: firebaseToken.slice(0, 64),
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name, dob, gender, mobile },
+      },
+    })
+    if (signUpError) { setError(signUpError.message); setLoading(false); return }
+
+    // Save extended profile to profiles table
+    if (data.user) {
+      await supabase.from('profiles').upsert({
+        id: data.user.id,
+        name,
+        dob,
+        gender,
+        email,
+        mobile,
+        created_at: new Date().toISOString(),
       })
-
-      if (supaError) {
-        // User doesn't exist yet — create them
-        const { error: signUpError } = await supabase.auth.signUp({
-          email: `${phoneNumber.replace('+', '')}@phone.vivahpatra.co`,
-          password: firebaseToken.slice(0, 64),
-          options: { data: { phone: phoneNumber, provider: 'firebase_phone' } },
-        })
-        if (signUpError) throw new Error(signUpError.message)
-      }
-
-      setLoading(false)
-      onClose()
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Invalid OTP'
-      setError(msg.includes('invalid-verification-code') ? 'Invalid OTP. Please try again.' : msg)
-      setLoading(false)
     }
+
+    setLoading(false)
+    onClose()
   }
 
-  const reset = () => {
-    setStep('choose')
-    setPhone('')
-    setOtp('')
-    setError('')
-    if (recaptchaRef.current) {
-      recaptchaRef.current.clear()
-      recaptchaRef.current = null
-    }
-  }
+  const reset = () => { setStep('choose'); setError('') }
+
+  const inputCls = "w-full border rounded-xl px-4 py-2.5 font-sans text-sm outline-none bg-transparent focus:border-[#e8384f] transition-colors"
+  const inputStyle = { borderColor: 'var(--color-border)', color: 'var(--color-text)' }
 
   return (
     <AnimatePresence>
@@ -122,10 +100,7 @@ export default function SignInModal({ open, onClose }: Props) {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
-          {/* Invisible reCAPTCHA container */}
-          <div id="recaptcha-container" />
-
-          <motion.div className="relative w-full max-w-sm rounded-2xl p-8"
+          <motion.div className="relative w-full max-w-sm rounded-2xl p-7 max-h-[90vh] overflow-y-auto"
             style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
             initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}>
 
@@ -133,15 +108,20 @@ export default function SignInModal({ open, onClose }: Props) {
               <X size={20} style={{ color: 'var(--color-muted)' }} />
             </button>
 
-            <h2 className="font-display text-2xl text-center mb-2">Sign In</h2>
-            <p className="font-sans text-xs text-center mb-6" style={{ color: 'var(--color-muted)' }}>
-              Sign in to purchase and customize your wedding invite
+            <h2 className="font-display text-2xl text-center mb-1">
+              {step === 'choose' ? 'Sign In' : step === 'login' ? 'Welcome Back' : 'Create Account'}
+            </h2>
+            <p className="font-sans text-xs text-center mb-5" style={{ color: 'var(--color-muted)' }}>
+              {step === 'choose' ? 'Sign in to purchase and manage your invites'
+                : step === 'login' ? 'Sign in to your account'
+                : 'Create your Vivah Patra account'}
             </p>
 
             {error && (
               <p className="font-sans text-xs text-center mb-4 p-2 rounded-lg" style={{ background: '#fee', color: '#c00' }}>{error}</p>
             )}
 
+            {/* CHOOSE */}
             {step === 'choose' && (
               <div className="flex flex-col gap-3">
                 <button onClick={signInWithGoogle} disabled={loading}
@@ -156,58 +136,103 @@ export default function SignInModal({ open, onClose }: Props) {
                   Continue with Google
                 </button>
 
-                <div className="flex items-center gap-3 my-1">
+                <div className="flex items-center gap-3">
                   <div className="flex-1 h-px" style={{ background: 'var(--color-border)' }} />
                   <span className="font-sans text-xs" style={{ color: 'var(--color-muted)' }}>or</span>
                   <div className="flex-1 h-px" style={{ background: 'var(--color-border)' }} />
                 </div>
 
-                <button onClick={() => setStep('phone')}
+                <button onClick={() => { setError(''); setStep('login') }}
                   className="w-full py-3 rounded-full font-sans text-sm font-semibold text-white"
-                  style={{ background: 'var(--color-accent)' }}>
-                  Sign in with Phone
+                  style={{ background: '#e8384f' }}>
+                  Sign in with Email
+                </button>
+                <button onClick={() => { setError(''); setStep('register') }}
+                  className="w-full py-2.5 rounded-full font-sans text-sm font-semibold border transition-all hover:bg-gray-50"
+                  style={{ borderColor: '#e8384f', color: '#e8384f' }}>
+                  Create Account
                 </button>
               </div>
             )}
 
-            {step === 'phone' && (
+            {/* LOGIN */}
+            {step === 'login' && (
               <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2 border rounded-full px-4 py-2.5" style={{ borderColor: 'var(--color-border)' }}>
-                  <span className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>+91</span>
-                  <input type="tel" placeholder="Phone number" maxLength={10} value={phone}
-                    onChange={e => setPhone(e.target.value.replace(/\D/g, ''))}
-                    className="flex-1 font-sans text-sm outline-none bg-transparent"
-                    onKeyDown={e => e.key === 'Enter' && sendOTP()} />
+                <input type="email" placeholder="Email address" value={loginEmail}
+                  onChange={e => setLoginEmail(e.target.value)}
+                  className={inputCls} style={inputStyle}
+                  onKeyDown={e => e.key === 'Enter' && login()} />
+                <div className="relative">
+                  <input type={showPass ? 'text' : 'password'} placeholder="Password" value={loginPassword}
+                    onChange={e => setLoginPassword(e.target.value)}
+                    className={inputCls} style={inputStyle}
+                    onKeyDown={e => e.key === 'Enter' && login()} />
+                  <button onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-70" style={{ color: 'var(--color-muted)' }}>
+                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
                 </div>
-                <button onClick={sendOTP} disabled={loading}
+                <button onClick={login} disabled={loading}
                   className="w-full py-3 rounded-full font-sans text-sm font-semibold text-white disabled:opacity-50"
-                  style={{ background: 'var(--color-accent)' }}>
-                  {loading ? 'Sending...' : 'Send OTP'}
+                  style={{ background: '#e8384f' }}>
+                  {loading ? 'Signing in...' : 'Sign In'}
                 </button>
-                <button onClick={reset} className="font-sans text-xs text-center hover:opacity-70" style={{ color: 'var(--color-muted)' }}>
-                  ← Back
-                </button>
+                <p className="font-sans text-xs text-center" style={{ color: 'var(--color-muted)' }}>
+                  Don&apos;t have an account?{' '}
+                  <button onClick={() => { setError(''); setStep('register') }} className="font-semibold hover:opacity-70" style={{ color: '#e8384f' }}>Register</button>
+                </p>
+                <button onClick={reset} className="font-sans text-xs text-center hover:opacity-70" style={{ color: 'var(--color-muted)' }}>← Back</button>
               </div>
             )}
 
-            {step === 'otp' && (
+            {/* REGISTER */}
+            {step === 'register' && (
               <div className="flex flex-col gap-3">
-                <p className="font-sans text-xs text-center" style={{ color: 'var(--color-muted)' }}>
-                  OTP sent to +91{phone}
-                </p>
-                <input type="text" placeholder="Enter 6-digit OTP" maxLength={6} value={otp}
-                  onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
-                  className="border rounded-full px-4 py-2.5 font-sans text-sm text-center tracking-[0.3em] outline-none"
-                  style={{ borderColor: 'var(--color-border)' }}
-                  onKeyDown={e => e.key === 'Enter' && verifyOTP()} />
-                <button onClick={verifyOTP} disabled={loading}
+                <input type="text" placeholder="Full Name" value={name}
+                  onChange={e => setName(e.target.value)} className={inputCls} style={inputStyle} />
+                <div className="grid grid-cols-2 gap-2">
+                  <input type="date" placeholder="Date of Birth" value={dob}
+                    onChange={e => setDob(e.target.value)} className={inputCls} style={inputStyle} />
+                  <select value={gender} onChange={e => setGender(e.target.value)}
+                    className={inputCls} style={{ ...inputStyle, background: 'var(--color-surface)' }}>
+                    <option value="">Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <input type="email" placeholder="Email address" value={email}
+                  onChange={e => setEmail(e.target.value)} className={inputCls} style={inputStyle} />
+                <div className="flex items-center gap-2 border rounded-xl px-4 py-2.5" style={{ borderColor: 'var(--color-border)' }}>
+                  <span className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>+91</span>
+                  <input type="tel" placeholder="Mobile number" maxLength={10} value={mobile}
+                    onChange={e => setMobile(e.target.value.replace(/\D/g, ''))}
+                    className="flex-1 font-sans text-sm outline-none bg-transparent" />
+                </div>
+                <div className="relative">
+                  <input type={showPass ? 'text' : 'password'} placeholder="Password (min 8 chars)" value={password}
+                    onChange={e => setPassword(e.target.value)} className={inputCls} style={inputStyle} />
+                  <button onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-70" style={{ color: 'var(--color-muted)' }}>
+                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+                <div className="relative">
+                  <input type={showConfirm ? 'text' : 'password'} placeholder="Confirm Password" value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)} className={inputCls} style={inputStyle}
+                    onKeyDown={e => e.key === 'Enter' && register()} />
+                  <button onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-70" style={{ color: 'var(--color-muted)' }}>
+                    {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+                <button onClick={register} disabled={loading}
                   className="w-full py-3 rounded-full font-sans text-sm font-semibold text-white disabled:opacity-50"
-                  style={{ background: 'var(--color-accent)' }}>
-                  {loading ? 'Verifying...' : 'Verify OTP'}
+                  style={{ background: '#e8384f' }}>
+                  {loading ? 'Creating account...' : 'Create Account'}
                 </button>
-                <button onClick={() => setStep('phone')} className="font-sans text-xs text-center hover:opacity-70" style={{ color: 'var(--color-muted)' }}>
-                  ← Change number
-                </button>
+                <p className="font-sans text-xs text-center" style={{ color: 'var(--color-muted)' }}>
+                  Already have an account?{' '}
+                  <button onClick={() => { setError(''); setStep('login') }} className="font-semibold hover:opacity-70" style={{ color: '#e8384f' }}>Sign in</button>
+                </p>
+                <button onClick={reset} className="font-sans text-xs text-center hover:opacity-70" style={{ color: 'var(--color-muted)' }}>← Back</button>
               </div>
             )}
           </motion.div>
