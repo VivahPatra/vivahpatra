@@ -2,7 +2,7 @@
 import { use, useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Save, ArrowLeft, Share2, ChevronLeft, ChevronRight, Plus, Trash2, MapPin, Music, Play, Check } from 'lucide-react'
+import { Save, ArrowLeft, Share2, ChevronLeft, ChevronRight, Plus, Trash2, MapPin, Music, Play, Check, Eye, EyeOff } from 'lucide-react'
 import { getTemplate } from '@/lib/templates'
 import { WeddingFormData, DEFAULT_FORM_DATA, SectionToggle, WeddingEvent, StoryItem, InfoCard } from '@/lib/editor-types'
 import { getDefaultEvents, getDefaultInfoCards } from '@/lib/template-defaults'
@@ -72,8 +72,9 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           if (next.id === 'cocktail' && next.name === 'Cocktail Night') {
             next = { ...next, name: 'Engagement' }
           }
-          // Replace stale/old image paths (.png, blank, or pre-webp relative paths) with the current default
-          const isStale = !next.image || next.image.endsWith('.png') || next.image.startsWith('/assets/events/')
+          // Replace stale/old image paths (.png, blank, relative, or mismatched absolute URL) with current default
+          const expectedImage = defaultById.get(next.id)?.image
+          const isStale = !next.image || next.image.endsWith('.png') || next.image.startsWith('/assets/events/') || (expectedImage && next.image !== expectedImage && next.image.includes('/assets/events/'))
           if (isStale) {
             const fallback = defaultById.get(next.id)?.image
             if (fallback) next = { ...next, image: fallback }
@@ -227,7 +228,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const set = (key: keyof WeddingFormData, val: string) => setData(prev => ({ ...prev, [key]: val }))
   const toggle = (key: keyof SectionToggle) => setData(prev => ({ ...prev, sections: { ...prev.sections, [key]: !prev.sections[key] } }))
 
-  const updateEvent = (i: number, key: keyof WeddingEvent, val: string) => setData(prev => {
+  const updateEvent = (i: number, key: keyof WeddingEvent, val: string | boolean) => setData(prev => {
     const events = [...prev.events]; events[i] = { ...events[i], [key]: val }; return { ...prev, events }
   })
   const addEvent = () => setData(prev => ({ ...prev, events: [...prev.events, { id: `ev-${Date.now()}`, name: '', emoji: '🎉', image: '', date: '', time: '', venue: '', venueAddress: '', venueMapLink: '', description: '', color: '#c8922a' }] }))
@@ -306,13 +307,18 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         <>
           <SectionHeader label="Events" visible={data.sections.events} onToggle={() => toggle('events')} />
           {data.events.map((ev, i) => (
-            <div key={ev.id} className="p-3 rounded-xl mb-2" style={{ border: '1px solid rgba(200,146,42,0.1)', background: 'rgba(12,10,18,0.5)' }}>
+            <div key={ev.id} className="p-3 rounded-xl mb-2" style={{ border: '1px solid rgba(200,146,42,0.1)', background: 'rgba(12,10,18,0.5)', opacity: ev.hidden ? 0.5 : 1 }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  {ev.image && <img src={ev.image} alt="" className="w-6 h-6 rounded object-cover" />}
+                  {ev.image && <img src={ev.image} alt="" className="w-6 h-6 rounded object-cover" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />}
                   <span className="text-xs font-semibold" style={{ color: '#c8922a' }}>{ev.name || `Event ${i+1}`}</span>
                 </div>
-                {data.events.length > 1 && <button onClick={() => removeEvent(i)}><Trash2 size={12} style={{ color: '#c00' }} /></button>}
+                <div className="flex items-center gap-2">
+                  <button onClick={() => updateEvent(i, 'hidden', !ev.hidden)} title={ev.hidden ? 'Hidden — click to show' : 'Visible — click to hide'} style={{ color: ev.hidden ? '#666' : '#c8922a' }}>
+                    {ev.hidden ? <EyeOff size={13} /> : <Eye size={13} />}
+                  </button>
+                  {data.events.length > 1 && <button onClick={() => removeEvent(i)}><Trash2 size={12} style={{ color: '#c00' }} /></button>}
+                </div>
               </div>
               <EditorInput label="Name" value={ev.name} onChange={v => updateEvent(i, 'name', v)} placeholder="Mehendi" />
               <div className="grid grid-cols-2 gap-2">
