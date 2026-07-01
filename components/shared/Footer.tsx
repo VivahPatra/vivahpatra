@@ -18,9 +18,10 @@ export default function Footer() {
           </div>
           <div>
             <h4 className="font-sans text-[10px] font-semibold tracking-[0.3em] uppercase mb-4" style={{ color: '#e8384f' }}>Company</h4>
-            {['About Us', 'Contact', 'Privacy Policy', 'Terms of Service'].map(link => (
+            {['About Us', 'Privacy Policy', 'Terms of Service'].map(link => (
               <a key={link} href="#" className="block font-sans text-xs mb-2.5 hover:text-black transition-colors" style={{ color: '#999' }}>{link}</a>
             ))}
+            <a href="mailto:pr@vivahpatra.co" className="block font-sans text-xs mb-2.5 hover:text-black transition-colors" style={{ color: '#999' }}>Contact Us</a>
           </div>
           <div>
             <h4 className="font-sans text-[10px] font-semibold tracking-[0.3em] uppercase mb-4" style={{ color: '#e8384f' }}>Support</h4>
