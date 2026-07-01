@@ -15,6 +15,7 @@ export default function SignInModal({ open, onClose }: Props) {
   const [step, setStep] = useState<Step>('choose')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
@@ -53,42 +54,57 @@ export default function SignInModal({ open, onClose }: Props) {
   }
 
   const register = async () => {
-    if (!name.trim()) { setError('Name is required'); return }
+    if (!name.trim()) { setError('Full name is required'); return }
     if (!dob) { setError('Date of birth is required'); return }
-    if (!gender) { setError('Gender is required'); return }
-    if (!email.includes('@')) { setError('Valid email required'); return }
-    if (!mobile || mobile.length < 10) { setError('Valid 10-digit mobile required'); return }
+    if (!gender) { setError('Please select your gender'); return }
+    if (!email.includes('@')) { setError('Enter a valid email address'); return }
+    if (!mobile || mobile.length < 10) { setError('Enter a valid 10-digit mobile number'); return }
     if (password.length < 8) { setError('Password must be at least 8 characters'); return }
     if (password !== confirmPassword) { setError('Passwords do not match'); return }
     setLoading(true); setError('')
 
+    // Check duplicate email in profiles
+    const { data: emailCheck } = await supabase
+      .from('profiles').select('id').eq('email', email).maybeSingle()
+    if (emailCheck) { setError('This email is already registered. Please sign in.'); setLoading(false); return }
+
+    // Check duplicate mobile in profiles
+    const { data: mobileCheck } = await supabase
+      .from('profiles').select('id').eq('mobile', mobile).maybeSingle()
+    if (mobileCheck) { setError('This mobile number is already registered.'); setLoading(false); return }
+
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { name, dob, gender, mobile },
-      },
+      options: { data: { name, dob, gender, mobile } },
     })
-    if (signUpError) { setError(signUpError.message); setLoading(false); return }
+    if (signUpError) {
+      setError(signUpError.message.includes('already registered') || signUpError.message.includes('already exists')
+        ? 'This email is already registered. Please sign in.'
+        : signUpError.message)
+      setLoading(false)
+      return
+    }
 
-    // Save extended profile to profiles table
+    // Save extended profile
     if (data.user) {
       await supabase.from('profiles').upsert({
-        id: data.user.id,
-        name,
-        dob,
-        gender,
-        email,
-        mobile,
+        id: data.user.id, name, dob, gender, email, mobile,
         created_at: new Date().toISOString(),
       })
     }
 
     setLoading(false)
-    onClose()
+    // Show success then redirect to login
+    setSuccess(`Welcome, ${name.split(' ')[0]}! Account created successfully. Please sign in.`)
+    setLoginEmail(email)
+    setTimeout(() => {
+      setSuccess('')
+      setStep('login')
+    }, 2500)
   }
 
-  const reset = () => { setStep('choose'); setError('') }
+  const reset = () => { setStep('choose'); setError(''); setSuccess('') }
 
   const inputCls = "w-full border rounded-xl px-4 py-2.5 font-sans text-sm outline-none bg-transparent focus:border-[#e8384f] transition-colors"
   const inputStyle = { borderColor: 'var(--color-border)', color: 'var(--color-text)' }
@@ -118,7 +134,10 @@ export default function SignInModal({ open, onClose }: Props) {
             </p>
 
             {error && (
-              <p className="font-sans text-xs text-center mb-4 p-2 rounded-lg" style={{ background: '#fee', color: '#c00' }}>{error}</p>
+              <p className="font-sans text-xs text-center mb-4 p-3 rounded-lg" style={{ background: '#fee', color: '#c00' }}>{error}</p>
+            )}
+            {success && (
+              <p className="font-sans text-xs text-center mb-4 p-3 rounded-lg" style={{ background: '#f0fff4', color: '#16a34a', border: '1px solid #bbf7d0' }}>✓ {success}</p>
             )}
 
             {/* CHOOSE */}
@@ -187,41 +206,61 @@ export default function SignInModal({ open, onClose }: Props) {
             {/* REGISTER */}
             {step === 'register' && (
               <div className="flex flex-col gap-3">
-                <input type="text" placeholder="Full Name" value={name}
-                  onChange={e => setName(e.target.value)} className={inputCls} style={inputStyle} />
+                <div>
+                  <label className="font-sans text-[10px] uppercase tracking-wider mb-1 block" style={{ color: 'var(--color-muted)' }}>Full Name *</label>
+                  <input type="text" placeholder="e.g. Rahul Sharma" value={name}
+                    onChange={e => setName(e.target.value)} className={inputCls} style={inputStyle} />
+                </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <input type="date" placeholder="Date of Birth" value={dob}
-                    onChange={e => setDob(e.target.value)} className={inputCls} style={inputStyle} />
-                  <select value={gender} onChange={e => setGender(e.target.value)}
-                    className={inputCls} style={{ ...inputStyle, background: 'var(--color-surface)' }}>
-                    <option value="">Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
+                  <div>
+                    <label className="font-sans text-[10px] uppercase tracking-wider mb-1 block" style={{ color: 'var(--color-muted)' }}>Date of Birth *</label>
+                    <input type="date" value={dob} onChange={e => setDob(e.target.value)} className={inputCls} style={inputStyle} />
+                  </div>
+                  <div>
+                    <label className="font-sans text-[10px] uppercase tracking-wider mb-1 block" style={{ color: 'var(--color-muted)' }}>Gender *</label>
+                    <select value={gender} onChange={e => setGender(e.target.value)}
+                      className={inputCls} style={{ ...inputStyle, background: 'var(--color-surface)' }}>
+                      <option value="">Select</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
                 </div>
-                <input type="email" placeholder="Email address" value={email}
-                  onChange={e => setEmail(e.target.value)} className={inputCls} style={inputStyle} />
-                <div className="flex items-center gap-2 border rounded-xl px-4 py-2.5" style={{ borderColor: 'var(--color-border)' }}>
-                  <span className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>+91</span>
-                  <input type="tel" placeholder="Mobile number" maxLength={10} value={mobile}
-                    onChange={e => setMobile(e.target.value.replace(/\D/g, ''))}
-                    className="flex-1 font-sans text-sm outline-none bg-transparent" />
+                <div>
+                  <label className="font-sans text-[10px] uppercase tracking-wider mb-1 block" style={{ color: 'var(--color-muted)' }}>Email Address *</label>
+                  <input type="email" placeholder="e.g. rahul@gmail.com" value={email}
+                    onChange={e => setEmail(e.target.value)} className={inputCls} style={inputStyle} />
                 </div>
-                <div className="relative">
-                  <input type={showPass ? 'text' : 'password'} placeholder="Password (min 8 chars)" value={password}
-                    onChange={e => setPassword(e.target.value)} className={inputCls} style={inputStyle} />
-                  <button onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-70" style={{ color: 'var(--color-muted)' }}>
-                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
+                <div>
+                  <label className="font-sans text-[10px] uppercase tracking-wider mb-1 block" style={{ color: 'var(--color-muted)' }}>Mobile Number *</label>
+                  <div className="flex items-center gap-2 border rounded-xl px-4 py-2.5" style={{ borderColor: 'var(--color-border)' }}>
+                    <span className="font-sans text-sm font-medium" style={{ color: 'var(--color-muted)' }}>+91</span>
+                    <input type="tel" placeholder="10-digit mobile number" maxLength={10} value={mobile}
+                      onChange={e => setMobile(e.target.value.replace(/\D/g, ''))}
+                      className="flex-1 font-sans text-sm outline-none bg-transparent" />
+                  </div>
                 </div>
-                <div className="relative">
-                  <input type={showConfirm ? 'text' : 'password'} placeholder="Confirm Password" value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)} className={inputCls} style={inputStyle}
-                    onKeyDown={e => e.key === 'Enter' && register()} />
-                  <button onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-70" style={{ color: 'var(--color-muted)' }}>
-                    {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
+                <div>
+                  <label className="font-sans text-[10px] uppercase tracking-wider mb-1 block" style={{ color: 'var(--color-muted)' }}>Password * (min 8 characters)</label>
+                  <div className="relative">
+                    <input type={showPass ? 'text' : 'password'} placeholder="Create a strong password" value={password}
+                      onChange={e => setPassword(e.target.value)} className={inputCls} style={inputStyle} />
+                    <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-70" style={{ color: 'var(--color-muted)' }}>
+                      {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="font-sans text-[10px] uppercase tracking-wider mb-1 block" style={{ color: 'var(--color-muted)' }}>Confirm Password *</label>
+                  <div className="relative">
+                    <input type={showConfirm ? 'text' : 'password'} placeholder="Re-enter your password" value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)} className={inputCls} style={inputStyle}
+                      onKeyDown={e => e.key === 'Enter' && register()} />
+                    <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-70" style={{ color: 'var(--color-muted)' }}>
+                      {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
                 </div>
                 <button onClick={register} disabled={loading}
                   className="w-full py-3 rounded-full font-sans text-sm font-semibold text-white disabled:opacity-50"
