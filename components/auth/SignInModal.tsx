@@ -1,7 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
 import { createClient } from '@/lib/supabase'
 
 interface Props {
@@ -15,7 +17,19 @@ export default function SignInModal({ open, onClose }: Props) {
   const [step, setStep] = useState<'choose' | 'phone' | 'otp'>('choose')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const confirmationRef = useRef<ConfirmationResult | null>(null)
+  const recaptchaRef = useRef<RecaptchaVerifier | null>(null)
   const supabase = createClient()
+
+  // Cleanup recaptcha on unmount
+  useEffect(() => {
+    return () => {
+      if (recaptchaRef.current) {
+        recaptchaRef.current.clear()
+        recaptchaRef.current = null
+      }
+    }
+  }, [])
 
   const signInWithGoogle = async () => {
     setLoading(true)
@@ -28,42 +42,89 @@ export default function SignInModal({ open, onClose }: Props) {
   }
 
   const sendOTP = async () => {
-    if (!phone || phone.length < 10) { setError('Enter valid phone number'); return }
+    if (!phone || phone.length < 10) { setError('Enter valid 10-digit phone number'); return }
     setLoading(true)
     setError('')
-    const { error } = await supabase.auth.signInWithOtp({
-      phone: phone.startsWith('+') ? phone : `+91${phone}`,
-    })
-    if (error) { setError(error.message); setLoading(false); return }
-    setStep('otp')
+    try {
+      // Setup invisible reCAPTCHA
+      if (!recaptchaRef.current) {
+        recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          size: 'invisible',
+          callback: () => {},
+        })
+      }
+      const phoneNumber = phone.startsWith('+') ? phone : `+91${phone}`
+      const confirmation = await signInWithPhoneNumber(auth, phoneNumber, recaptchaRef.current)
+      confirmationRef.current = confirmation
+      setStep('otp')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to send OTP'
+      setError(msg)
+      // Reset recaptcha on error
+      if (recaptchaRef.current) {
+        recaptchaRef.current.clear()
+        recaptchaRef.current = null
+      }
+    }
     setLoading(false)
   }
 
   const verifyOTP = async () => {
     if (!otp || otp.length < 6) { setError('Enter 6-digit OTP'); return }
+    if (!confirmationRef.current) { setError('Session expired. Please try again.'); setStep('phone'); return }
     setLoading(true)
     setError('')
-    const { error } = await supabase.auth.verifyOtp({
-      phone: phone.startsWith('+') ? phone : `+91${phone}`,
-      token: otp,
-      type: 'sms',
-    })
-    if (error) { setError(error.message); setLoading(false); return }
-    setLoading(false)
-    onClose()
+    try {
+      const result = await confirmationRef.current.confirm(otp)
+      const firebaseToken = await result.user.getIdToken()
+      const phoneNumber = phone.startsWith('+') ? phone : `+91${phone}`
+
+      // Sign into Supabase using custom token (phone as identifier)
+      const { error: supaError } = await supabase.auth.signInWithPassword({
+        email: `${phoneNumber.replace('+', '')}@phone.vivahpatra.co`,
+        password: firebaseToken.slice(0, 64),
+      })
+
+      if (supaError) {
+        // User doesn't exist yet — create them
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: `${phoneNumber.replace('+', '')}@phone.vivahpatra.co`,
+          password: firebaseToken.slice(0, 64),
+          options: { data: { phone: phoneNumber, provider: 'firebase_phone' } },
+        })
+        if (signUpError) throw new Error(signUpError.message)
+      }
+
+      setLoading(false)
+      onClose()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Invalid OTP'
+      setError(msg.includes('invalid-verification-code') ? 'Invalid OTP. Please try again.' : msg)
+      setLoading(false)
+    }
   }
 
-  const reset = () => { setStep('choose'); setPhone(''); setOtp(''); setError('') }
+  const reset = () => {
+    setStep('choose')
+    setPhone('')
+    setOtp('')
+    setError('')
+    if (recaptchaRef.current) {
+      recaptchaRef.current.clear()
+      recaptchaRef.current = null
+    }
+  }
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          {/* Backdrop */}
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
-          {/* Modal */}
+          {/* Invisible reCAPTCHA container */}
+          <div id="recaptcha-container" />
+
           <motion.div className="relative w-full max-w-sm rounded-2xl p-8"
             style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
             initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}>
@@ -115,7 +176,8 @@ export default function SignInModal({ open, onClose }: Props) {
                   <span className="font-sans text-sm" style={{ color: 'var(--color-muted)' }}>+91</span>
                   <input type="tel" placeholder="Phone number" maxLength={10} value={phone}
                     onChange={e => setPhone(e.target.value.replace(/\D/g, ''))}
-                    className="flex-1 font-sans text-sm outline-none bg-transparent" />
+                    className="flex-1 font-sans text-sm outline-none bg-transparent"
+                    onKeyDown={e => e.key === 'Enter' && sendOTP()} />
                 </div>
                 <button onClick={sendOTP} disabled={loading}
                   className="w-full py-3 rounded-full font-sans text-sm font-semibold text-white disabled:opacity-50"
@@ -136,7 +198,8 @@ export default function SignInModal({ open, onClose }: Props) {
                 <input type="text" placeholder="Enter 6-digit OTP" maxLength={6} value={otp}
                   onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
                   className="border rounded-full px-4 py-2.5 font-sans text-sm text-center tracking-[0.3em] outline-none"
-                  style={{ borderColor: 'var(--color-border)' }} />
+                  style={{ borderColor: 'var(--color-border)' }}
+                  onKeyDown={e => e.key === 'Enter' && verifyOTP()} />
                 <button onClick={verifyOTP} disabled={loading}
                   className="w-full py-3 rounded-full font-sans text-sm font-semibold text-white disabled:opacity-50"
                   style={{ background: 'var(--color-accent)' }}>
