@@ -39,5 +39,5 @@ export default async function InvitePage({ params }: { params: Promise<{ slug: s
     return <div className="min-h-screen flex items-center justify-center"><p>Template not found</p></div>
   }
 
-  return <InviteClient templateUrl={template.url} data={invite.data} />
+  return <InviteClient templateUrl={template.url} data={invite.data} slug={slug} />
 }

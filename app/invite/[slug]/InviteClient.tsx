@@ -4,9 +4,10 @@ import { useRef, useCallback, useEffect } from 'react'
 interface Props {
   templateUrl: string
   data: Record<string, unknown>
+  slug: string
 }
 
-export default function InviteClient({ templateUrl, data }: Props) {
+export default function InviteClient({ templateUrl, data, slug }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const sendData = useCallback(() => {
@@ -22,10 +23,18 @@ export default function InviteClient({ templateUrl, data }: Props) {
         setTimeout(sendData, 100)
         setTimeout(sendData, 300)
       }
+      if (e.data?.type === 'VIVAHPATRA_RSVP') {
+        const { guestName, guestCount } = e.data
+        fetch('/api/rsvp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug, guestName, guestCount }),
+        }).catch(() => {})
+      }
     }
     window.addEventListener('message', onMsg)
     return () => window.removeEventListener('message', onMsg)
-  }, [sendData])
+  }, [sendData, slug])
 
   const handleLoad = useCallback(() => {
     sendData()

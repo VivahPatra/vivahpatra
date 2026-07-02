@@ -2,10 +2,11 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { User, Mail, Phone, Calendar, ExternalLink, Clock } from 'lucide-react'
+import { User, Mail, Phone, Calendar, ExternalLink, Clock, Users, ChevronDown, ChevronUp } from 'lucide-react'
 import { useUser } from '@/components/auth/AuthProvider'
 import { TEMPLATES } from '@/lib/templates'
 import { getUserPurchases } from '@/lib/purchases'
+import { createClient } from '@/lib/supabase'
 import Button from '@/components/shared/Button'
 import Footer from '@/components/shared/Footer'
 
@@ -23,10 +24,29 @@ interface PurchaseEntry {
   instances: ProfileInstance[]
 }
 
+interface RsvpRow {
+  id: string
+  invite_slug: string
+  guest_name: string
+  guest_count: number
+  created_at: string
+}
+
+interface InviteRsvp {
+  slug: string
+  groomName?: string
+  brideName?: string
+  templateName: string
+  rsvps: RsvpRow[]
+  totalGuests: number
+}
+
 export default function ProfilePage() {
   const { user, loading, signOut } = useUser()
   const router = useRouter()
   const [purchases, setPurchases] = useState<PurchaseEntry[]>([])
+  const [inviteRsvps, setInviteRsvps] = useState<InviteRsvp[]>([])
+  const [expandedSlug, setExpandedSlug] = useState<string | null>(null)
 
   useEffect(() => {
     if (!loading && !user) router.replace('/')
@@ -48,6 +68,49 @@ export default function ProfilePage() {
       }
       setPurchases(entries)
     })
+  }, [user])
+
+  useEffect(() => {
+    if (!user?.id) return
+    const supabase = createClient()
+    if (!supabase) return
+
+    async function loadRsvps() {
+      const supabase = createClient()
+      if (!supabase) return
+
+      const { data: invites } = await supabase
+        .from('published_invites')
+        .select('slug, template_id, data')
+        .eq('user_id', user!.id)
+
+      if (!invites?.length) return
+
+      const slugs = invites.map((i: { slug: string }) => i.slug)
+      const { data: rsvpRows } = await supabase
+        .from('rsvps')
+        .select('*')
+        .in('invite_slug', slugs)
+        .order('created_at', { ascending: false })
+
+      const rows = (rsvpRows || []) as RsvpRow[]
+
+      const result: InviteRsvp[] = invites.map((inv: { slug: string; template_id: string; data: Record<string, string> }) => {
+        const t = TEMPLATES.find(t => t.id === inv.template_id)
+        const invRsvps = rows.filter(r => r.invite_slug === inv.slug)
+        return {
+          slug: inv.slug,
+          groomName: inv.data?.groomName,
+          brideName: inv.data?.brideName,
+          templateName: t?.name || inv.template_id,
+          rsvps: invRsvps,
+          totalGuests: invRsvps.reduce((s, r) => s + r.guest_count, 0),
+        }
+      }).filter((i: InviteRsvp) => i.rsvps.length > 0)
+
+      setInviteRsvps(result)
+    }
+    loadRsvps()
   }, [user])
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" /></div>
@@ -96,10 +159,87 @@ export default function ProfilePage() {
           </div>
         </motion.div>
 
+        {/* RSVP Responses */}
+        {inviteRsvps.length > 0 && (
+          <motion.div className="rounded-2xl p-6 mb-8"
+            style={{ border: '1px solid #eee', background: '#fafafa' }}
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <div className="flex items-center gap-2 mb-5">
+              <Users size={18} style={{ color: '#e8384f' }} />
+              <h2 className="font-display text-lg">RSVP Responses</h2>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              {inviteRsvps.map(inv => (
+                <div key={inv.slug} className="rounded-xl overflow-hidden" style={{ border: '1px solid #eee' }}>
+                  {/* Invite header */}
+                  <button
+                    onClick={() => setExpandedSlug(expandedSlug === inv.slug ? null : inv.slug)}
+                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors">
+                    <div className="text-left">
+                      <p className="font-sans text-sm font-semibold">
+                        {inv.groomName && inv.brideName ? `${inv.groomName} & ${inv.brideName}` : inv.templateName}
+                      </p>
+                      <p className="font-sans text-xs" style={{ color: '#999' }}>
+                        {inv.rsvps.length} {inv.rsvps.length === 1 ? 'response' : 'responses'} · {inv.totalGuests} guests attending
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-sans text-xs px-3 py-1 rounded-full font-semibold"
+                        style={{ background: 'rgba(232,56,79,0.1)', color: '#e8384f' }}>
+                        {inv.totalGuests} guests
+                      </span>
+                      {expandedSlug === inv.slug ? <ChevronUp size={15} style={{ color: '#bbb' }} /> : <ChevronDown size={15} style={{ color: '#bbb' }} />}
+                    </div>
+                  </button>
+
+                  {/* RSVP list */}
+                  {expandedSlug === inv.slug && (
+                    <div className="border-t" style={{ borderColor: '#f0f0f0' }}>
+                      <table className="w-full font-sans text-sm">
+                        <thead>
+                          <tr style={{ background: '#f8f8f8' }}>
+                            <th className="text-left px-4 py-2 text-xs uppercase tracking-wider" style={{ color: '#aaa' }}>Guest Name</th>
+                            <th className="text-center px-4 py-2 text-xs uppercase tracking-wider" style={{ color: '#aaa' }}>Guests</th>
+                            <th className="text-right px-4 py-2 text-xs uppercase tracking-wider" style={{ color: '#aaa' }}>Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {inv.rsvps.map(r => (
+                            <tr key={r.id} style={{ borderTop: '1px solid #f0f0f0' }}>
+                              <td className="px-4 py-2.5 font-medium">{r.guest_name}</td>
+                              <td className="px-4 py-2.5 text-center">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold"
+                                  style={{ background: 'rgba(232,56,79,0.08)', color: '#e8384f' }}>
+                                  <Users size={10} /> {r.guest_count}
+                                </span>
+                              </td>
+                              <td className="px-4 py-2.5 text-right text-xs" style={{ color: '#bbb' }}>
+                                {new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot>
+                          <tr style={{ background: '#f8f8f8', borderTop: '1px solid #eee' }}>
+                            <td className="px-4 py-2 text-xs font-semibold" style={{ color: '#666' }}>Total</td>
+                            <td className="px-4 py-2 text-center text-xs font-bold" style={{ color: '#e8384f' }}>{inv.totalGuests}</td>
+                            <td />
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         {/* Purchase History */}
         <motion.div className="rounded-2xl p-6 mb-8"
           style={{ border: '1px solid #eee', background: '#fafafa' }}
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <h2 className="font-display text-lg mb-4">Purchase History</h2>
           {purchases.length > 0 ? (
             <div className="flex flex-col gap-3">
