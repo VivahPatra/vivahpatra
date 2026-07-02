@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { BarChart3, TrendingUp, Globe, Search, Calendar } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import { TEMPLATES } from '@/lib/templates'
+import DateTimePicker from '@/components/admin/DateTimePicker'
 
 interface TemplateStats {
   templateId: string
@@ -63,27 +64,15 @@ export default function AdminAnalytics() {
       </div>
 
       {/* Date range filter */}
-      <div className="flex flex-wrap items-center gap-3 mb-6 p-4 rounded-xl" style={{ background: '#1a1a1a', border: '1px solid #222' }}>
-        <Calendar size={15} style={{ color: '#e8384f' }} />
-        <span className="font-sans text-xs uppercase tracking-wider" style={{ color: '#666' }}>Revenue Period</span>
-        <div className="flex items-center gap-2 ml-auto flex-wrap">
-          <div className="flex flex-col gap-0.5">
-            <label className="font-sans text-[10px] uppercase tracking-wider" style={{ color: '#555' }}>From</label>
-            <input type="datetime-local" value={from} onChange={e => setFrom(e.target.value)}
-              className="px-3 py-1.5 rounded-lg font-sans text-xs" style={{ background: '#111', color: '#fff', border: '1px solid #333' }} />
-          </div>
-          <div className="flex flex-col gap-0.5">
-            <label className="font-sans text-[10px] uppercase tracking-wider" style={{ color: '#555' }}>To</label>
-            <input type="datetime-local" value={to} onChange={e => setTo(e.target.value)}
-              className="px-3 py-1.5 rounded-lg font-sans text-xs" style={{ background: '#111', color: '#fff', border: '1px solid #333' }} />
-          </div>
-          {(from || to) && (
-            <button onClick={() => { setFrom(''); setTo('') }}
-              className="px-3 py-1.5 rounded-lg font-sans text-xs mt-4 hover:bg-white/10 transition-colors"
-              style={{ color: '#888', border: '1px solid #333' }}>
-              Clear
-            </button>
-          )}
+      <div className="flex flex-wrap items-center gap-4 mb-6 p-4 rounded-xl" style={{ background: '#1a1a1a', border: '1px solid #222' }}>
+        <div className="flex items-center gap-2">
+          <Calendar size={15} style={{ color: '#e8384f' }} />
+          <span className="font-sans text-xs font-semibold uppercase tracking-wider" style={{ color: '#aaa' }}>Revenue Period</span>
+        </div>
+        <div className="flex items-end gap-3 flex-wrap ml-auto">
+          <DateTimePicker label="From" value={from} onChange={setFrom} />
+          <span className="font-sans text-xs pb-2" style={{ color: '#444' }}>→</span>
+          <DateTimePicker label="To" value={to} onChange={setTo} />
         </div>
       </div>
 

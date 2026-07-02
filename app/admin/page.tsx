@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Users, ShoppingBag, IndianRupee, Link2, TrendingUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
+import DateTimePicker from '@/components/admin/DateTimePicker'
 
 interface RecentPurchase {
   template_id: string
@@ -21,14 +22,20 @@ interface Stats {
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null)
+  const [from, setFrom] = useState('')
+  const [to, setTo] = useState('')
 
   useEffect(() => {
     async function load() {
       const supabase = createClient()
       if (!supabase) return
 
+      let purchasesQ = supabase.from('purchases').select('*').order('created_at', { ascending: false })
+      if (from) purchasesQ = purchasesQ.gte('created_at', new Date(from).toISOString())
+      if (to) purchasesQ = purchasesQ.lte('created_at', new Date(to).toISOString())
+
       const [purchases, invites, profiles] = await Promise.all([
-        supabase.from('purchases').select('*').order('created_at', { ascending: false }),
+        purchasesQ,
         supabase.from('published_invites').select('id'),
         supabase.from('user_profiles').select('id, email'),
       ])
@@ -49,7 +56,7 @@ export default function AdminDashboard() {
       })
     }
     load()
-  }, [])
+  }, [from, to])
 
   const cards = stats ? [
     { label: 'Total Users', value: stats.totalUsers, icon: Users, color: '#3b82f6' },
@@ -83,9 +90,16 @@ export default function AdminDashboard() {
 
       {/* Recent purchases */}
       <div className="rounded-xl p-5" style={{ background: '#1a1a1a', border: '1px solid #222' }}>
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp size={16} style={{ color: '#e8384f' }} />
-          <h2 className="font-sans text-sm font-semibold">Recent Purchases</h2>
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-4">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={16} style={{ color: '#e8384f' }} />
+            <h2 className="font-sans text-sm font-semibold">Recent Purchases</h2>
+          </div>
+          <div className="flex items-end gap-3 flex-wrap">
+            <DateTimePicker label="From" value={from} onChange={setFrom} />
+            <span className="font-sans text-xs pb-2" style={{ color: '#444' }}>→</span>
+            <DateTimePicker label="To" value={to} onChange={setTo} />
+          </div>
         </div>
         {stats?.recentPurchases.length ? (
           <table className="w-full font-sans text-sm">
