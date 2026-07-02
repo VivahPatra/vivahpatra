@@ -4,12 +4,19 @@ import { motion } from 'framer-motion'
 import { Users, ShoppingBag, IndianRupee, Link2, TrendingUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
+interface RecentPurchase {
+  template_id: string
+  amount: number
+  created_at: string
+  user_email: string
+}
+
 interface Stats {
   totalUsers: number
   totalPurchases: number
   totalRevenue: number
   totalInvites: number
-  recentPurchases: { template_id: string; amount: number; created_at: string }[]
+  recentPurchases: RecentPurchase[]
 }
 
 export default function AdminDashboard() {
@@ -20,12 +27,14 @@ export default function AdminDashboard() {
       const supabase = createClient()
       if (!supabase) return
 
-      const [purchases, invites] = await Promise.all([
+      const [purchases, invites, profiles] = await Promise.all([
         supabase.from('purchases').select('*').order('created_at', { ascending: false }),
         supabase.from('published_invites').select('id'),
+        supabase.from('user_profiles').select('id, email'),
       ])
 
       const purchaseList = purchases.data || []
+      const profileMap = new Map((profiles.data || []).map((p: { id: string; email: string }) => [p.id, p.email]))
       const totalRevenue = purchaseList.reduce((sum: number, p: { amount: number }) => sum + p.amount, 0)
 
       setStats({
@@ -33,7 +42,10 @@ export default function AdminDashboard() {
         totalPurchases: purchaseList.length,
         totalRevenue,
         totalInvites: invites.data?.length || 0,
-        recentPurchases: purchaseList.slice(0, 10),
+        recentPurchases: purchaseList.slice(0, 10).map((p: { user_id: string; template_id: string; amount: number; created_at: string }) => ({
+          ...p,
+          user_email: profileMap.get(p.user_id) || p.user_id.slice(0, 12) + '…',
+        })),
       })
     }
     load()
@@ -79,6 +91,7 @@ export default function AdminDashboard() {
           <table className="w-full font-sans text-sm">
             <thead>
               <tr style={{ color: '#666' }}>
+                <th className="text-left py-2 text-xs uppercase tracking-wider">User</th>
                 <th className="text-left py-2 text-xs uppercase tracking-wider">Template</th>
                 <th className="text-left py-2 text-xs uppercase tracking-wider">Amount</th>
                 <th className="text-left py-2 text-xs uppercase tracking-wider">Date</th>
@@ -87,6 +100,9 @@ export default function AdminDashboard() {
             <tbody>
               {stats.recentPurchases.map((p, i) => (
                 <tr key={i} style={{ borderTop: '1px solid #222' }}>
+                  <td className="py-3">
+                    <span className="font-mono text-xs px-2 py-0.5 rounded" style={{ background: '#222', color: '#aaa' }}>{p.user_email}</span>
+                  </td>
                   <td className="py-3">{p.template_id}</td>
                   <td className="py-3">₹{p.amount}</td>
                   <td className="py-3" style={{ color: '#888' }}>{new Date(p.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>

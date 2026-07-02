@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { BarChart3, TrendingUp, Globe, Search } from 'lucide-react'
+import { BarChart3, TrendingUp, Globe, Search, Calendar } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import { TEMPLATES } from '@/lib/templates'
 
@@ -14,34 +14,44 @@ interface TemplateStats {
   invites: number
 }
 
+function toISO(dt: string) { return dt ? new Date(dt).toISOString() : '' }
+
 export default function AdminAnalytics() {
   const [templateStats, setTemplateStats] = useState<TemplateStats[]>([])
   const [totalRevenue, setTotalRevenue] = useState(0)
+  const [from, setFrom] = useState('')
+  const [to, setTo] = useState('')
 
-  useEffect(() => {
+  async function loadData(fromVal: string, toVal: string) {
     const supabase = createClient()
     if (!supabase) return
 
-    Promise.all([
-      supabase.from('purchases').select('template_id, amount'),
+    let purchasesQ = supabase.from('purchases').select('template_id, amount, created_at')
+    if (fromVal) purchasesQ = purchasesQ.gte('created_at', toISO(fromVal))
+    if (toVal) purchasesQ = purchasesQ.lte('created_at', toISO(toVal))
+
+    const [purchases, invites] = await Promise.all([
+      purchasesQ,
       supabase.from('published_invites').select('template_id'),
-    ]).then(([purchases, invites]) => {
-      const pData = purchases.data || []
-      const iData = invites.data || []
+    ])
 
-      const stats: TemplateStats[] = TEMPLATES.map(t => ({
-        templateId: t.id,
-        name: t.name,
-        color: t.color,
-        purchases: pData.filter((p: { template_id: string }) => p.template_id === t.id).length,
-        revenue: pData.filter((p: { template_id: string }) => p.template_id === t.id).reduce((sum: number, p: { amount: number }) => sum + p.amount, 0),
-        invites: iData.filter((i: { template_id: string }) => i.template_id === t.id).length,
-      })).sort((a, b) => b.purchases - a.purchases)
+    const pData = purchases.data || []
+    const iData = invites.data || []
 
-      setTemplateStats(stats)
-      setTotalRevenue(pData.reduce((sum: number, p: { amount: number }) => sum + p.amount, 0))
-    })
-  }, [])
+    const stats: TemplateStats[] = TEMPLATES.map(t => ({
+      templateId: t.id,
+      name: t.name,
+      color: t.color,
+      purchases: pData.filter((p: { template_id: string }) => p.template_id === t.id).length,
+      revenue: pData.filter((p: { template_id: string }) => p.template_id === t.id).reduce((sum: number, p: { amount: number }) => sum + p.amount, 0),
+      invites: iData.filter((i: { template_id: string }) => i.template_id === t.id).length,
+    })).sort((a, b) => b.purchases - a.purchases)
+
+    setTemplateStats(stats)
+    setTotalRevenue(pData.reduce((sum: number, p: { amount: number }) => sum + p.amount, 0))
+  }
+
+  useEffect(() => { loadData(from, to) }, [from, to])
 
   const maxPurchases = Math.max(...templateStats.map(s => s.purchases), 1)
 
@@ -50,6 +60,31 @@ export default function AdminAnalytics() {
       <div className="mb-8">
         <h1 className="font-display text-2xl mb-1">Analytics & SEO</h1>
         <p className="font-sans text-sm" style={{ color: '#666' }}>Template performance and traffic insights</p>
+      </div>
+
+      {/* Date range filter */}
+      <div className="flex flex-wrap items-center gap-3 mb-6 p-4 rounded-xl" style={{ background: '#1a1a1a', border: '1px solid #222' }}>
+        <Calendar size={15} style={{ color: '#e8384f' }} />
+        <span className="font-sans text-xs uppercase tracking-wider" style={{ color: '#666' }}>Revenue Period</span>
+        <div className="flex items-center gap-2 ml-auto flex-wrap">
+          <div className="flex flex-col gap-0.5">
+            <label className="font-sans text-[10px] uppercase tracking-wider" style={{ color: '#555' }}>From</label>
+            <input type="datetime-local" value={from} onChange={e => setFrom(e.target.value)}
+              className="px-3 py-1.5 rounded-lg font-sans text-xs" style={{ background: '#111', color: '#fff', border: '1px solid #333' }} />
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <label className="font-sans text-[10px] uppercase tracking-wider" style={{ color: '#555' }}>To</label>
+            <input type="datetime-local" value={to} onChange={e => setTo(e.target.value)}
+              className="px-3 py-1.5 rounded-lg font-sans text-xs" style={{ background: '#111', color: '#fff', border: '1px solid #333' }} />
+          </div>
+          {(from || to) && (
+            <button onClick={() => { setFrom(''); setTo('') }}
+              className="px-3 py-1.5 rounded-lg font-sans text-xs mt-4 hover:bg-white/10 transition-colors"
+              style={{ color: '#888', border: '1px solid #333' }}>
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Template performance */}
