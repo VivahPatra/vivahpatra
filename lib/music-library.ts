@@ -6,13 +6,25 @@ export interface MusicTrack {
   url: string
 }
 
+const BASE = 'https://vivahpatra.co/music'
+
 export const MUSIC_LIBRARY: MusicTrack[] = [
-  { id: 'shehnai-classic', name: 'Shehnai Classic', category: 'Traditional', duration: '3:45', url: '/music/shehnai-classic.mp3' },
-  { id: 'sitar-melody', name: 'Sitar Melody', category: 'Traditional', duration: '4:12', url: '/music/sitar-melody.mp3' },
-  { id: 'flute-romantic', name: 'Flute Romantic', category: 'Romantic', duration: '3:30', url: '/music/flute-romantic.mp3' },
-  { id: 'piano-love', name: 'Piano Love Story', category: 'Modern', duration: '3:55', url: '/music/piano-love.mp3' },
-  { id: 'tabla-fusion', name: 'Tabla Fusion', category: 'Fusion', duration: '4:20', url: '/music/tabla-fusion.mp3' },
-  { id: 'veena-prayer', name: 'Veena Prayer', category: 'Traditional', duration: '5:00', url: '/music/veena-prayer.mp3' },
-  { id: 'acoustic-bliss', name: 'Acoustic Bliss', category: 'Modern', duration: '3:15', url: '/music/acoustic-bliss.mp3' },
-  { id: 'dhol-celebration', name: 'Dhol Celebration', category: 'Punjabi', duration: '3:40', url: '/music/dhol-celebration.mp3' },
+  { id: 'aaj-sajeya', name: 'Aaj Sajeya', category: 'Punjabi', duration: '', url: `${BASE}/aaj-sajeya.mp3` },
+  { id: 'christian', name: 'Christian Wedding', category: 'Christian', duration: '', url: `${BASE}/christian.mp3` },
+  { id: 'ek-ladki-ko-dekha', name: 'Ek Ladki Ko Dekha', category: 'Romantic', duration: '', url: `${BASE}/ek-ladki-ko-dekha.mp3` },
+  { id: 'saathiya', name: 'Saathiya', category: 'Romantic', duration: '', url: `${BASE}/saathiya.mp3` },
+  { id: 'southindian', name: 'South Indian Classical', category: 'Traditional', duration: '', url: `${BASE}/southindian.mp3` },
+  { id: 'tumhi-dekho-na', name: 'Tumhi Dekho Na', category: 'Romantic', duration: '', url: `${BASE}/tumhi-dekho-na.mp3` },
 ]
+
+export const TEMPLATE_DEFAULT_MUSIC: Record<string, string> = {
+  punjabi: `${BASE}/aaj-sajeya.mp3`,
+  christian: `${BASE}/christian.mp3`,
+  template2: `${BASE}/ek-ladki-ko-dekha.mp3`,
+  template3: `${BASE}/ek-ladki-ko-dekha.mp3`,
+  southindian: `${BASE}/southindian.mp3`,
+  modern: `${BASE}/tumhi-dekho-na.mp3`,
+  template4: `${BASE}/tumhi-dekho-na.mp3`,
+  invitation: `${BASE}/saathiya.mp3`,
+  mandala: `${BASE}/saathiya.mp3`,
+}

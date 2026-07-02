@@ -107,6 +107,7 @@ export default function PreviewPage({ params }: { params: Promise<{ id: string }
           className="w-full"
           style={{ border: 'none', height: 'calc(100vh - 64px)' }}
           title={template.name}
+          allow="autoplay"
           onLoad={e => {
             const frame = e.currentTarget
             const send = () => frame.contentWindow?.postMessage({ type: 'VIVAHPATRA_PREVIEW_MODE' }, '*')

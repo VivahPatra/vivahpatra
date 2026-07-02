@@ -12,7 +12,7 @@ import { saveToCloud, loadFromCloud, getCloudInstances, CloudInstance } from '@/
 import { publishInvite, checkPublished } from '@/lib/publish'
 import { hasPurchased } from '@/lib/purchases'
 import { EditorInput, EditorTextArea, EditorImageUpload, EditorMultiImageUpload, SectionHeader } from '@/components/editor/EditorInput'
-import { MUSIC_LIBRARY } from '@/lib/music-library'
+import { MUSIC_LIBRARY, TEMPLATE_DEFAULT_MUSIC } from '@/lib/music-library'
 
 export default function EditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -92,7 +92,8 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       function merge(saved: Partial<WeddingFormData>) {
         const cards = saved.infoCards?.length ? saved.infoCards : defaultInfoCards
         const secs = { ...defaultSections, ...(saved.sections || {}) }
-        return { ...DEFAULT_FORM_DATA, ...saved, events: migrateEvents(saved.events), infoCards: cards, sections: secs } as WeddingFormData
+        const backgroundMusic = saved.backgroundMusic || TEMPLATE_DEFAULT_MUSIC[id] || ''
+        return { ...DEFAULT_FORM_DATA, ...saved, backgroundMusic, events: migrateEvents(saved.events), infoCards: cards, sections: secs } as WeddingFormData
       }
 
       // Try cloud first (with instanceId)
