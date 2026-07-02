@@ -22,7 +22,13 @@ export const metadata: Metadata = {
   title: 'Vivah Patra — Beautiful Animated Wedding Invitations',
   description: 'Create stunning, animated digital wedding invitations for every Indian culture. 9+ templates — Hindu, Sikh, Christian, Modern. Customize in minutes, share via WhatsApp. Starting at ₹1499.',
   keywords: ['wedding invitation', 'digital wedding card', 'animated invitation', 'Indian wedding', 'Hindu wedding', 'Sikh wedding', 'Christian wedding', 'WhatsApp invitation', 'wedding template'],
-  icons: { icon: '/favicon.png' },
+  icons: {
+    icon: [
+      { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.png', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
   metadataBase: new URL('https://www.vivahpatra.co'),
   openGraph: {
     title: 'Vivah Patra — Beautiful Animated Wedding Invitations',
