@@ -46,6 +46,8 @@ export default function ProfilePage() {
   const router = useRouter()
   const [purchases, setPurchases] = useState<PurchaseEntry[]>([])
   const [inviteRsvps, setInviteRsvps] = useState<InviteRsvp[]>([])
+  const [rsvpLoading, setRsvpLoading] = useState(true)
+  const [rsvpError, setRsvpError] = useState('')
   const [expandedSlug, setExpandedSlug] = useState<string | null>(null)
 
   useEffect(() => {
@@ -72,43 +74,51 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user?.id) return
-    const supabase = createClient()
-    if (!supabase) return
-
     async function loadRsvps() {
-      const supabase = createClient()
-      if (!supabase) return
+      setRsvpLoading(true)
+      setRsvpError('')
+      try {
+        const supabase = createClient()
+        if (!supabase) { setRsvpError('DB not configured'); setRsvpLoading(false); return }
 
-      const { data: invites } = await supabase
-        .from('published_invites')
-        .select('slug, template_id, data')
-        .eq('user_id', user!.id)
+        const { data: invites, error: invErr } = await supabase
+          .from('published_invites')
+          .select('slug, template_id, data')
+          .eq('user_id', user!.id)
 
-      if (!invites?.length) return
+        if (invErr) { setRsvpError(invErr.message); setRsvpLoading(false); return }
 
-      const slugs = invites.map((i: { slug: string }) => i.slug)
-      const { data: rsvpRows } = await supabase
-        .from('rsvps')
-        .select('*')
-        .in('invite_slug', slugs)
-        .order('created_at', { ascending: false })
+        if (!invites?.length) { setInviteRsvps([]); setRsvpLoading(false); return }
 
-      const rows = (rsvpRows || []) as RsvpRow[]
+        const slugs = invites.map((i: { slug: string }) => i.slug)
+        const { data: rsvpRows, error: rsvpErr } = await supabase
+          .from('rsvps')
+          .select('*')
+          .in('invite_slug', slugs)
+          .order('created_at', { ascending: false })
 
-      const result: InviteRsvp[] = invites.map((inv: { slug: string; template_id: string; data: Record<string, string> }) => {
-        const t = TEMPLATES.find(t => t.id === inv.template_id)
-        const invRsvps = rows.filter(r => r.invite_slug === inv.slug)
-        return {
-          slug: inv.slug,
-          groomName: inv.data?.groomName,
-          brideName: inv.data?.brideName,
-          templateName: t?.name || inv.template_id,
-          rsvps: invRsvps,
-          totalGuests: invRsvps.reduce((s, r) => s + r.guest_count, 0),
-        }
-      }).filter((i: InviteRsvp) => i.rsvps.length > 0)
+        if (rsvpErr) { setRsvpError('rsvps table missing — run the SQL in Supabase: ' + rsvpErr.message); setRsvpLoading(false); return }
 
-      setInviteRsvps(result)
+        const rows = (rsvpRows || []) as RsvpRow[]
+
+        const result: InviteRsvp[] = invites.map((inv: { slug: string; template_id: string; data: Record<string, string> }) => {
+          const t = TEMPLATES.find(t => t.id === inv.template_id)
+          const invRsvps = rows.filter(r => r.invite_slug === inv.slug)
+          return {
+            slug: inv.slug,
+            groomName: inv.data?.groomName,
+            brideName: inv.data?.brideName,
+            templateName: t?.name || inv.template_id,
+            rsvps: invRsvps,
+            totalGuests: invRsvps.reduce((s, r) => s + r.guest_count, 0),
+          }
+        })
+
+        setInviteRsvps(result)
+      } catch (e: unknown) {
+        setRsvpError(e instanceof Error ? e.message : 'Unknown error')
+      }
+      setRsvpLoading(false)
     }
     loadRsvps()
   }, [user])
@@ -160,15 +170,29 @@ export default function ProfilePage() {
         </motion.div>
 
         {/* RSVP Responses */}
-        {inviteRsvps.length > 0 && (
-          <motion.div className="rounded-2xl p-6 mb-8"
-            style={{ border: '1px solid #eee', background: '#fafafa' }}
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <div className="flex items-center gap-2 mb-5">
-              <Users size={18} style={{ color: '#e8384f' }} />
-              <h2 className="font-display text-lg">RSVP Responses</h2>
-            </div>
+        <motion.div className="rounded-2xl p-6 mb-8"
+          style={{ border: '1px solid #eee', background: '#fafafa' }}
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <div className="flex items-center gap-2 mb-5">
+            <Users size={18} style={{ color: '#e8384f' }} />
+            <h2 className="font-display text-lg">RSVP Responses</h2>
+          </div>
 
+          {rsvpLoading && <p className="font-sans text-sm text-center py-4" style={{ color: '#bbb' }}>Loading...</p>}
+
+          {rsvpError && (
+            <div className="rounded-lg px-4 py-3 font-sans text-xs" style={{ background: '#fff5f5', color: '#c33', border: '1px solid #fcc' }}>
+              {rsvpError}
+            </div>
+          )}
+
+          {!rsvpLoading && !rsvpError && inviteRsvps.length === 0 && (
+            <p className="font-sans text-sm text-center py-4" style={{ color: '#bbb' }}>
+              No RSVP responses yet. Share your invite link with guests.
+            </p>
+          )}
+
+          {!rsvpLoading && !rsvpError && inviteRsvps.length > 0 && (
             <div className="flex flex-col gap-3">
               {inviteRsvps.map(inv => (
                 <div key={inv.slug} className="rounded-xl overflow-hidden" style={{ border: '1px solid #eee' }}>
@@ -233,8 +257,8 @@ export default function ProfilePage() {
                 </div>
               ))}
             </div>
-          </motion.div>
-        )}
+          )}
+        </motion.div>
 
         {/* Purchase History */}
         <motion.div className="rounded-2xl p-6 mb-8"
