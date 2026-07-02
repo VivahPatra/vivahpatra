@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Users, ShoppingBag, IndianRupee, Link2, TrendingUp } from 'lucide-react'
+import { Users, ShoppingBag, IndianRupee, Link2, TrendingUp, CalendarRange } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import DateTimePicker from '@/components/admin/DateTimePicker'
 
@@ -73,7 +73,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         {cards.map((card, i) => (
           <motion.div key={card.label}
             className="p-5 rounded-xl"
@@ -84,22 +84,36 @@ export default function AdminDashboard() {
               <card.icon size={18} style={{ color: card.color }} />
             </div>
             <p className="font-display text-2xl" style={{ color: '#fff' }}>{card.value}</p>
+            {card.label === 'Revenue' && (from || to) && (
+              <p className="font-sans text-[10px] mt-1" style={{ color: '#555' }}>filtered period</p>
+            )}
           </motion.div>
         ))}
       </div>
 
+      {/* Date range filter */}
+      <div className="flex flex-wrap items-end gap-3 mb-6 px-4 py-3 rounded-xl" style={{ background: '#111', border: '1px solid #1e1e1e' }}>
+        <div className="flex items-center gap-2 mr-2">
+          <CalendarRange size={14} style={{ color: '#e8384f' }} />
+          <span className="font-sans text-xs uppercase tracking-wider" style={{ color: '#555' }}>Period</span>
+        </div>
+        <DateTimePicker label="From" value={from} onChange={setFrom} />
+        <span className="font-sans text-xs pb-2" style={{ color: '#333' }}>→</span>
+        <DateTimePicker label="To" value={to} onChange={setTo} />
+        {(from || to) && (
+          <button onClick={() => { setFrom(''); setTo('') }}
+            className="pb-0 mb-0 self-end px-3 py-[7px] rounded-lg font-sans text-xs hover:bg-white/5 transition-colors"
+            style={{ color: '#666', border: '1px solid #2a2a2a' }}>
+            Clear
+          </button>
+        )}
+      </div>
+
       {/* Recent purchases */}
       <div className="rounded-xl p-5" style={{ background: '#1a1a1a', border: '1px solid #222' }}>
-        <div className="flex flex-wrap items-end justify-between gap-4 mb-4">
-          <div className="flex items-center gap-2">
-            <TrendingUp size={16} style={{ color: '#e8384f' }} />
-            <h2 className="font-sans text-sm font-semibold">Recent Purchases</h2>
-          </div>
-          <div className="flex items-end gap-3 flex-wrap">
-            <DateTimePicker label="From" value={from} onChange={setFrom} />
-            <span className="font-sans text-xs pb-2" style={{ color: '#444' }}>→</span>
-            <DateTimePicker label="To" value={to} onChange={setTo} />
-          </div>
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp size={16} style={{ color: '#e8384f' }} />
+          <h2 className="font-sans text-sm font-semibold">Recent Purchases</h2>
         </div>
         {stats?.recentPurchases.length ? (
           <table className="w-full font-sans text-sm">
