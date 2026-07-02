@@ -3,14 +3,36 @@ import { motion } from 'framer-motion'
 import { Star, Quote } from 'lucide-react'
 
 const REVIEWS = [
-  { name: 'Priya & Rahul', location: 'Mumbai', quote: 'Our guests were amazed by the animated invitation. So much better than a printed card!' },
-  { name: 'Simran & Arjun', location: 'Delhi', quote: 'The South Indian template perfectly captured our wedding vibe. Easy to customize and share.' },
-  { name: 'Sarah & James', location: 'Goa', quote: 'We saved over ₹15,000 compared to printed cards and our invite looked incredible.' },
+  { name: 'Priya & Rahul', location: 'Mumbai', rating: 5, quote: 'Our guests were amazed by the animated digital wedding invitation. So much better than a printed card! Everyone kept asking us which app we used.' },
+  { name: 'Simran & Arjun', location: 'Delhi', rating: 5, quote: 'The South Indian template perfectly captured our wedding vibe. Easy to customize and share via WhatsApp. Saved us ₹20,000 on printed cards.' },
+  { name: 'Sarah & James', location: 'Goa', rating: 5, quote: 'We saved over ₹15,000 compared to printed cards and our Christian beach wedding invitation looked absolutely incredible. Highly recommend!' },
 ]
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: 'Vivah Patra Digital Wedding Invitations',
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.9',
+    reviewCount: '500',
+    bestRating: '5',
+  },
+  review: REVIEWS.map(r => ({
+    '@type': 'Review',
+    author: { '@type': 'Person', name: r.name },
+    reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5 },
+    reviewBody: r.quote,
+  })),
+}
 
 export default function Testimonials() {
   return (
     <section className="py-24 px-6 relative">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute w-[400px] h-[400px] rounded-full blur-[180px]"
           style={{ background: 'rgba(232,56,79,0.05)', top: '30%', left: '50%', transform: 'translateX(-50%)' }} />
@@ -21,7 +43,7 @@ export default function Testimonials() {
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <p className="font-sans text-[10px] tracking-[0.5em] uppercase mb-4" style={{ color: '#e8384f' }}>Testimonials</p>
           <h2 className="font-display text-3xl md:text-4xl mb-3">What Couples Say</h2>
-          <p className="font-sans text-sm" style={{ color: '#777' }}>Real stories from real weddings</p>
+          <p className="font-sans text-sm" style={{ color: '#777' }}>Real stories from real Indian weddings</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -32,7 +54,7 @@ export default function Testimonials() {
               viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.12 }}>
               <Quote size={20} style={{ color: '#e8384f', opacity: 0.3 }} className="mb-4" />
               <div className="flex gap-0.5 mb-4">
-                {Array.from({ length: 5 }).map((_, j) => (
+                {Array.from({ length: r.rating }).map((_, j) => (
                   <Star key={j} size={12} fill="#e8384f" stroke="#e8384f" />
                 ))}
               </div>

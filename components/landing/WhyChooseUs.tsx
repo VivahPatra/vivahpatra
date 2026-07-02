@@ -3,12 +3,12 @@ import { motion } from 'framer-motion'
 import { Smartphone, Share2, Mail, Palette, IndianRupee, Eye } from 'lucide-react'
 
 const FEATURES = [
-  { icon: Smartphone, title: 'Mobile-Friendly', desc: 'Looks stunning on every device — phones, tablets, and desktops.' },
-  { icon: Share2, title: 'Instant Sharing', desc: 'Share via WhatsApp, SMS, email, or any social platform in one tap.' },
-  { icon: Mail, title: 'Built-in RSVP', desc: 'Guests confirm attendance directly from the invite via WhatsApp.' },
-  { icon: Palette, title: 'Fully Customizable', desc: 'Change names, dates, photos, colors, and events easily.' },
-  { icon: IndianRupee, title: 'Affordable', desc: 'Starting at ₹1499 — a fraction of printed invitation costs.' },
-  { icon: Eye, title: 'Elder-Friendly', desc: 'Readable fonts and intuitive design for guests of all ages.' },
+  { icon: Smartphone, title: 'Mobile-First Design', desc: 'Digital wedding invitations load instantly on any phone, tablet, or desktop. No app download needed — guests open the link in their browser.' },
+  { icon: Share2, title: 'Share via WhatsApp', desc: 'Send your animated wedding invitation link via WhatsApp, SMS, email, or Instagram in one tap. Reach all guests in seconds.' },
+  { icon: Mail, title: 'Built-in RSVP', desc: 'Every digital wedding invite includes a WhatsApp RSVP button. Guests confirm attendance directly from the invitation.' },
+  { icon: Palette, title: 'Fully Customizable', desc: 'Change couple names, wedding date, venue, event timings, photos, and ceremony schedule. Live preview updates as you type.' },
+  { icon: IndianRupee, title: '90% Cheaper Than Print', desc: 'Printed Indian wedding invitations cost ₹15,000–₹50,000. Vivah Patra digital invitations start at just ₹1499 — one-time payment.' },
+  { icon: Eye, title: 'Works for All Ages', desc: 'Readable fonts, large text, and intuitive design ensure guests of every age — from young to elderly — can view the invite easily.' },
 ]
 
 export default function WhyChooseUs() {

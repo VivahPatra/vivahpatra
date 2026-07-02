@@ -31,7 +31,7 @@ export default function Hero() {
 
             <h1 className="font-display leading-[1.1]" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', color: '#1a1a1a' }}>
               <motion.span className="block" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                Beautiful Animated
+                Animated Digital
               </motion.span>
               <motion.span className="block" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
                 style={{ color: '#e8384f' }}>
@@ -42,7 +42,7 @@ export default function Hero() {
             <motion.p className="font-sans text-base mt-6 leading-relaxed max-w-md"
               style={{ color: '#666' }}
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
-              9+ stunning templates for every Indian wedding. Customize in minutes. Share via WhatsApp.
+              9+ stunning templates for every Indian wedding — Hindu, Sikh, Christian & Modern. Customize in minutes, share via WhatsApp.
             </motion.p>
 
             <motion.div className="flex items-center gap-3 mt-6"
