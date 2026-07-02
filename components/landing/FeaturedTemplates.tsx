@@ -36,8 +36,8 @@ export default function FeaturedTemplates() {
                   style={{ aspectRatio: '9/16', background: t.color, border: '2px solid rgba(255,255,255,0.06)' }}>
                   <img src={`/templates/carousel/${t.id}.webp`} alt={t.name}
                     className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-end justify-center pb-6">
-                    <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-xs font-semibold px-4 py-1.5 rounded-full" style={{ background: t.color }}>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 active:bg-black/20 transition-all duration-300 flex items-end justify-center pb-6">
+                    <span className="opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity duration-300 text-white text-xs font-semibold px-4 py-1.5 rounded-full" style={{ background: t.color }}>
                       Preview
                     </span>
                   </div>

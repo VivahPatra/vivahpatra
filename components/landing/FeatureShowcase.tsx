@@ -77,8 +77,8 @@ export default function FeatureShowcase() {
                           className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
                       )}
                     </div>
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-end justify-center pb-6 z-10">
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-xs font-semibold px-4 py-1.5 rounded-full" style={{ background: template.color }}>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 active:bg-black/20 transition-all duration-300 flex items-end justify-center pb-6 z-10">
+                      <span className="opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity duration-300 text-white text-xs font-semibold px-4 py-1.5 rounded-full" style={{ background: template.color }}>
                         Preview
                       </span>
                     </div>
