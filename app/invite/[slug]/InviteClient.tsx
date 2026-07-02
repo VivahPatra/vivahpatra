@@ -11,9 +11,10 @@ export default function InviteClient({ templateUrl, data, slug }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const sendData = useCallback(() => {
-    if (iframeRef.current?.contentWindow) {
-      iframeRef.current.contentWindow.postMessage({ type: 'VIVAHPATRA_UPDATE', data }, '*')
-    }
+    if (!iframeRef.current?.contentWindow) return
+    iframeRef.current.contentWindow.postMessage({ type: 'VIVAHPATRA_UPDATE', data }, '*')
+    // also trigger music autoplay — templates listen for this to start playing
+    iframeRef.current.contentWindow.postMessage({ type: 'VIVAHPATRA_PREVIEW_MODE' }, '*')
   }, [data])
 
   useEffect(() => {
@@ -52,6 +53,7 @@ export default function InviteClient({ templateUrl, data, slug }: Props) {
         className="w-full h-screen"
         style={{ border: 'none' }}
         title="Wedding Invitation"
+        allow="autoplay"
         onLoad={handleLoad}
       />
     </div>
