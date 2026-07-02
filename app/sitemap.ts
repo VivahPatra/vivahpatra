@@ -1,19 +1,19 @@
 import { TEMPLATES } from '@/lib/templates'
 import type { MetadataRoute } from 'next'
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://www.vivahpatra.co'
+const BASE = 'https://vivahpatra.co'
 
-  const staticPages = [
-    { url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 1 },
-    { url: `${baseUrl}/templates`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.9 },
+export default function sitemap(): MetadataRoute.Sitemap {
+  const staticPages: MetadataRoute.Sitemap = [
+    { url: BASE, lastModified: new Date(), changeFrequency: 'weekly', priority: 1.0 },
+    { url: `${BASE}/templates`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.95 },
   ]
 
-  const templatePages = TEMPLATES.map(t => ({
-    url: `${baseUrl}/preview/${t.id}`,
+  const templatePages: MetadataRoute.Sitemap = TEMPLATES.map(t => ({
+    url: `${BASE}/preview/${t.id}`,
     lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.8,
+    changeFrequency: 'monthly',
+    priority: 0.85,
   }))
 
   return [...staticPages, ...templatePages]

@@ -6,9 +6,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/editor/', '/api/'],
+        disallow: ['/admin/', '/editor/', '/api/', '/profile/'],
       },
     ],
-    sitemap: 'https://www.vivahpatra.co/sitemap.xml',
+    sitemap: 'https://vivahpatra.co/sitemap.xml',
+    host: 'https://vivahpatra.co',
   }
 }
