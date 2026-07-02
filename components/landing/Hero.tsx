@@ -78,11 +78,11 @@ export default function Hero() {
           {/* Right: Phone mockup with mandala video */}
           <motion.div className="flex justify-center lg:justify-end"
             initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.3 }}>
-            <div className="relative float-anim">
+            <a href="/preview/template2" className="relative float-anim block group">
               <div className="absolute inset-0 blur-[80px] rounded-full"
                 style={{ background: 'rgba(232,56,79,0.08)', transform: 'scale(1.3)' }} />
               <div className="relative w-[260px] sm:w-[280px]">
-                <div className="relative rounded-[36px] overflow-hidden shadow-2xl"
+                <div className="relative rounded-[36px] overflow-hidden shadow-2xl transition-transform duration-300 group-hover:scale-[1.02]"
                   style={{ border: '6px solid #1a1a1a', aspectRatio: '9/19.5', background: '#000' }}>
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[90px] h-[22px] rounded-b-2xl z-20" style={{ background: '#1a1a1a' }}>
                     <div className="absolute top-[6px] left-1/2 -translate-x-1/2 w-[40px] h-[4px] rounded-full" style={{ background: '#333' }} />
@@ -91,6 +91,11 @@ export default function Hero() {
                     <img src="/templates/template2.webp" alt="Palace Romance"
                       className="absolute inset-0 w-full h-full object-cover object-top" />
                   </div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-end justify-center pb-6 z-10">
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-xs font-semibold px-4 py-1.5 rounded-full" style={{ background: '#e8384f' }}>
+                      Preview
+                    </span>
+                  </div>
                   <div className="absolute bottom-[4px] left-1/2 -translate-x-1/2 w-[100px] h-[4px] rounded-full z-20" style={{ background: '#444' }} />
                 </div>
                 <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full font-sans text-[10px] tracking-wider font-semibold"
@@ -98,7 +103,7 @@ export default function Hero() {
                   Palace Romance
                 </div>
               </div>
-            </div>
+            </a>
           </motion.div>
         </div>
       </div>

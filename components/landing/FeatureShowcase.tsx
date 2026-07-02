@@ -59,11 +59,11 @@ export default function FeatureShowcase() {
               viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.7 }}>
 
               {/* Phone mockup — static media */}
-              <div className="flex-shrink-0 relative">
+              <a href={`/preview/${template.id}`} className="flex-shrink-0 relative group block">
                 <div className="absolute inset-0 blur-[60px] rounded-full"
                   style={{ background: `${template.color}15`, transform: 'scale(1.4)' }} />
                 <div className="relative w-[220px]">
-                  <div className="relative rounded-[32px] overflow-hidden shadow-2xl"
+                  <div className="relative rounded-[32px] overflow-hidden shadow-2xl transition-transform duration-300 group-hover:scale-[1.02]"
                     style={{ border: '5px solid #1a1a1a', aspectRatio: '9/19.5', background: '#000' }}>
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80px] h-[20px] rounded-b-2xl z-20" style={{ background: '#1a1a1a' }}>
                       <div className="absolute top-[5px] left-1/2 -translate-x-1/2 w-[36px] h-[4px] rounded-full" style={{ background: '#333' }} />
@@ -77,10 +77,15 @@ export default function FeatureShowcase() {
                           className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
                       )}
                     </div>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-end justify-center pb-6 z-10">
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-xs font-semibold px-4 py-1.5 rounded-full" style={{ background: template.color }}>
+                        Preview
+                      </span>
+                    </div>
                     <div className="absolute bottom-[3px] left-1/2 -translate-x-1/2 w-[90px] h-[4px] rounded-full z-20" style={{ background: '#444' }} />
                   </div>
                 </div>
-              </div>
+              </a>
 
               {/* Text content */}
               <div className="flex-1 max-w-lg">
