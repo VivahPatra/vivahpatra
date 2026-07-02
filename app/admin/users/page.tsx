@@ -30,19 +30,36 @@ export default function AdminUsers() {
     const supabase = createClient()
     if (!supabase) return
 
-    const [profilesRes, purchasesRes] = await Promise.all([
+    const [authProfilesRes, customProfilesRes, purchasesRes] = await Promise.all([
       supabase.from('user_profiles').select('*').order('created_at', { ascending: false }),
+      supabase.from('profiles').select('*'),
       supabase.from('purchases').select('user_id, amount'),
     ])
 
-    const profiles = (profilesRes.data || []) as { id: string; email: string; phone: string | null; full_name: string | null; created_at: string; last_sign_in_at: string | null }[]
+    const authProfiles = (authProfilesRes.data || []) as { id: string; email: string; phone: string | null; full_name: string | null; created_at: string; last_sign_in_at: string | null }[]
+    const customProfiles = (customProfilesRes.data || []) as { id: string; name?: string; email?: string; mobile?: string; dob?: string; gender?: string; created_at?: string }[]
     const purchases = (purchasesRes.data || []) as { user_id: string; amount: number }[]
 
-    setUsers(profiles.map(p => ({
-      ...p,
-      purchaseCount: purchases.filter(pu => pu.user_id === p.id).length,
-      totalSpent: purchases.filter(pu => pu.user_id === p.id).reduce((sum, pu) => sum + pu.amount, 0),
-    })))
+    // Build map of custom profiles by id
+    const customMap = new Map(customProfiles.map(p => [p.id, p]))
+
+    // Merge: start from auth_profiles, overlay with custom profile data where exists
+    // Also include custom profiles not yet in auth_profiles (shouldn't happen, but safety)
+    const merged = authProfiles.map(p => {
+      const cp = customMap.get(p.id)
+      return {
+        id: p.id,
+        email: p.email || cp?.email || '',
+        phone: cp?.mobile || p.phone || null,
+        full_name: cp?.name || p.full_name || null,
+        created_at: p.created_at,
+        last_sign_in_at: p.last_sign_in_at,
+        purchaseCount: purchases.filter(pu => pu.user_id === p.id).length,
+        totalSpent: purchases.filter(pu => pu.user_id === p.id).reduce((sum, pu) => sum + pu.amount, 0),
+      }
+    })
+
+    setUsers(merged)
     setLoading(false)
   }
 
