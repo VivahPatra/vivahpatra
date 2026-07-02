@@ -30,12 +30,12 @@ export default function AdminDashboard() {
       const supabase = createClient()
       if (!supabase) return
 
-      let purchasesQ = supabase.from('purchases').select('*').order('created_at', { ascending: false })
+      let purchasesQ = supabase.from('purchases').select('*')
       if (from) purchasesQ = purchasesQ.gte('created_at', new Date(from).toISOString())
       if (to) purchasesQ = purchasesQ.lte('created_at', new Date(to).toISOString())
 
       const [purchases, invites, profiles] = await Promise.all([
-        purchasesQ,
+        purchasesQ.order('created_at', { ascending: false }),
         supabase.from('published_invites').select('id'),
         supabase.from('user_profiles').select('id, email'),
       ])
