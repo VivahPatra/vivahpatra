@@ -520,7 +520,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       {/* Mobile toolbar — fixed at top */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-[60] flex items-center justify-between px-3 py-2 safe-area-top"
         style={{ background: 'rgba(14,12,20,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(200,146,42,0.15)' }}>
-        <button onClick={() => router.back()} className="flex items-center gap-1 text-[13px] text-white/70">
+        <button onClick={() => router.push('/profile')} className="flex items-center gap-1 text-[13px] text-white/70">
           <ArrowLeft size={14} />
         </button>
         <div className="flex items-center gap-1.5">
@@ -543,7 +543,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       {/* Desktop toolbar — on template preview */}
       <div className="hidden lg:block absolute inset-0 pointer-events-none">
         <div className="absolute top-4 left-4 z-50 pointer-events-auto">
-          <button onClick={() => router.back()} className="flex items-center gap-1 px-3 py-2 rounded-full text-xs text-white/70 hover:text-white" style={{ background: 'rgba(12,10,18,0.9)', backdropFilter: 'blur(8px)' }}>
+          <button onClick={() => router.push('/profile')} className="flex items-center gap-1 px-3 py-2 rounded-full text-xs text-white/70 hover:text-white" style={{ background: 'rgba(12,10,18,0.9)', backdropFilter: 'blur(8px)' }}>
             <ArrowLeft size={14} /> Back
           </button>
         </div>
