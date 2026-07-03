@@ -1,56 +1,104 @@
+const stats = [
+  { value: '500+', label: 'Couples Invited' },
+  { value: '9+', label: 'Templates' },
+  { value: '₹1,499', label: 'Starting Price' },
+  { value: '10 min', label: 'Setup Time' },
+]
+
+const pillars = [
+  {
+    tag: 'Why Digital',
+    heading: 'WhatsApp Wedding Invitations — The New Tradition',
+    body: 'Digital wedding invitations are animated, interactive, and shareable via WhatsApp — invite hundreds of guests instantly. Unlike printed cards costing ₹15,000–₹50,000, a Vivah Patra digital card costs just ₹1,499 with lifetime access and unlimited edits.',
+  },
+  {
+    tag: 'Every Culture',
+    heading: 'Templates for Every Indian Wedding',
+    body: 'From a South Indian kasavu gold invitation to a Punjabi Sikh Anand Karaj card with Ik Onkar motifs, to a Christian beach wedding invite — 9+ animated templates covering every Indian tradition.',
+  },
+  {
+    tag: 'How It Works',
+    heading: 'Ready in Under 10 Minutes',
+    body: 'Choose a template, enter your names, wedding date, venue and events in the live editor, upload your photo, and share the link. Your animated wedding card is ready to send on WhatsApp, Instagram, or any messenger.',
+  },
+]
+
+const links = [
+  { href: '/preview/southindian', label: 'South Indian Wedding' },
+  { href: '/preview/punjabi', label: 'Punjabi Sikh Wedding' },
+  { href: '/preview/christian', label: 'Christian Wedding' },
+  { href: '/preview/invitation', label: 'Hindu Wedding' },
+  { href: '/preview/template2', label: 'Palace Romance' },
+  { href: '/preview/mandala', label: 'Mandala Wedding' },
+  { href: '/preview/modern', label: 'Modern Wedding' },
+  { href: '/preview/template3', label: 'Watercolor Wedding' },
+  { href: '/preview/template4', label: 'Pichwai Art Wedding' },
+]
+
 export default function SeoContent() {
   return (
-    <section className="py-16 px-6" style={{ background: '#fafafa' }}>
-      <div className="max-w-4xl mx-auto">
-        <h2 className="font-display text-2xl md:text-3xl mb-6 text-center">
-          Digital Wedding Invitations for Every Indian Wedding
+    <section className="py-24 px-6 relative overflow-hidden" style={{ background: '#fff' }}>
+      {/* Subtle background accent */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse 80% 50% at 50% 100%, rgba(232,56,79,0.04) 0%, transparent 70%)',
+      }} />
+
+      <div className="max-w-5xl mx-auto relative">
+
+        {/* Section label */}
+        <p className="font-sans text-[10px] tracking-[0.5em] uppercase text-center mb-4" style={{ color: '#e8384f' }}>
+          Digital Wedding Cards India
+        </p>
+
+        <h2 className="font-display text-3xl md:text-4xl text-center mb-3" style={{ color: '#1a1a1a' }}>
+          Everything You Need to Know
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 font-sans text-sm leading-relaxed" style={{ color: '#666' }}>
-          <div>
-            <h3 className="font-semibold mb-2" style={{ color: '#1a1a1a' }}>Why Choose a Digital Wedding Invitation?</h3>
-            <p className="mb-4">
-              Digital wedding invitations have become the preferred choice for modern Indian couples. They are animated, interactive, and shareable via WhatsApp — making it effortless to invite hundreds of guests instantly. Unlike printed cards that cost ₹15,000–₹50,000, a Vivah Patra digital wedding card costs just ₹1499 with lifetime access and unlimited edits.
-            </p>
-            <h3 className="font-semibold mb-2" style={{ color: '#1a1a1a' }}>Templates for Every Culture</h3>
-            <p>
-              From a South Indian wedding invitation with Kerala kasavu gold theme, to a Punjabi Sikh Anand Karaj card with Ik Onkar and Golden Temple, to a Christian beach wedding invite — Vivah Patra has 9+ animated templates covering every Indian wedding tradition and culture.
-            </p>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-2" style={{ color: '#1a1a1a' }}>How to Create Your Wedding Invitation Online</h3>
-            <p className="mb-4">
-              Creating a digital wedding invitation on Vivah Patra takes under 10 minutes. Choose a template, enter your names, wedding date, venue, and event details in the live editor, upload your couple photo, and share the link via WhatsApp. Your animated wedding card is ready to send.
-            </p>
-            <h3 className="font-semibold mb-2" style={{ color: '#1a1a1a' }}>WhatsApp Wedding Invitations — The New Tradition</h3>
-            <p>
-              Over 500+ Indian couples have used Vivah Patra to send their wedding invitation on WhatsApp. The unique shareable link works on all devices — Android, iPhone, and desktop — with no app download required. Guests see beautiful animations, event timings, and venue maps all in one place.
-            </p>
-          </div>
+        <p className="font-sans text-sm text-center mb-14" style={{ color: '#777' }}>
+          Why couples across India choose Vivah Patra for their digital wedding invitations
+        </p>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+          {stats.map(s => (
+            <div key={s.value} className="rounded-2xl p-5 text-center"
+              style={{ border: '1px solid rgba(0,0,0,0.06)', background: '#fafafa' }}>
+              <p className="font-display text-2xl md:text-3xl mb-1" style={{ color: '#e8384f' }}>{s.value}</p>
+              <p className="font-sans text-xs" style={{ color: '#888' }}>{s.label}</p>
+            </div>
+          ))}
         </div>
 
-        {/* Template links for internal linking */}
-        <div className="mt-10">
-          <h3 className="font-sans text-xs uppercase tracking-widest mb-4 text-center" style={{ color: '#aaa' }}>Browse by Wedding Type</h3>
-          <div className="flex flex-wrap justify-center gap-3">
-            {[
-              { href: '/preview/southindian', label: 'South Indian Wedding Invitation' },
-              { href: '/preview/punjabi', label: 'Punjabi Sikh Wedding Card' },
-              { href: '/preview/christian', label: 'Christian Wedding Invitation' },
-              { href: '/preview/invitation', label: 'Hindu Wedding Invitation' },
-              { href: '/preview/template2', label: 'Palace Romance Wedding Card' },
-              { href: '/preview/mandala', label: 'Mandala Wedding Invitation' },
-              { href: '/preview/modern', label: 'Modern Wedding Invitation' },
-              { href: '/preview/template3', label: 'Watercolor Wedding Card' },
-              { href: '/preview/template4', label: 'Pichwai Art Wedding Invite' },
-            ].map(l => (
+        {/* Content pillars */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          {pillars.map(p => (
+            <div key={p.tag} className="rounded-2xl p-6"
+              style={{ border: '1px solid rgba(0,0,0,0.06)', background: '#fafafa' }}>
+              <span className="inline-block font-sans text-[10px] uppercase tracking-widest px-3 py-1 rounded-full mb-4"
+                style={{ background: 'rgba(232,56,79,0.08)', color: '#e8384f' }}>
+                {p.tag}
+              </span>
+              <h3 className="font-display text-base mb-3" style={{ color: '#1a1a1a' }}>{p.heading}</h3>
+              <p className="font-sans text-xs leading-relaxed" style={{ color: '#777' }}>{p.body}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Template links */}
+        <div>
+          <p className="font-sans text-[10px] tracking-[0.4em] uppercase text-center mb-5" style={{ color: '#bbb' }}>
+            Browse by Wedding Type
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {links.map(l => (
               <a key={l.href} href={l.href}
-                className="font-sans text-xs px-3 py-1.5 rounded-full transition-colors hover:bg-red-50"
-                style={{ border: '1px solid #e5e7eb', color: '#555' }}>
+                className="font-sans text-xs px-4 py-2 rounded-full transition-all hover:border-red-300 hover:text-red-500 hover:bg-red-50"
+                style={{ border: '1px solid #e5e7eb', color: '#666' }}>
                 {l.label}
               </a>
             ))}
           </div>
         </div>
+
       </div>
     </section>
   )
