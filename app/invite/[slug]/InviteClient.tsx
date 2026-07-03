@@ -1,5 +1,7 @@
 'use client'
 import { useRef, useCallback, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
 
 interface Props {
   templateUrl: string
@@ -9,11 +11,11 @@ interface Props {
 
 export default function InviteClient({ templateUrl, data, slug }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const router = useRouter()
 
   const sendData = useCallback(() => {
     if (!iframeRef.current?.contentWindow) return
     iframeRef.current.contentWindow.postMessage({ type: 'VIVAHPATRA_UPDATE', data }, '*')
-    // also trigger music autoplay — templates listen for this to start playing
     iframeRef.current.contentWindow.postMessage({ type: 'VIVAHPATRA_PREVIEW_MODE' }, '*')
   }, [data])
 
@@ -46,7 +48,15 @@ export default function InviteClient({ templateUrl, data, slug }: Props) {
   }, [sendData])
 
   return (
-    <div className="min-h-screen" style={{ background: '#000' }}>
+    <div className="min-h-screen relative" style={{ background: '#000' }}>
+      <button
+        onClick={() => router.push('/')}
+        className="fixed top-4 left-4 z-50 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium"
+        style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}
+        aria-label="Go to home"
+      >
+        <ArrowLeft size={13} /> Home
+      </button>
       <iframe
         ref={iframeRef}
         src={templateUrl}

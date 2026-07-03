@@ -139,6 +139,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const sendToPreview = useCallback(() => {
     if (iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage({ type: 'VIVAHPATRA_UPDATE', data }, '*')
+      iframeRef.current.contentWindow.postMessage({ type: 'VIVAHPATRA_PREVIEW_MODE' }, '*')
     }
   }, [data])
 
