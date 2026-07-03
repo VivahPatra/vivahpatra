@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import dynamic from 'next/dynamic'
+import SaleBanner from '@/components/landing/SaleBanner'
 import Hero from '@/components/landing/Hero'
 import FeaturedTemplates from '@/components/landing/FeaturedTemplates'
 
@@ -27,6 +28,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <>
+      <SaleBanner />
       <Hero />
       <FeaturedTemplates />
       <FeatureShowcase />

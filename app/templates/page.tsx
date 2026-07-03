@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import TemplateGrid from '@/components/templates/TemplateGrid'
 import Footer from '@/components/shared/Footer'
+import SaleBanner from '@/components/landing/SaleBanner'
 import { TEMPLATES } from '@/lib/templates'
 import type { Metadata } from 'next'
 
@@ -44,6 +45,7 @@ const jsonLd = {
 export default function TemplatesPage() {
   return (
     <>
+      <SaleBanner />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
