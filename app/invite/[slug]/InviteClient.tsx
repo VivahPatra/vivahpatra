@@ -16,7 +16,6 @@ export default function InviteClient({ templateUrl, data, slug }: Props) {
   const sendData = useCallback(() => {
     if (!iframeRef.current?.contentWindow) return
     iframeRef.current.contentWindow.postMessage({ type: 'VIVAHPATRA_UPDATE', data }, '*')
-    iframeRef.current.contentWindow.postMessage({ type: 'VIVAHPATRA_PREVIEW_MODE' }, '*')
   }, [data])
 
   useEffect(() => {
