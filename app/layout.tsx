@@ -112,6 +112,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
       <head>
+        <link rel="preload" href="/templates/template2.webp" as="image" />
         <link rel="preconnect" href="https://template-southindian.vercel.app" />
         <link rel="dns-prefetch" href="https://template-southindian.vercel.app" />
         <link rel="dns-prefetch" href="https://template-invitation-liard.vercel.app" />

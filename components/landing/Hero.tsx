@@ -1,5 +1,6 @@
 'use client'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 
 export default function Hero() {
   return (
@@ -88,8 +89,8 @@ export default function Hero() {
                     <div className="absolute top-[6px] left-1/2 -translate-x-1/2 w-[40px] h-[4px] rounded-full" style={{ background: '#333' }} />
                   </div>
                   <div className="absolute inset-0 rounded-[30px] overflow-hidden">
-                    <img src="/templates/template2.webp" alt="Palace Romance"
-                      className="absolute inset-0 w-full h-full object-cover object-top" />
+                    <Image src="/templates/template2.webp" alt="Palace Romance"
+                      fill className="object-cover object-top" priority sizes="280px" />
                   </div>
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 active:bg-black/20 transition-all duration-300 flex items-end justify-center pb-6 z-10">
                     <span className="opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity duration-300 text-white text-xs font-semibold px-4 py-1.5 rounded-full" style={{ background: '#e8384f' }}>

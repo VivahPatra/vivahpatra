@@ -1,21 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
 
-const DURATION_MS = 36 * 60 * 60 * 1000 // 36 hours
-const STORAGE_KEY = 'vp_sale_end'
-
-function getEndTime(): number {
-  if (typeof window === 'undefined') return Date.now() + DURATION_MS
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored) {
-    const end = parseInt(stored, 10)
-    if (end > Date.now()) return end
-  }
-  const end = Date.now() + DURATION_MS
-  localStorage.setItem(STORAGE_KEY, String(end))
-  return end
-}
-
 function pad(n: number) {
   return String(n).padStart(2, '0')
 }
@@ -24,25 +9,40 @@ export default function SaleBanner() {
   const [timeLeft, setTimeLeft] = useState({ h: 36, m: 0, s: 0 })
 
   useEffect(() => {
-    let endTime = getEndTime()
+    let endTime = 0
+    let intervalId: ReturnType<typeof setInterval>
 
-    const tick = () => {
-      const diff = endTime - Date.now()
-      if (diff <= 0) {
-        // Reset
-        endTime = Date.now() + DURATION_MS
-        localStorage.setItem(STORAGE_KEY, String(endTime))
-      }
+    function tick() {
       const total = Math.max(0, endTime - Date.now())
-      const h = Math.floor(total / 3600000)
-      const m = Math.floor((total % 3600000) / 60000)
-      const s = Math.floor((total % 60000) / 1000)
-      setTimeLeft({ h, m, s })
+      if (total === 0 && endTime > 0) {
+        clearInterval(intervalId)
+        fetchAndStart()
+        return
+      }
+      setTimeLeft({
+        h: Math.floor(total / 3600000),
+        m: Math.floor((total % 3600000) / 60000),
+        s: Math.floor((total % 60000) / 1000),
+      })
     }
 
-    tick()
-    const id = setInterval(tick, 1000)
-    return () => clearInterval(id)
+    function fetchAndStart() {
+      fetch('/api/sale-timer')
+        .then(r => r.json())
+        .then(({ endsAt }: { endsAt: number }) => {
+          endTime = endsAt
+          tick()
+          intervalId = setInterval(tick, 1000)
+        })
+        .catch(() => {
+          endTime = Date.now() + 36 * 60 * 60 * 1000
+          tick()
+          intervalId = setInterval(tick, 1000)
+        })
+    }
+
+    fetchAndStart()
+    return () => clearInterval(intervalId)
   }, [])
 
   return (
