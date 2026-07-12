@@ -1,3 +1,5 @@
+export const revalidate = 3600 // Cache page 1 hour — all dynamic parts are client components
+
 import type { Metadata } from 'next'
 import dynamic from 'next/dynamic'
 import SaleBanner from '@/components/landing/SaleBanner'

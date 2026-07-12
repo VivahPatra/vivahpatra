@@ -6,18 +6,18 @@ function pad(n: number) {
 }
 
 export default function SaleBanner() {
+  // Start with 36h so banner renders immediately — server time syncs silently
   const [timeLeft, setTimeLeft] = useState({ h: 36, m: 0, s: 0 })
 
   useEffect(() => {
-    let endTime = 0
+    // Start countdown immediately from 36h, then silently sync with server
+    let endTime = Date.now() + 36 * 60 * 60 * 1000
     let intervalId: ReturnType<typeof setInterval>
 
     function tick() {
       const total = Math.max(0, endTime - Date.now())
-      if (total === 0 && endTime > 0) {
-        clearInterval(intervalId)
-        fetchAndStart()
-        return
+      if (total === 0) {
+        endTime = Date.now() + 36 * 60 * 60 * 1000
       }
       setTimeLeft({
         h: Math.floor(total / 3600000),
@@ -26,22 +26,16 @@ export default function SaleBanner() {
       })
     }
 
-    function fetchAndStart() {
-      fetch('/api/sale-timer')
-        .then(r => r.json())
-        .then(({ endsAt }: { endsAt: number }) => {
-          endTime = endsAt
-          tick()
-          intervalId = setInterval(tick, 1000)
-        })
-        .catch(() => {
-          endTime = Date.now() + 36 * 60 * 60 * 1000
-          tick()
-          intervalId = setInterval(tick, 1000)
-        })
-    }
+    // Start ticking immediately
+    tick()
+    intervalId = setInterval(tick, 1000)
 
-    fetchAndStart()
+    // Silently sync with server in background — updates endTime without blocking
+    fetch('/api/sale-timer')
+      .then(r => r.json())
+      .then(({ endsAt }: { endsAt: number }) => { endTime = endsAt })
+      .catch(() => {})
+
     return () => clearInterval(intervalId)
   }, [])
 
