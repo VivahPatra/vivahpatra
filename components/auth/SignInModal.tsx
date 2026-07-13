@@ -79,10 +79,20 @@ export default function SignInModal({ open, onClose }: Props) {
       options: { data: { name, dob, gender, mobile } },
     })
     if (signUpError) {
-      setError(signUpError.message.includes('already registered') || signUpError.message.includes('already exists')
-        ? 'This email is already registered. Please sign in.'
-        : signUpError.message)
+      const msg = signUpError.message || ''
+      setError(
+        msg.includes('already registered') || msg.includes('already exists') || msg.includes('User already')
+          ? 'This email is already registered. Please sign in.'
+          : msg || 'Something went wrong. Please try again.'
+      )
       setLoading(false)
+      return
+    }
+    // If email confirmation is ON, Supabase returns data.user but session is null
+    // data.user exists but is unconfirmed — that's expected, show success
+    if (!data.user && !data.session) {
+      setLoading(false)
+      setError('This email may already be registered. Please sign in or check your inbox.')
       return
     }
 
