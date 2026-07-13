@@ -102,20 +102,59 @@ export default function PreviewPage({ params }: { params: Promise<{ id: string }
   return (
     <>
       <div className="min-h-screen relative" style={{ background: '#000' }}>
-        <iframe
-          src={template.url}
-          className="w-full"
-          style={{ border: 'none', height: 'calc(100vh - 64px)' }}
-          title={template.name}
-          allow="autoplay"
-          onLoad={e => {
-            const frame = e.currentTarget
-            const send = () => frame.contentWindow?.postMessage({ type: 'VIVAHPATRA_PREVIEW_MODE' }, '*')
-            send()
-            setTimeout(send, 800)
-            setTimeout(send, 2000)
-          }}
-        />
+        <div className="relative w-full" style={{ height: 'calc(100vh - 64px)' }}>
+          <iframe
+            src={template.url}
+            className="w-full h-full"
+            style={{ border: 'none' }}
+            title={template.name}
+            allow="autoplay"
+            onLoad={e => {
+              const frame = e.currentTarget
+              const send = () => frame.contentWindow?.postMessage({ type: 'VIVAHPATRA_PREVIEW_MODE' }, '*')
+              send()
+              setTimeout(send, 800)
+              setTimeout(send, 2000)
+            }}
+          />
+          {!purchased && (
+            <div
+              aria-hidden="true"
+              style={{
+                position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 10,
+                backgroundImage: `repeating-linear-gradient(
+                  -45deg,
+                  transparent,
+                  transparent 80px,
+                  rgba(255,255,255,0.07) 80px,
+                  rgba(255,255,255,0.07) 82px
+                )`,
+              }}
+            >
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    left: `${(i % 4) * 26 + 5}%`,
+                    top: `${Math.floor(i / 4) * 32 + 8}%`,
+                    transform: 'rotate(-35deg)',
+                    color: 'rgba(255,255,255,0.13)',
+                    fontSize: 13,
+                    fontFamily: 'sans-serif',
+                    fontWeight: 600,
+                    letterSpacing: 2,
+                    whiteSpace: 'nowrap',
+                    userSelect: 'none',
+                    textShadow: '0 1px 3px rgba(0,0,0,0.4)',
+                  }}
+                >
+                  vivahpatra.co
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         <motion.div
           className="fixed bottom-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between"
