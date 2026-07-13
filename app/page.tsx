@@ -4,8 +4,8 @@ import type { Metadata } from 'next'
 import dynamic from 'next/dynamic'
 import SaleBanner from '@/components/landing/SaleBanner'
 import Hero from '@/components/landing/Hero'
-import FeaturedTemplates from '@/components/landing/FeaturedTemplates'
 
+const FeaturedTemplates = dynamic(() => import('@/components/landing/FeaturedTemplates'))
 const FeatureShowcase = dynamic(() => import('@/components/landing/FeatureShowcase'))
 const HowItWorks = dynamic(() => import('@/components/landing/HowItWorks'))
 const WhyChooseUs = dynamic(() => import('@/components/landing/WhyChooseUs'))
