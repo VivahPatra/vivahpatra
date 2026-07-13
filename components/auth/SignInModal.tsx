@@ -64,6 +64,9 @@ export default function SignInModal({ open, onClose }: Props) {
     setLoading(true); setError('')
 
     try {
+      const supabase = createClient()
+      if (!supabase) { setError('Service unavailable. Please try again later.'); setLoading(false); return }
+
       // Check duplicate email in profiles
       const { data: emailCheck, error: emailErr } = await supabase
         .from('profiles').select('id').eq('email', email).maybeSingle()
@@ -121,7 +124,9 @@ export default function SignInModal({ open, onClose }: Props) {
       setLoading(false)
 
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+      let msg = 'Something went wrong. Please try again.'
+      if (err instanceof Error && err.message) msg = err.message
+      else if (typeof err === 'string' && err) msg = err
       setError(msg)
       setLoading(false)
     }
