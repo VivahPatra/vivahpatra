@@ -140,7 +140,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
         <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GSC_VERIFICATION || ''} />
       </head>
-      <body className="font-sans antialiased" onContextMenu="return false" onDragStart="return false">
+      <body className="font-sans antialiased" onContextMenu={e => e.preventDefault()} onDragStart={e => e.preventDefault()}>
         <AuthProvider>
           <Navbar />
           {children}
