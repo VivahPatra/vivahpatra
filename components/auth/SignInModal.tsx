@@ -63,55 +63,68 @@ export default function SignInModal({ open, onClose }: Props) {
     if (password !== confirmPassword) { setError('Passwords do not match'); return }
     setLoading(true); setError('')
 
-    // Check duplicate email in profiles
-    const { data: emailCheck } = await supabase
-      .from('profiles').select('id').eq('email', email).maybeSingle()
-    if (emailCheck) { setError('This email is already registered. Please sign in.'); setLoading(false); return }
+    try {
+      // Check duplicate email in profiles
+      const { data: emailCheck, error: emailErr } = await supabase
+        .from('profiles').select('id').eq('email', email).maybeSingle()
+      if (emailCheck) {
+        setError('This email is already registered. Please sign in.')
+        setLoading(false); return
+      }
+      if (emailErr && emailErr.code !== 'PGRST116') {
+        // PGRST116 = no rows found, that's fine. Other errors = RLS or DB issue
+        console.error('Email check error:', emailErr)
+      }
 
-    // Check duplicate mobile in profiles
-    const { data: mobileCheck } = await supabase
-      .from('profiles').select('id').eq('mobile', mobile).maybeSingle()
-    if (mobileCheck) { setError('This mobile number is already registered.'); setLoading(false); return }
+      // Check duplicate mobile in profiles
+      const { data: mobileCheck, error: mobileErr } = await supabase
+        .from('profiles').select('id').eq('mobile', mobile).maybeSingle()
+      if (mobileCheck) {
+        setError('This mobile number is already registered. Please sign in or use a different number.')
+        setLoading(false); return
+      }
+      if (mobileErr && mobileErr.code !== 'PGRST116') {
+        console.error('Mobile check error:', mobileErr)
+      }
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { name, dob, gender, mobile } },
-    })
-    if (signUpError) {
-      const msg = signUpError.message || ''
-      setError(
-        msg.includes('already registered') || msg.includes('already exists') || msg.includes('User already')
-          ? 'This email is already registered. Please sign in.'
-          : msg || 'Something went wrong. Please try again.'
-      )
-      setLoading(false)
-      return
-    }
-    // If email confirmation is ON, Supabase returns data.user but session is null
-    // data.user exists but is unconfirmed — that's expected, show success
-    if (!data.user && !data.session) {
-      setLoading(false)
-      setError('This email may already be registered. Please sign in or check your inbox.')
-      return
-    }
-
-    // Save extended profile
-    if (data.user) {
-      await supabase.from('profiles').upsert({
-        id: data.user.id, name, dob, gender, email, mobile,
-        created_at: new Date().toISOString(),
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { name, dob, gender, mobile } },
       })
-    }
 
-    setLoading(false)
-    // Show success then redirect to login
-    setSuccess(`Welcome, ${name.split(' ')[0]}! Account created successfully. Please sign in.`)
-    setLoginEmail(email)
-    setTimeout(() => {
-      setSuccess('')
-      setStep('login')
-    }, 2500)
+      if (signUpError) {
+        const msg = typeof signUpError.message === 'string' ? signUpError.message : ''
+        setError(
+          msg.toLowerCase().includes('already') || msg.toLowerCase().includes('registered')
+            ? 'This email is already registered. Please sign in.'
+            : msg || 'Signup failed. Please try again.'
+        )
+        setLoading(false); return
+      }
+
+      // With email confirmation ON: data.user exists but data.session is null — this is correct
+      if (data?.user) {
+        await supabase.from('profiles').upsert({
+          id: data.user.id, name, dob, gender, email, mobile,
+          created_at: new Date().toISOString(),
+        })
+        setLoading(false)
+        setSuccess(`Account created! Check your email (${email}) to confirm your account.`)
+        setLoginEmail(email)
+        setTimeout(() => { setSuccess(''); setStep('login') }, 3500)
+        return
+      }
+
+      // Fallback: no user returned
+      setError('Could not create account. This email may already be registered.')
+      setLoading(false)
+
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+      setError(msg)
+      setLoading(false)
+    }
   }
 
   const reset = () => { setStep('choose'); setError(''); setSuccess('') }
