@@ -85,6 +85,14 @@ export default function PreviewPage({ params }: { params: Promise<{ id: string }
       setLatestInst(instId)
       // Record in Supabase (async, don't block)
       recordPurchase(user.id, template.id, instId, result.orderId || '', result.paymentId || '', template.price)
+      // Send purchase confirmation email (async, don't block)
+      if (user.email) {
+        fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'purchase', to: user.email, templateName: template.name, amount: template.price }),
+        }).catch(() => {})
+      }
       router.push(`/editor/${template.id}?inst=${instId}`)
     }
   }

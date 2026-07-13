@@ -218,9 +218,18 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     save(); setPublishing(true)
     const result = await publishInvite(id, instId || 'default', data, user.id)
     if ('slug' in result) {
-      setPublishedUrl(`${window.location.origin}/invite/${result.slug}`)
+      const inviteUrl = `${window.location.origin}/invite/${result.slug}`
+      setPublishedUrl(inviteUrl)
       setHasPublished(true)
       localStorage.setItem(`published-${storageKey}`, result.slug)
+      // Send publish confirmation email on first publish only
+      if (!result.updated && user.email) {
+        fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'publish', to: user.email, templateName: template?.name || id, inviteUrl }),
+        }).catch(() => {})
+      }
     } else {
       alert(result.error || 'Publishing failed')
     }
