@@ -140,11 +140,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
         <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GSC_VERIFICATION || ''} />
       </head>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased" onContextMenu="return false" onDragStart="return false">
         <AuthProvider>
           <Navbar />
           {children}
         </AuthProvider>
+        <script dangerouslySetInnerHTML={{ __html: `
+          document.addEventListener('contextmenu', e => e.preventDefault());
+          document.addEventListener('dragstart', e => e.preventDefault());
+          document.addEventListener('keydown', e => {
+            if (e.key === 'F12') { e.preventDefault(); return false; }
+            if (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase())) { e.preventDefault(); return false; }
+            if (e.ctrlKey && e.key.toUpperCase() === 'U') { e.preventDefault(); return false; }
+            if (e.ctrlKey && e.key.toUpperCase() === 'S') { e.preventDefault(); return false; }
+          });
+        `}} />
       </body>
     </html>
   )

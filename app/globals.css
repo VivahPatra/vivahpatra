@@ -20,6 +20,15 @@ html, body {
   color: #1a1a1a;
 }
 
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  pointer-events: none;
+}
+
+/* Allow pointer events on interactive images (links/buttons) */
+a img, button img { pointer-events: auto; }
+
 body {
   background: var(--color-bg);
   color: var(--color-text);
