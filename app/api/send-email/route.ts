@@ -13,6 +13,44 @@ export async function POST(req: NextRequest) {
 
     if (!to || !type) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
 
+    if (type === 'welcome') {
+      await resend.emails.send({
+        from: FROM,
+        to,
+        subject: `Welcome to Vivah Patra 🎉 — Create Your Wedding Invitation`,
+        html: `
+          <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #f0f0f0">
+            <div style="background:#1a1a1a;padding:28px 32px;text-align:center">
+              <p style="color:#e8384f;font-size:22px;font-weight:700;margin:0;letter-spacing:1px">VIVAH PATRA</p>
+              <p style="color:#aaa;font-size:12px;margin:4px 0 0">Animated Digital Wedding Invitations</p>
+            </div>
+            <div style="padding:32px">
+              <h2 style="color:#1a1a1a;margin:0 0 8px">Welcome! You're all set 🙏</h2>
+              <p style="color:#555;margin:0 0 20px">Thank you for joining Vivah Patra. Create stunning animated wedding invitations for every Indian wedding — Hindu, Sikh, Christian & Modern.</p>
+              <div style="background:#fff3f3;border-radius:8px;padding:20px;margin-bottom:24px;border:1px solid #ffd0d5">
+                <p style="margin:0 0 12px;color:#1a1a1a;font-weight:600">🎊 Wedding Season Sale — 60% OFF</p>
+                <p style="margin:0 0 4px;color:#555;font-size:14px">All templates starting at just <strong style="color:#e8384f">₹1,499</strong> <s style="color:#bbb">₹3,749</s></p>
+                <p style="margin:0;color:#555;font-size:14px">One-time payment. Share via WhatsApp instantly.</p>
+              </div>
+              <a href="https://vivahpatra.co/templates" style="display:inline-block;background:#e8384f;color:#fff;text-decoration:none;padding:12px 28px;border-radius:100px;font-weight:600;font-size:14px">
+                Browse Templates →
+              </a>
+              <div style="margin-top:28px;padding-top:20px;border-top:1px solid #f0f0f0">
+                <p style="color:#999;font-size:13px;margin:0 0 8px">What you can do:</p>
+                <p style="color:#555;font-size:13px;margin:0 0 6px">✅ &nbsp;Choose from 9+ templates for every culture</p>
+                <p style="color:#555;font-size:13px;margin:0 0 6px">✅ &nbsp;Customize names, dates, venues & photos</p>
+                <p style="color:#555;font-size:13px;margin:0 0 6px">✅ &nbsp;Publish a shareable link instantly</p>
+                <p style="color:#555;font-size:13px;margin:0">✅ &nbsp;Share on WhatsApp, Instagram & SMS</p>
+              </div>
+            </div>
+            <div style="background:#f9f9f9;padding:20px 32px;text-align:center;border-top:1px solid #f0f0f0">
+              <p style="color:#999;font-size:12px;margin:0">Questions? Reply to this email or contact <a href="mailto:pr@vivahpatra.co" style="color:#e8384f">pr@vivahpatra.co</a></p>
+            </div>
+          </div>
+        `,
+      })
+    }
+
     if (type === 'purchase') {
       await resend.emails.send({
         from: FROM,

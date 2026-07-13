@@ -8,7 +8,17 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getSession().then(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      const user = data.session?.user
+      // Send welcome email only on first confirmed signup
+      if (user?.email && !localStorage.getItem(`welcomed-${user.id}`)) {
+        localStorage.setItem(`welcomed-${user.id}`, '1')
+        fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'welcome', to: user.email }),
+        }).catch(() => {})
+      }
       router.replace('/templates')
     })
   }, [router])
