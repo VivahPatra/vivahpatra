@@ -17,7 +17,7 @@ export default function ConfirmPage() {
     const supabase = createClient()
     if (!supabase) { setStatus('error'); return }
 
-    supabase.auth.verifyOtp({ token_hash, type }).then(({ error }) => {
+    supabase.auth.verifyOtp({ token_hash, type }).then(({ error }: { error: { message: string } | null }) => {
       if (error) { setStatus('error'); return }
       // Success — redirect to callback which sends welcome email
       router.replace('/auth/callback')
