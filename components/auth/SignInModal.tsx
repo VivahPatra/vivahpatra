@@ -97,11 +97,13 @@ export default function SignInModal({ open, onClose }: Props) {
       })
 
       if (signUpError) {
-        const msg = typeof signUpError.message === 'string' ? signUpError.message : ''
+        const raw = typeof signUpError.message === 'string' ? signUpError.message.trim() : ''
+        const isJunk = !raw || raw === '{}' || raw === '[]' || raw === 'null'
+        const msg = isJunk ? 'Signup failed. Please try again.' : raw
         setError(
           msg.toLowerCase().includes('already') || msg.toLowerCase().includes('registered')
             ? 'This email is already registered. Please sign in.'
-            : msg || 'Signup failed. Please try again.'
+            : msg
         )
         setLoading(false); return
       }
