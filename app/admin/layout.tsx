@@ -25,7 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (loading) return
     if (!user) { router.replace('/'); return }
-    if (user.email !== ADMIN_EMAIL) { router.replace('/'); return }
+    if (user.email?.toLowerCase().trim() !== ADMIN_EMAIL.toLowerCase()) { router.replace('/'); return }
     setAuthorized(true)
   }, [user, loading, router])
 

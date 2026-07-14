@@ -35,7 +35,7 @@ export default function AdminInvites() {
 
     const [invitesRes, profilesRes] = await Promise.all([
       supabase.from('published_invites').select('*').order('created_at', { ascending: false }),
-      supabase.from('user_profiles').select('id, email'),
+      supabase.from('profiles').select('id, email'),
     ])
 
     const invites = (invitesRes.data || []) as Invite[]

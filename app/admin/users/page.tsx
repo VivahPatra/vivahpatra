@@ -31,7 +31,7 @@ export default function AdminUsers() {
     if (!supabase) return
 
     const [authProfilesRes, customProfilesRes, purchasesRes] = await Promise.all([
-      supabase.from('user_profiles').select('*').order('created_at', { ascending: false }),
+      supabase.from('profiles').select('*').order('created_at', { ascending: false }),
       supabase.from('profiles').select('*'),
       supabase.from('purchases').select('user_id, amount'),
     ])

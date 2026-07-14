@@ -37,7 +37,7 @@ export default function AdminPurchases() {
 
     const [purchasesRes, profilesRes] = await Promise.all([
       supabase.from('purchases').select('*').order('created_at', { ascending: false }),
-      supabase.from('user_profiles').select('id, email'),
+      supabase.from('profiles').select('id, email'),
     ])
 
     const purchases = (purchasesRes.data || []) as Purchase[]

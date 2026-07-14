@@ -37,7 +37,7 @@ export default function AdminDashboard() {
       const [purchases, invites, profiles] = await Promise.all([
         purchasesQ.order('created_at', { ascending: false }),
         supabase.from('published_invites').select('id'),
-        supabase.from('user_profiles').select('id, email'),
+        supabase.from('profiles').select('id, email'),
       ])
 
       const purchaseList = purchases.data || []
