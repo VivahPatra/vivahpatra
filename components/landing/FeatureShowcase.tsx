@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Smartphone, Palette, Share2, Sparkles, Globe, Clock } from 'lucide-react'
 import { TEMPLATES } from '@/lib/templates'
@@ -73,8 +74,8 @@ export default function FeatureShowcase() {
                         <video src={`/templates/${template.id}.mp4`} autoPlay loop muted playsInline preload="auto"
                           className="absolute inset-0 w-full h-full object-cover object-top" />
                       ) : (
-                        <img src={`/templates/${template.id}.webp`} alt={template.name}
-                          className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
+                        <Image src={`/templates/${template.id}.webp`} alt={template.name}
+                          fill sizes="260px" className="object-cover object-top" />
                       )}
                     </div>
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 active:bg-black/20 transition-all duration-300 flex items-end justify-center pb-6 z-10">

@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { TEMPLATES } from '@/lib/templates'
 import Button from '@/components/shared/Button'
@@ -34,8 +35,8 @@ export default function FeaturedTemplates() {
               <a key={`${t.id}-${i}`} href={`/preview/${t.id}`} className="flex-shrink-0 w-[200px] block group">
                 <div className="rounded-[24px] overflow-hidden shadow-2xl relative transition-transform duration-300 group-hover:scale-[1.03]"
                   style={{ aspectRatio: '9/16', background: t.color, border: '2px solid rgba(255,255,255,0.06)' }}>
-                  <img src={`/templates/carousel/${t.id}.webp`} alt={t.name}
-                    className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" />
+                  <Image src={`/templates/carousel/${t.id}.webp`} alt={t.name}
+                    fill sizes="200px" className="object-cover object-top" />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 active:bg-black/20 transition-all duration-300 flex items-end justify-center pb-6">
                     <span className="opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity duration-300 text-white text-xs font-semibold px-4 py-1.5 rounded-full" style={{ background: t.color }}>
                       Preview
