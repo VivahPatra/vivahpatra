@@ -37,11 +37,11 @@ export default function AdminDashboard() {
       const [purchases, invites, profiles] = await Promise.all([
         purchasesQ.order('created_at', { ascending: false }),
         supabase.from('published_invites').select('id'),
-        supabase.from('profiles').select('id, email'),
+        supabase.from('profiles').select('*'),
       ])
 
       const purchaseList = purchases.data || []
-      const profileMap = new Map((profiles.data || []).map((p: { id: string; email: string }) => [p.id, p.email]))
+      const profileMap = new Map((profiles.data || []).map((p: Record<string, string>) => [p.id, p.name || p.full_name || p.email || null]))
       const totalRevenue = purchaseList.reduce((sum: number, p: { amount: number }) => sum + p.amount, 0)
 
       setStats({
@@ -51,7 +51,7 @@ export default function AdminDashboard() {
         totalInvites: invites.data?.length || 0,
         recentPurchases: purchaseList.slice(0, 10).map((p: { user_id: string; template_id: string; amount: number; created_at: string }) => ({
           ...p,
-          user_email: profileMap.get(p.user_id) || p.user_id.slice(0, 12) + '…',
+          user_email: profileMap.get(p.user_id) || p.user_id.slice(0, 8) + '…',
         })),
       })
     }

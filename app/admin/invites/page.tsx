@@ -35,17 +35,18 @@ export default function AdminInvites() {
 
     const [invitesRes, profilesRes] = await Promise.all([
       supabase.from('published_invites').select('*').order('created_at', { ascending: false }),
-      supabase.from('profiles').select('id, email'),
+      supabase.from('profiles').select('*'),
     ])
 
     const invites = (invitesRes.data || []) as Invite[]
-    const profiles = (profilesRes.data || []) as { id: string; email: string }[]
+    const profiles = (profilesRes.data || []) as Record<string, string>[]
 
     const userMap = new Map<string, UserInvites>()
     for (const inv of invites) {
       if (!userMap.has(inv.user_id)) {
         const profile = profiles.find(p => p.id === inv.user_id)
-        userMap.set(inv.user_id, { userId: inv.user_id, email: profile?.email || inv.user_id.slice(0, 12), invites: [] })
+        const label = profile ? (profile.name || profile.full_name || profile.email || inv.user_id.slice(0, 8)) : inv.user_id.slice(0, 8)
+        userMap.set(inv.user_id, { userId: inv.user_id, email: label, invites: [] })
       }
       userMap.get(inv.user_id)!.invites.push(inv)
     }

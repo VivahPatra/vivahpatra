@@ -37,17 +37,18 @@ export default function AdminPurchases() {
 
     const [purchasesRes, profilesRes] = await Promise.all([
       supabase.from('purchases').select('*').order('created_at', { ascending: false }),
-      supabase.from('profiles').select('id, email'),
+      supabase.from('profiles').select('*'),
     ])
 
     const purchases = (purchasesRes.data || []) as Purchase[]
-    const profiles = (profilesRes.data || []) as { id: string; email: string }[]
+    const profiles = (profilesRes.data || []) as Record<string, string>[]
 
     const userMap = new Map<string, UserGroup>()
     for (const p of purchases) {
       if (!userMap.has(p.user_id)) {
         const profile = profiles.find(pr => pr.id === p.user_id)
-        userMap.set(p.user_id, { userId: p.user_id, email: profile?.email || p.user_id.slice(0, 12), purchases: [], totalSpent: 0 })
+        const label = profile ? (profile.name || profile.full_name || profile.email || p.user_id.slice(0, 8)) : p.user_id.slice(0, 8)
+        userMap.set(p.user_id, { userId: p.user_id, email: label, purchases: [], totalSpent: 0 })
       }
       const group = userMap.get(p.user_id)!
       group.purchases.push(p)
