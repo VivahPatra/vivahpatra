@@ -69,6 +69,9 @@ export function usePayment() {
           },
           theme: { color: '#e8384f' },
           handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
+            if (typeof window !== 'undefined' && (window as any).fbq) {
+              (window as any).fbq('track', 'Purchase', { value: template.price, currency: 'INR', content_name: template.name, content_ids: [template.id], content_type: 'product' })
+            }
             const verifyRes = await fetch('/api/payment/verify', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
