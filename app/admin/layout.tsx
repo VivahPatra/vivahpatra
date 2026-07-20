@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/components/auth/AuthProvider'
-import { LayoutDashboard, Users, ShoppingBag, Link2, BarChart3, Settings } from 'lucide-react'
+import { LayoutDashboard, Users, ShoppingBag, Link2, BarChart3, Settings, LayoutTemplate } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
 const ADMIN_EMAIL = 'pr@vivahpatra.co'
@@ -12,6 +12,7 @@ const NAV = [
   { label: 'Users', href: '/admin/users', icon: Users },
   { label: 'Purchases', href: '/admin/purchases', icon: ShoppingBag },
   { label: 'Invites', href: '/admin/invites', icon: Link2 },
+  { label: 'Templates', href: '/admin/templates', icon: LayoutTemplate },
   { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
 ]

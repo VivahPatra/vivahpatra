@@ -91,7 +91,7 @@ export const TEMPLATES: Template[] = [
     category: 'Christian',
     description: 'Ocean gradient with animated waves, floating swans, lantern parallax, beach vibes.',
     color: '#1a8a9a',
-    price: 1499,
+    price: 1,
     originalPrice: 3749,
     port: 3006,
     url: 'https://template-christian.vercel.app',

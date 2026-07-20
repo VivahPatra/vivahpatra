@@ -28,3 +28,14 @@ create policy "Users can update own invites" on public.published_invites
 
 -- Index for fast slug lookups
 create index if not exists idx_published_invites_slug on public.published_invites(slug);
+
+-- Template price overrides (admin-editable)
+CREATE TABLE IF NOT EXISTS template_prices (
+  template_id TEXT PRIMARY KEY,
+  price INTEGER NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE template_prices ENABLE ROW LEVEL SECURITY;
+-- Public read so frontend can display correct price
+CREATE POLICY "public read template_prices" ON template_prices FOR SELECT USING (true);
+-- Only service role can write (via API route)

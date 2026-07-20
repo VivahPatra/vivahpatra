@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Razorpay from 'razorpay'
 import { getTemplate } from '@/lib/templates'
+import { createClient } from '@/lib/supabase-server'
 
 function getRazorpay() {
   const key_id = process.env.RAZORPAY_KEY_ID
@@ -23,8 +24,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Template not found' }, { status: 404 })
     }
 
+    // Check for admin price override in Supabase
+    let price = template.price
+    try {
+      const supabase = createClient()
+      const { data } = await supabase.from('template_prices').select('price').eq('template_id', templateId).single()
+      if (data?.price) price = data.price
+    } catch { /* use default price */ }
+
     const order = await razorpay.orders.create({
-      amount: template.price * 100, // paise
+      amount: price * 100, // paise
       currency: 'INR',
       receipt: `order_${templateId}_${Date.now()}`,
       notes: { templateId, templateName: template.name },
