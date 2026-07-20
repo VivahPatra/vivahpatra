@@ -2,9 +2,10 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { AnimatePresence } from 'framer-motion'
-import { Category, filterTemplates, TEMPLATES, CATEGORIES } from '@/lib/templates'
+import { Category, filterTemplates, TEMPLATES, CATEGORIES, Template } from '@/lib/templates'
 import CategoryFilter from './CategoryFilter'
 import TemplateCard from './TemplateCard'
+import { createClient } from '@/lib/supabase'
 
 export default function TemplateGrid() {
   const searchParams = useSearchParams()
@@ -12,6 +13,7 @@ export default function TemplateGrid() {
   const [category, setCategory] = useState<Category>(
     paramCat && (CATEGORIES as readonly string[]).includes(paramCat) ? paramCat : 'All'
   )
+  const [priceOverrides, setPriceOverrides] = useState<Record<string, number>>({})
 
   useEffect(() => {
     if (paramCat && (CATEGORIES as readonly string[]).includes(paramCat)) {
@@ -19,7 +21,20 @@ export default function TemplateGrid() {
     }
   }, [paramCat])
 
-  const filtered = filterTemplates(category)
+  useEffect(() => {
+    const supabase = createClient()
+    if (!supabase) return
+    supabase.from('template_prices').select('template_id, price').then(({ data }: { data: { template_id: string; price: number }[] | null }) => {
+      if (data?.length) {
+        setPriceOverrides(Object.fromEntries(data.map(r => [r.template_id, r.price])))
+      }
+    })
+  }, [])
+
+  const applyPrices = (templates: Template[]) =>
+    templates.map(t => priceOverrides[t.id] !== undefined ? { ...t, price: priceOverrides[t.id] } : t)
+
+  const filtered = applyPrices(filterTemplates(category))
 
   return (
     <div>
