@@ -20,9 +20,9 @@ export default function AdminTemplates() {
   useEffect(() => {
     const supabase = createClient()
     if (!supabase) return
-    supabase.from('template_prices').select('template_id, price').then(({ data }) => {
+    supabase.from('template_prices').select('template_id, price').then(({ data }: { data: PriceRow[] | null }) => {
       if (data?.length) {
-        const overrides = Object.fromEntries((data as PriceRow[]).map(r => [r.template_id, r.price]))
+        const overrides = Object.fromEntries(data.map(r => [r.template_id, r.price]))
         setPrices(prev => ({ ...prev, ...overrides }))
       }
     })
