@@ -84,6 +84,9 @@ export default function TemplateCard({ template: t }: { template: Template }) {
     const result = await pay(t, user.email || '', user.phone || '')
     if (result.success) {
       const instId = Date.now().toString(36) + Math.random().toString(36).slice(2, 5)
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'Purchase', { value: t.price, currency: 'INR', content_name: t.name, content_ids: [t.id], content_type: 'product' })
+      }
       // Record purchase in Supabase
       await recordPurchase(user.id, t.id, instId, result.orderId || '', result.paymentId || '', t.price)
       // Also save locally for offline access
