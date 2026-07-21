@@ -152,7 +152,7 @@ export default function TemplateCard({ template: t }: { template: Template }) {
           <div className="flex items-center justify-center gap-2 mb-2">
             <span className="font-sans text-xs line-through" style={{ color: 'var(--color-muted)' }}>₹{t.originalPrice}</span>
             <span className="font-display text-lg" style={{ color: 'var(--color-accent)' }}>₹{t.price}</span>
-            <span className="font-sans text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#16a34a', color: '#fff' }}>60% OFF</span>
+            <span className="font-sans text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#16a34a', color: '#fff' }}>{Math.round((1 - t.price / t.originalPrice) * 100)}% OFF</span>
           </div>
           {/* Mobile buttons */}
           <div className="flex items-center justify-center gap-2 xl:hidden flex-wrap">
