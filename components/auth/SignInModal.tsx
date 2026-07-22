@@ -97,9 +97,8 @@ export default function SignInModal({ open, onClose }: Props) {
       })
 
       if (signUpError) {
-        const raw = typeof signUpError.message === 'string' ? signUpError.message.trim() : ''
-        const isJunk = !raw || raw === '{}' || raw === '[]' || raw === 'null'
-        const msg = isJunk ? 'Signup failed. Please try again.' : raw
+        console.error('Supabase signup error:', signUpError)
+        const msg = signUpError.message || signUpError.status?.toString() || 'Signup failed. Please try again.'
         setError(
           msg.toLowerCase().includes('already') || msg.toLowerCase().includes('registered')
             ? 'This email is already registered. Please sign in.'

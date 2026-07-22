@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
+import { sendPurchaseEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = await req.json()
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, userEmail, templateName, editorUrl } = await req.json()
 
     const body = `${razorpay_order_id}|${razorpay_payment_id}`
     const expectedSignature = crypto
@@ -15,7 +16,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
     }
 
-    // Payment verified — in future, save to Supabase orders table
+    // Send purchase confirmation email
+    if (userEmail && templateName) {
+      try {
+        await sendPurchaseEmail(userEmail, templateName, editorUrl || 'https://vivahpatra.co')
+      } catch (emailErr) {
+        console.error('Purchase email failed:', emailErr)
+        // Don't fail the payment verification if email fails
+      }
+    }
+
     return NextResponse.json({
       success: true,
       paymentId: razorpay_payment_id,

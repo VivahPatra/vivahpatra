@@ -1,121 +1,127 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM = 'Vivah Patra <pr@vivahpatra.co>'
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+})
+
+const FROM = `Vivah Patra <${process.env.GMAIL_USER}>`
 
 export async function POST(req: NextRequest) {
-  if (!process.env.RESEND_API_KEY) return NextResponse.json({ ok: false })
-
   try {
-    const body = await req.json()
-    const { type, to, templateName, inviteUrl, amount } = body
+    const { type, to, templateName, editorUrl } = await req.json()
 
-    if (!to || !type) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+    if (!to) return NextResponse.json({ error: 'Missing email' }, { status: 400 })
+
+    let subject = ''
+    let html = ''
 
     if (type === 'welcome') {
-      await resend.emails.send({
-        from: FROM,
-        to,
-        subject: `Welcome to Vivah Patra 🎉 — Create Your Wedding Invitation`,
-        html: `
-          <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #f0f0f0">
-            <div style="background:#1a1a1a;padding:28px 32px;text-align:center">
-              <p style="color:#e8384f;font-size:22px;font-weight:700;margin:0;letter-spacing:1px">VIVAH PATRA</p>
-              <p style="color:#aaa;font-size:12px;margin:4px 0 0">Animated Digital Wedding Invitations</p>
-            </div>
-            <div style="padding:32px">
-              <h2 style="color:#1a1a1a;margin:0 0 8px">Welcome! You're all set 🙏</h2>
-              <p style="color:#555;margin:0 0 20px">Thank you for joining Vivah Patra. Create stunning animated wedding invitations for every Indian wedding — Hindu, Sikh, Christian & Modern.</p>
-              <div style="background:#fff3f3;border-radius:8px;padding:20px;margin-bottom:24px;border:1px solid #ffd0d5">
-                <p style="margin:0 0 12px;color:#1a1a1a;font-weight:600">🎊 Wedding Season Sale — 60% OFF</p>
-                <p style="margin:0 0 4px;color:#555;font-size:14px">All templates starting at just <strong style="color:#e8384f">₹1,499</strong> <s style="color:#bbb">₹3,749</s></p>
-                <p style="margin:0;color:#555;font-size:14px">One-time payment. Share via WhatsApp instantly.</p>
-              </div>
-              <a href="https://vivahpatra.co/templates" style="display:inline-block;background:#e8384f;color:#fff;text-decoration:none;padding:12px 28px;border-radius:100px;font-weight:600;font-size:14px">
-                Browse Templates →
-              </a>
-              <div style="margin-top:28px;padding-top:20px;border-top:1px solid #f0f0f0">
-                <p style="color:#999;font-size:13px;margin:0 0 8px">What you can do:</p>
-                <p style="color:#555;font-size:13px;margin:0 0 6px">✅ &nbsp;Choose from 9+ templates for every culture</p>
-                <p style="color:#555;font-size:13px;margin:0 0 6px">✅ &nbsp;Customize names, dates, venues & photos</p>
-                <p style="color:#555;font-size:13px;margin:0 0 6px">✅ &nbsp;Publish a shareable link instantly</p>
-                <p style="color:#555;font-size:13px;margin:0">✅ &nbsp;Share on WhatsApp, Instagram & SMS</p>
-              </div>
-            </div>
-            <div style="background:#f9f9f9;padding:20px 32px;text-align:center;border-top:1px solid #f0f0f0">
-              <p style="color:#999;font-size:12px;margin:0">Questions? Reply to this email or contact <a href="mailto:pr@vivahpatra.co" style="color:#e8384f">pr@vivahpatra.co</a></p>
-            </div>
-          </div>
-        `,
-      })
+      subject = 'Welcome to Vivah Patra! 🎊'
+      html = welcomeHtml()
+    } else if (type === 'purchase') {
+      subject = `Your ${templateName} invitation is ready! 🎉`
+      html = purchaseHtml(templateName, editorUrl)
+    } else {
+      return NextResponse.json({ error: 'Unknown email type' }, { status: 400 })
     }
 
-    if (type === 'purchase') {
-      await resend.emails.send({
-        from: FROM,
-        to,
-        subject: `🎉 Purchase Confirmed — ${templateName} | Vivah Patra`,
-        html: `
-          <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #f0f0f0">
-            <div style="background:#1a1a1a;padding:28px 32px;text-align:center">
-              <p style="color:#e8384f;font-size:22px;font-weight:700;margin:0;letter-spacing:1px">VIVAH PATRA</p>
-              <p style="color:#aaa;font-size:12px;margin:4px 0 0">Animated Digital Wedding Invitations</p>
-            </div>
-            <div style="padding:32px">
-              <h2 style="color:#1a1a1a;margin:0 0 8px">Payment Confirmed ✅</h2>
-              <p style="color:#555;margin:0 0 24px">Thank you! Your purchase of <strong>${templateName}</strong> is confirmed.</p>
-              <div style="background:#f9f9f9;border-radius:8px;padding:16px 20px;margin-bottom:24px">
-                <p style="margin:0 0 6px;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:1px">Amount Paid</p>
-                <p style="margin:0;color:#e8384f;font-size:24px;font-weight:700">₹${amount}</p>
-              </div>
-              <p style="color:#555;margin:0 0 20px">You can now customize your invitation in the editor. Once ready, publish your invite link and share it on WhatsApp with your guests.</p>
-              <a href="https://vivahpatra.co/templates" style="display:inline-block;background:#e8384f;color:#fff;text-decoration:none;padding:12px 28px;border-radius:100px;font-weight:600;font-size:14px">
-                Go to My Templates →
-              </a>
-            </div>
-            <div style="background:#f9f9f9;padding:20px 32px;text-align:center;border-top:1px solid #f0f0f0">
-              <p style="color:#999;font-size:12px;margin:0">Need help? Reply to this email or contact <a href="mailto:pr@vivahpatra.co" style="color:#e8384f">pr@vivahpatra.co</a></p>
-            </div>
-          </div>
-        `,
-      })
-    }
-
-    if (type === 'publish') {
-      await resend.emails.send({
-        from: FROM,
-        to,
-        subject: `💌 Your Wedding Invitation is Live! | Vivah Patra`,
-        html: `
-          <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #f0f0f0">
-            <div style="background:#1a1a1a;padding:28px 32px;text-align:center">
-              <p style="color:#e8384f;font-size:22px;font-weight:700;margin:0;letter-spacing:1px">VIVAH PATRA</p>
-              <p style="color:#aaa;font-size:12px;margin:4px 0 0">Animated Digital Wedding Invitations</p>
-            </div>
-            <div style="padding:32px">
-              <h2 style="color:#1a1a1a;margin:0 0 8px">Your Invitation is Live! 🎊</h2>
-              <p style="color:#555;margin:0 0 24px">Your <strong>${templateName}</strong> wedding invitation has been published and is ready to share.</p>
-              <div style="background:#f9f9f9;border-radius:8px;padding:16px 20px;margin-bottom:24px">
-                <p style="margin:0 0 6px;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:1px">Your Invite Link</p>
-                <a href="${inviteUrl}" style="color:#e8384f;font-size:14px;font-weight:600;word-break:break-all">${inviteUrl}</a>
-              </div>
-              <p style="color:#555;margin:0 0 20px">Share this link on WhatsApp, Instagram, or via SMS with all your guests. The link works on all devices!</p>
-              <a href="${inviteUrl}" style="display:inline-block;background:#e8384f;color:#fff;text-decoration:none;padding:12px 28px;border-radius:100px;font-weight:600;font-size:14px">
-                View Invitation →
-              </a>
-            </div>
-            <div style="background:#f9f9f9;padding:20px 32px;text-align:center;border-top:1px solid #f0f0f0">
-              <p style="color:#999;font-size:12px;margin:0">Need help? Reply to this email or contact <a href="mailto:pr@vivahpatra.co" style="color:#e8384f">pr@vivahpatra.co</a></p>
-            </div>
-          </div>
-        `,
-      })
-    }
-
-    return NextResponse.json({ ok: true })
-  } catch (err) {
-    console.error('Email error:', err)
-    return NextResponse.json({ ok: false })
+    await transporter.sendMail({ from: FROM, to, subject, html })
+    return NextResponse.json({ success: true })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Email send failed'
+    console.error('Email error:', message)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
+}
+
+function welcomeHtml() {
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:'Segoe UI',Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="background:#111;border-radius:16px;overflow:hidden;border:1px solid #222">
+        <tr>
+          <td style="background:linear-gradient(135deg,#e8384f,#c8922a);padding:40px;text-align:center">
+            <p style="margin:0 0 8px;color:rgba(255,255,255,0.7);font-size:12px;letter-spacing:3px;text-transform:uppercase">Vivah Patra</p>
+            <h1 style="margin:0;color:#fff;font-size:28px;font-weight:700">Welcome! 🎊</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px">
+            <p style="margin:0 0 16px;color:#ccc;font-size:16px;line-height:1.6">
+              Thank you for joining <strong style="color:#fff">Vivah Patra</strong> — India's most beautiful digital wedding invitation platform.
+            </p>
+            <p style="margin:0 0 32px;color:#888;font-size:14px;line-height:1.6">
+              Browse our collection of stunning templates and create your perfect wedding invitation in minutes.
+            </p>
+            <table cellpadding="0" cellspacing="0" style="margin:0 auto 32px">
+              <tr>
+                <td style="background:#e8384f;border-radius:50px">
+                  <a href="https://vivahpatra.co/templates" style="display:inline-block;padding:14px 36px;color:#fff;text-decoration:none;font-size:15px;font-weight:600">
+                    Explore Templates →
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <hr style="border:none;border-top:1px solid #222;margin:0 0 24px">
+            <p style="margin:0;color:#555;font-size:12px;text-align:center">
+              <a href="https://vivahpatra.co" style="color:#e8384f;text-decoration:none">vivahpatra.co</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`
+}
+
+function purchaseHtml(templateName: string, editorUrl: string) {
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:'Segoe UI',Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="background:#111;border-radius:16px;overflow:hidden;border:1px solid #222">
+        <tr>
+          <td style="background:linear-gradient(135deg,#e8384f,#c8922a);padding:40px;text-align:center">
+            <p style="margin:0 0 8px;color:rgba(255,255,255,0.7);font-size:12px;letter-spacing:3px;text-transform:uppercase">Vivah Patra</p>
+            <h1 style="margin:0;color:#fff;font-size:28px;font-weight:700">Payment Successful! 🎉</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px">
+            <p style="margin:0 0 16px;color:#ccc;font-size:16px;line-height:1.6">
+              Your <strong style="color:#fff">${templateName}</strong> wedding invitation template is ready to customise.
+            </p>
+            <p style="margin:0 0 32px;color:#888;font-size:14px;line-height:1.6">
+              Click below to open the editor and personalise every detail — names, dates, venue, photos and more.
+            </p>
+            <table cellpadding="0" cellspacing="0" style="margin:0 auto 32px">
+              <tr>
+                <td style="background:#e8384f;border-radius:50px">
+                  <a href="${editorUrl}" style="display:inline-block;padding:14px 36px;color:#fff;text-decoration:none;font-size:15px;font-weight:600">
+                    Open Editor →
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <hr style="border:none;border-top:1px solid #222;margin:0 0 24px">
+            <p style="margin:0;color:#555;font-size:12px;text-align:center">
+              Questions? Reply to this email — we're happy to help.<br>
+              <a href="https://vivahpatra.co" style="color:#e8384f;text-decoration:none">vivahpatra.co</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`
 }

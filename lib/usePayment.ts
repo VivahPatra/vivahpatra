@@ -75,7 +75,12 @@ export function usePayment() {
             const verifyRes = await fetch('/api/payment/verify', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(response),
+              body: JSON.stringify({
+                ...response,
+                userEmail,
+                templateName: template.name,
+                editorUrl: `${window.location.origin}/editor/${template.id}`,
+              }),
             })
 
             if (verifyRes.ok) {
