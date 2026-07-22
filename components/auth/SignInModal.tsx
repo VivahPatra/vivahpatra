@@ -114,9 +114,9 @@ export default function SignInModal({ open, onClose }: Props) {
           created_at: new Date().toISOString(),
         })
         setLoading(false)
-        setSuccess(`Account created! Check your email (${email}) to confirm your account.`)
+        setSuccess('Account created successfully! Redirecting to login...')
         setLoginEmail(email)
-        setTimeout(() => { setSuccess(''); setStep('login') }, 3500)
+        setTimeout(() => { setSuccess(''); setStep('login') }, 1500)
         return
       }
 
