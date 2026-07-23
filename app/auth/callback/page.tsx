@@ -8,16 +8,27 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getSession().then(({ data }: { data: { session: { user: { id: string; email?: string } } | null } }) => {
+    supabase.auth.getSession().then(async ({ data }: { data: { session: { user: { id: string; email?: string; user_metadata?: Record<string, string> } } | null } }) => {
       const user = data.session?.user
-      // Send welcome email only on first confirmed signup
-      if (user?.email && !localStorage.getItem(`welcomed-${user.id}`)) {
-        localStorage.setItem(`welcomed-${user.id}`, '1')
-        fetch('/api/send-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'welcome', to: user.email }),
-        }).catch(() => {})
+      if (user) {
+        // Upsert profile for Google OAuth users
+        const name = user.user_metadata?.full_name || user.user_metadata?.name || ''
+        await supabase.from('profiles').upsert({
+          id: user.id,
+          name,
+          email: user.email,
+          created_at: new Date().toISOString(),
+        }, { onConflict: 'id', ignoreDuplicates: false })
+
+        // Send welcome email only on first login
+        if (user.email && !localStorage.getItem(`welcomed-${user.id}`)) {
+          localStorage.setItem(`welcomed-${user.id}`, '1')
+          fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'welcome', to: user.email }),
+          }).catch(() => {})
+        }
       }
       router.replace('/templates')
     })
